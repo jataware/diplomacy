@@ -343,7 +343,7 @@ class Server:
             self.backup_now(force=True)
         # Add default accounts.
         for (username, password) in (
-                ('admin', 'password'),
+                ('admin', os.environ.get('DIPLOMACY_ADMIN_PASSWORD', 'password')),
                 (constants.PRIVATE_BOT_USERNAME, constants.PRIVATE_BOT_PASSWORD)
         ):
             if not self.users.has_username(username):
