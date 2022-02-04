@@ -40,6 +40,9 @@ DEFAULT_PORT = 8432
 # Default port for secure SSL server (not yet used).
 DEFAULT_SSL_PORT = 8433
 
+# Default port range for DAIDE servers
+DEFAULT_DAIDE_PORTS = "8434:8600"
+
 # Special username and password to use to connect as a bot recognized by diplomacy module.
 # This bot is called "private bot".
 PRIVATE_BOT_USERNAME = '#bot@2e723r43tr70fh2239-qf3947-3449-21128-9dh1321d12dm13d83820d28-9dm,xw201=ed283994f4n832483'

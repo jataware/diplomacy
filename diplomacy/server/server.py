@@ -198,7 +198,7 @@ class Server:
     __slots__ = ['data_path', 'games_path', 'available_maps', 'maps_mtime', 'notifications',
                  'games_scheduler', 'allow_registrations', 'max_games', 'remove_canceled_games', 'users', 'games',
                  'daide_servers', 'backup_server', 'backup_games', 'backup_delay_seconds', 'ping_seconds',
-                 'interruption_handler', 'backend', 'games_with_dummy_powers', 'dispatched_dummy_powers']
+                 'interruption_handler', 'backend', 'games_with_dummy_powers', 'dispatched_dummy_powers','server_dir', 'daide_min_port', 'daide_max_port']
 
     # Servers cache.
     __cache__ = {}  # {absolute path of working folder => Server}
@@ -212,7 +212,7 @@ class Server:
             server = object.__new__(cls)
         return server
 
-    def __init__(self, server_dir=None, **kwargs):
+    def __init__(self, server_dir=None, daide_min_port=8000, daide_max_port=8999, **kwargs):
         """ Initialize the server.
             Server data is stored in folder ``<working directory>/data``.
 
@@ -231,6 +231,10 @@ class Server:
             raise exceptions.ServerDirException(server_dir)
         self.data_path = os.path.join(server_dir, 'data')
         self.games_path = os.path.join(self.data_path, 'games')
+
+        # DAIDE port range
+        self.daide_min_port = daide_min_port
+        self.daide_max_port = daide_max_port
 
         # Data in memory (not stored on disk).
         self.notifications = Queue()
@@ -899,7 +903,7 @@ class Server:
                 return None
 
         while port is None or is_port_opened(port):
-            port = randint(8000, 8999)
+            port = randint(self.daide_min_port, self.daide_max_port)
 
         # Create DAIDE TCP server
         daide_server = DaideServer(self, game_id)
