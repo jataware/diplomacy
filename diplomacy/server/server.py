@@ -227,6 +227,8 @@ class Server:
         ensure_path(server_dir)
         if server_dir in self.__class__.__cache__:
             return
+        self.server_dir = server_dir
+
         if not os.path.exists(server_dir) or not os.path.isdir(server_dir):
             raise exceptions.ServerDirException(server_dir)
         self.data_path = os.path.join(server_dir, 'data')
@@ -511,6 +513,8 @@ class Server:
         self.backend.port = port
         self.set_tasks(io_loop)
         LOGGER.info('Running on port %d', self.backend.port)
+        LOGGER.info('Serving DAIDE on ports %d:%d', self.daide_min_port, self.daide_max_port)
+        LOGGER.info('Writing server data to %s', self.server_dir)
         if not io_loop.asyncio_loop.is_running():
             io_loop.start()
 

@@ -29,15 +29,21 @@
 
 """
 import argparse
+import os
 from diplomacy import Server
 from diplomacy.utils import constants
 
 if __name__ == '__main__':
+    
+    # Read in defaults from ENV first, then constants
+    default_port = int(os.environ.get("SERVER_PORT", constants.DEFAULT_PORT))
+    default_daide_ports = os.environ.get("DAIDE_PORT_RANGE", constants.DEFAULT_DAIDE_PORT_RANGE)
+
     PARSER = argparse.ArgumentParser(description='Run server.')
-    PARSER.add_argument('--port', '-p', type=int, default=constants.DEFAULT_PORT,
-                        help='run on the given port (default: %s)' % constants.DEFAULT_PORT)
-    PARSER.add_argument('--daide-ports', '-d', type=str, default=constants.DEFAULT_DAIDE_PORTS,
-                        help='run DAIDE servers on the given port range (default: %s)' % constants.DEFAULT_DAIDE_PORTS)
+    PARSER.add_argument('--port', '-p', type=int, default=default_port,
+                        help='run on the given port (default: %s)' % default_port)
+    PARSER.add_argument('--daide-ports', '-d', type=str, default=default_daide_ports,
+                        help='run DAIDE servers on the given port range (default: %s)' % default_daide_ports)
     PARSER.add_argument('--server_dir', '-s', default=None,
                         help='Save game data and game save files in directory (Default CWD)')
     ARGS = PARSER.parse_args()
