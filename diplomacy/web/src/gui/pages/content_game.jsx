@@ -489,13 +489,13 @@ export class ContentGame extends React.Component {
         return this.setState({tabPastMessages: tab});
     }
 
-    sendMessage(networkGame, recipient, body) {
+    sendMessage(networkGame, recipient, body, proposal) {
         const engine = networkGame.local;
         const message = new Message({
             phase: engine.phase,
             sender: engine.role,
             recipient: recipient,
-            message: body
+            message: body,
         });
         const page = this.getPage();
         networkGame.sendGameMessage({message: message})
@@ -503,7 +503,7 @@ export class ContentGame extends React.Component {
                 page.load(
                     `game: ${engine.game_id}`,
                     <ContentGame data={engine}/>,
-                    {success: `Message sent: ${JSON.stringify(message)}`}
+                    {success: `Message sent: ${JSON.stringify(message)} Proposal: ${proposal}`}
                 );
             })
             .catch(error => page.error(error.toString()));
@@ -963,7 +963,7 @@ export class ContentGame extends React.Component {
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
                     <MessageForm sender={role} recipient={currentTabId} onSubmit={form =>
-                        this.sendMessage(engine.client, currentTabId, form.message)}/>)}
+                        this.sendMessage(engine.client, currentTabId, form.message, form.selectedOption)}/>)}
             </div>
         );
     }

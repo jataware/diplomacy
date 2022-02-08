@@ -21,8 +21,10 @@ import {Button} from "./button";
 export class Forms {
     static createOnChangeCallback(component, callback) {
         return (event) => {
+            event.persist();
             const value = UTILS.html.isCheckBox(event.target) ? event.target.checked : event.target.value;
             const fieldName = UTILS.html.isRadioButton(event.target) ? event.target.name : event.target.id;
+            //console.log("FieldName: ", fieldName, "Value: ", value, "Event: ", event);
             const update = {[fieldName]: value};
             const state = Object.assign({}, component.state, update);
             if (callback)
@@ -84,6 +86,7 @@ export class Forms {
                              name={name} value={value} checked={currentValue === value}
                              id={id} onChange={onChange}/>;
         const label = <label className={'form-check-label'} key={`label-${id}`} htmlFor={id}>{title || value}</label>;
+        console.log("Name: ", name, "Value: ", value, "Title: ", title, "currentValue: ", currentValue, "onChange: ", onChange)
         return [input, label];
     }
 
