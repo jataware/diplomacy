@@ -91,12 +91,15 @@ export class MessageForm extends React.Component {
 
     onFinalSubmit(event, callback, resetState) {
         return (event) => {
-            const 
-            this.state.message = ""
+            this.setState(prevState => ({
+                message: `{"option": "${this.state.selectedOption}",
+                         "order": "${this.state.selectedOrder}", 
+                         "selectedCountries": "${this.state.selectedCountries}"}`
+            }));
             if (callback)
                     callback(this.state);
             if (resetState)
-                component.setState(this.initState());
+                this.setState(this.initState());
             event.preventDefault();
         };
     }
@@ -134,9 +137,9 @@ export class MessageForm extends React.Component {
                             {MessageForm.orders.map((orderType, index) => {
                                 return(
                                     <li key={index}>
-                                        <input className={'form-input__input'} key={'${orderType}-button'} type={'radio'}
-                                         name={'order_${orderType}'} value={'${orderType}'} checked={this.state.selectedOrder === '${orderType}'}
-                                         id={'${orderType}-button'} onChange={this.onOrderChange}/>
+                                        <input className={'form-input__input'} key={`${orderType}-button`} type={'radio'}
+                                         name={`order_${orderType}`} value={`${orderType}`} checked={this.state.selectedOrder === `${orderType}`}
+                                         id={`${orderType}-button`} onChange={this.onOrderChange}/>
                                         <label className="form-input__label" htmlFor="${orderType}-button">{orderType}</label>
                                     </li>
                                 );
@@ -149,9 +152,9 @@ export class MessageForm extends React.Component {
                             {MessageForm.countries.map(({ id, name }, index) => {
                                 return(
                                     <li key={index}>
-                                        <input className={'form-input__input'} key={'${id}-check'} type={'checkbox'}
-                                         name={'country_${id}'} value={'${id}'} checked={this.state.selectedCountries === '${id}'}
-                                         id={'${id}-check'} onChange={this.checkboxOnChange}/>
+                                        <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
+                                         name={`country_${id}`} value={`${id}`} checked={this.state.selectedCountries === `${id}`}
+                                         id={`${id}-check`} onChange={this.checkboxOnChange}/>
                                         <label className="form-input__label" htmlFor="${id}-check">{name}</label>
                                     </li>
                                 );
@@ -163,7 +166,7 @@ export class MessageForm extends React.Component {
                     <textarea id={'message'} className={'form-control'}
                               value={Forms.getValue(this.state, 'message')} onChange={onChange}/>*/}
                 </div>
-                {Forms.createSubmit(`send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`, true, onFinalSubmit)}
+                {Forms.createSubmit(`send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`, true, this.onFinalSubmit)}
             </form>
         );
     }
