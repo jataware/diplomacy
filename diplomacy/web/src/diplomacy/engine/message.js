@@ -25,6 +25,9 @@ export class Message {
         this.sender = message.sender;
         this.recipient = message.recipient;
         this.message = message.message;
+        this.negotiation = message.negotiation;
+        this.daide = message.daide;
+        this.gloss = message.gloss;
     }
 
     isGlobal() {
