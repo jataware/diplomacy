@@ -27,6 +27,7 @@ export class MessageForm extends React.Component {
         this.onOrderChange = this.onOrderChange.bind(this);
         this.checkboxOnChange = this.checkboxOnChange.bind(this);
         this.onFinalSubmit = this.onFinalSubmit.bind(this);
+        this.onGlossSubmit = this.onGlossSubmit.bind(this);
     }
 
     static orders=["move", "support_hold", "support_move", "convoy", "build"]
@@ -81,7 +82,7 @@ export class MessageForm extends React.Component {
         this.setState(prevState => ({
             selectedOption: prevState.selectedOption,
             selectedOrder: prevState.selectedOrder,
-            selectedCountries: prevState.selectedCountries.value.set(id, isChecked),
+            selectedCountries: prevState.selectedCountries.set(id, isChecked),
         }));
     }
 
@@ -89,17 +90,20 @@ export class MessageForm extends React.Component {
 
     }
 
-    onFinalSubmit(event, callback, resetState) {
+    onFinalSubmit(callback, resetState) {
+        console.log(this.state)
         return (event) => {
             this.setState(prevState => ({
-                message: `{"option": "${this.state.selectedOption}",
-                         "order": "${this.state.selectedOrder}", 
-                         "selectedCountries": "${this.state.selectedCountries}"}`
+                message: `{"option": "${prevState.selectedOption}",
+                         "order": "${prevState.selectedOrder}", 
+                         "selectedCountries": "${prevState.selectedCountries}"}`
             }));
+            console.log(`Message: ${this.state.message}`)
+            console.log(`Final Submit Event:`, event)
             if (callback)
-                    callback(this.state);
+                    callback(Object.assign({}, this.state));
             if (resetState)
-                this.setState(this.initState());
+                //this.setState(resetState);
             event.preventDefault();
         };
     }
@@ -166,7 +170,10 @@ export class MessageForm extends React.Component {
                     <textarea id={'message'} className={'form-control'}
                               value={Forms.getValue(this.state, 'message')} onChange={onChange}/>*/}
                 </div>
-                {Forms.createSubmit(`send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`, true, this.onFinalSubmit)}
+                {Forms.createSubmit(`send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`, 
+                                    true, 
+                                    this.onFinalSubmit(this.props.onFinalSubmit, this.initState()))}
+
             </form>
         );
     }
@@ -176,5 +183,6 @@ MessageForm.propTypes = {
     sender: PropTypes.string,
     recipient: PropTypes.string,
     onChange: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
+    onFinalSubmit: PropTypes.func
 };
