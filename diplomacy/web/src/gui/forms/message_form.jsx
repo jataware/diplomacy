@@ -18,6 +18,7 @@ import React from 'react';
 import {Forms} from "../components/forms";
 import {UTILS} from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
+import {Button} from "../components/button";
 
 export class MessageForm extends React.Component {
     constructor(props) {
@@ -48,10 +49,12 @@ export class MessageForm extends React.Component {
     ];
 
     initState() {
-        return {message: '',
-                selectedOption: 'order',
+        return {selectedOption: 'order',
                 selectedOrder: 'move',
-                selectedCountries: []};
+                selectedCountries: {eng: false,
+                    rus: false,
+                    fra: true},
+                };
     }
 
     onValueChange(event) {
@@ -77,12 +80,19 @@ export class MessageForm extends React.Component {
     checkboxOnChange(event) {
         event.persist();
         console.log('Checkbox event: ', event);
-        const id = event.target.id;
-        const isChecked = event.target.checked;
+        const {id, checked} = event.target;
+        console.log('ID: ', id, 'Checked: ', checked)
+        const updatedCountry = this.state.selectedCountries[id] = checked;
         this.setState(prevState => ({
+            //checked: !prevState.checked
             selectedOption: prevState.selectedOption,
             selectedOrder: prevState.selectedOrder,
-            selectedCountries: prevState.selectedCountries.set(id, isChecked),
+            selectedCountries: { ...prevState.selectedCountries, updatedCountry },
+            // selectedCountries: (event) => {
+            //     var {id, checked} = event.target;
+            //     var newCountries = event.selectedCountries;
+            //     return newCountries[id] = checked;
+            // }
         }));
     }
 
@@ -90,27 +100,27 @@ export class MessageForm extends React.Component {
 
     }
 
-    onFinalSubmit(callback, resetState) {
-        console.log(this.state)
-        return (event) => {
-            this.setState(prevState => ({
-                message: `{"option": "${prevState.selectedOption}",
-                         "order": "${prevState.selectedOrder}", 
-                         "selectedCountries": "${prevState.selectedCountries}"}`
-            }));
-            console.log(`Message: ${this.state.message}`)
-            console.log(`Final Submit Event:`, event)
-            if (callback)
-                    callback(Object.assign({}, this.state));
-            if (resetState)
-                //this.setState(resetState);
-            event.preventDefault();
-        };
+    onFinalSubmit(event) {
+        event.preventDefault();
+        console.log("initial state: ", this.state);
+        const message = {
+            option: this.state.selectedOption,
+            order: this.state.selectedOrder,
+            selectedCountries: this.state.selectedCountries
+        }
+        console.log('Inside the setState: ', this.state);
+        if (this.props.onSubmit){
+            this.props.onSubmit({message: JSON.stringify(message)});
+        }
+        this.setState(this.initState());
+        setTimeout( () => {console.log(`State:`, this.state)});
+        console.log(`Final Submit Event:`, event);
+        //this.setState(this.initState());
     }
 
     render() {
-        const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
-        const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit, this.initState());
+        //const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
+        //const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit, this.initState());
         return (
             <form>
                 <div className={'form-group row'}>
@@ -157,8 +167,8 @@ export class MessageForm extends React.Component {
                                 return(
                                     <li key={index}>
                                         <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
-                                         name={`country_${id}`} value={`${id}`} checked={this.state.selectedCountries === `${id}`}
-                                         id={`${id}-check`} onChange={this.checkboxOnChange}/>
+                                         name={`country_${id}`} value={`${id}`} checked={this.state.selectedCountries[id]}
+                                         id={`${id}`} onChange={this.checkboxOnChange}/>
                                         <label className="form-input__label" htmlFor="${id}-check">{name}</label>
                                     </li>
                                 );
@@ -170,9 +180,10 @@ export class MessageForm extends React.Component {
                     <textarea id={'message'} className={'form-control'}
                               value={Forms.getValue(this.state, 'message')} onChange={onChange}/>*/}
                 </div>
-                {Forms.createSubmit(`send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`, 
+                {/*Forms.createSubmit(`send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`, 
                                     true, 
-                                    this.onFinalSubmit(this.props.onFinalSubmit, this.initState()))}
+                                    this.onFinalSubmit(this.props.onFinalSubmit, this.initState()))*/}
+                <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
 
             </form>
         );
@@ -184,5 +195,4 @@ MessageForm.propTypes = {
     recipient: PropTypes.string,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
-    onFinalSubmit: PropTypes.func
 };
