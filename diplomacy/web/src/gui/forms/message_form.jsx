@@ -53,7 +53,7 @@ export class MessageForm extends React.Component {
                 selectedOrder: 'move',
                 selectedCountries: {eng: false,
                     rus: false,
-                    fra: true},
+                    fra: false},
                 };
     }
 
@@ -88,11 +88,6 @@ export class MessageForm extends React.Component {
             selectedOption: prevState.selectedOption,
             selectedOrder: prevState.selectedOrder,
             selectedCountries: { ...prevState.selectedCountries, updatedCountry },
-            // selectedCountries: (event) => {
-            //     var {id, checked} = event.target;
-            //     var newCountries = event.selectedCountries;
-            //     return newCountries[id] = checked;
-            // }
         }));
     }
 
@@ -115,12 +110,9 @@ export class MessageForm extends React.Component {
         this.setState(this.initState());
         setTimeout( () => {console.log(`State:`, this.state)});
         console.log(`Final Submit Event:`, event);
-        //this.setState(this.initState());
     }
 
     render() {
-        //const onChange = Forms.createOnChangeCallback(this, this.props.onChange);
-        //const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit, this.initState());
         return (
             <form>
                 <div className={'form-group row'}>
@@ -176,13 +168,8 @@ export class MessageForm extends React.Component {
                         </div>
                         : null
                     }
-                    {/*{Forms.createLabel('message', '', 'sr-only')}
-                    <textarea id={'message'} className={'form-control'}
-                              value={Forms.getValue(this.state, 'message')} onChange={onChange}/>*/}
                 </div>
-                {/*Forms.createSubmit(`send (${this.props.sender} ${UTILS.html.UNICODE_SMALL_RIGHT_ARROW} ${this.props.recipient})`, 
-                                    true, 
-                                    this.onFinalSubmit(this.props.onFinalSubmit, this.initState()))*/}
+                {/*<Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent/>*/}
                 <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
 
             </form>
