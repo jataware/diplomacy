@@ -135,9 +135,19 @@ export class MessageForm extends React.Component {
     onGlossSubmit(event) {
         event.preventDefault();
         console.log("initial state: ", this.state);
-        let targetHolder = this.state.targets;
+        let actorHolder = [];
+        for (let country in this.state.selectedCountries){
+            if (!country === "updatedCountry"){
+                actorHolder.push(country);
+            }
+        }
+        let targetHolder = [];
         if(this.state.selectedAction === "alliance"){
-            targetHolder = this.state.selectedCountries;
+            for (let country in this.state.selectedCountries){
+                if (!country === "updatedCountry"){
+                    targetHolder.push(country);
+                }
+            }
         }
         MessageForm.gloss = true;
         const message = {
@@ -147,7 +157,7 @@ export class MessageForm extends React.Component {
             targets: targetHolder,
             tones: this.selectedTones,
             gloss: true,
-        }
+        };
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
                                 message: '',
@@ -161,18 +171,28 @@ export class MessageForm extends React.Component {
     onFinalSubmit(event) {
         event.preventDefault();
         console.log("initial state: ", this.state);
-        let targetHolder = this.state.targets;
+        let actorHolder = [];
+        for (let country in this.state.selectedCountries){
+            if (!country === "updatedCountry"){
+                actorHolder.push(country);
+            }
+        }
+        let targetHolder = [];
         if(this.state.selectedAction === "alliance"){
-            targetHolder = this.state.selectedCountries;
+            for (let country in this.state.selectedCountries){
+                if (!country === "updatedCountry"){
+                    targetHolder.push(country);
+                }
+            }
         }
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
-            actors: this.state.selectedCountries,
+            actors: actorHolder,
             targets: targetHolder,
             tones: this.selectedTones,
             gloss: false,
-        }
+        };
         console.log('Inside the setState: ', this.state);
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
@@ -192,11 +212,11 @@ export class MessageForm extends React.Component {
                 <div className={'form-group row'}>
                     <div className="form-group col-md-6">
                         <select id="negotiation_type" value={this.state.selectedAction} onChange={this.onValueChange}>
-                            <option value="order">Propose Order</option>
-                            <option value="alliance">Propose Alliance</option>
-                            <option value="peace">Propose Peace</option>
-                            <option value="draw">Propose Draw</option>
-                            <option value="solo_win">Propose Solo Win</option>
+                            <option value="propose_order">Propose Order</option>
+                            <option value="propose_alliance">Propose Alliance</option>
+                            <option value="propose_peace">Propose Peace</option>
+                            <option value="propose_draw">Propose Draw</option>
+                            <option value="propose_solo_win">Propose Solo Win</option>
                             <option value="propose_dmz">Propose Demilitarized Zone</option>
                             <option value="oppose_peace">Oppose Peace</option>
                             <option value="oppose_order">Oppose Order</option>
@@ -210,7 +230,7 @@ export class MessageForm extends React.Component {
                             <option value="cancel">Cancel Previous Proposal</option>
                         </select>
                     </div>
-                    {this.state.selectedAction === "order" ? 
+                    {this.state.selectedAction === "propose_order" ? 
                         <div className={'form-group col-md-6'}>
                             {MessageForm.orders.map((orderType, index) => {
                                 return(
@@ -225,8 +245,8 @@ export class MessageForm extends React.Component {
                         </div>
                         : null
                     }
-                    {this.state.selectedAction === "peace" || 
-                    this.state.selectedAction === "alliance" || 
+                    {this.state.selectedAction === "propose_peace" || 
+                    this.state.selectedAction === "propose_alliance" || 
                     this.state.selectedAction === "notify_alliance" ||
                     this.state.selectedAction === "notify_peace" ||
                     this.state.selectedAction === "oppose_peace" ||
