@@ -71,10 +71,10 @@ class Message(Jsonable):
         strings.RECIPIENT: str,                             # either GLOBAL, OBSERVER, OMNISCIENT or a power name.
         strings.TIME_SENT: parsing.OptionalValueType(int),  # given by server.
         strings.PHASE: str,                                 # phase short name (e.g. 'S1901M' or 'COMPLETED')
-        strings.MESSAGE: str,
-        strings.NEGOTIATION: str, 
-        strings.DAIDE: str,
-        strings.GLOSS: bool,
+        strings.MESSAGE: parsing.OptionalValueType(str),
+        strings.NEGOTIATION: parsing.OptionalValueType(str), 
+        strings.DAIDE: parsing.OptionalValueType(str),
+        strings.GLOSS: parsing.OptionalValueType(bool),
     }
     """
     “negotiation”: 

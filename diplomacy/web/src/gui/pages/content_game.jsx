@@ -489,13 +489,16 @@ export class ContentGame extends React.Component {
         return this.setState({tabPastMessages: tab});
     }
 
-    sendMessage(networkGame, recipient, body) {
+    sendMessage(networkGame, recipient, negotiation, body, daide, gloss) {
         const engine = networkGame.local;
         const message = new Message({
             phase: engine.phase,
             sender: engine.role,
             recipient: recipient,
             message: body,
+            negotiation: negotiation,
+            daide: daide,
+            gloss: gloss
         });
         const page = this.getPage();
         networkGame.sendGameMessage({message: message})
@@ -963,7 +966,7 @@ export class ContentGame extends React.Component {
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
                     <MessageForm sender={role} recipient={currentTabId} powers={engine.powers} onSubmit={form =>
-                        this.sendMessage(engine.client, currentTabId, form.message)}/>)}
+                        this.sendMessage(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss)}/>)}
             </div>
         );
     }
