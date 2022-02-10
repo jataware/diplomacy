@@ -153,7 +153,7 @@ export class MessageForm extends React.Component {
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
-            actors: this.state.selectedCountries,
+            actors: actorHolder,
             targets: targetHolder,
             tones: this.selectedTones,
             gloss: true,
