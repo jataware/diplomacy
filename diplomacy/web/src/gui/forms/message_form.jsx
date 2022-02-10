@@ -29,51 +29,75 @@ export class MessageForm extends React.Component {
         this.checkboxOnChange = this.checkboxOnChange.bind(this);
         this.onFinalSubmit = this.onFinalSubmit.bind(this);
         this.onGlossSubmit = this.onGlossSubmit.bind(this);
+        this.tonesOnChange = this.tonesOnChange.bind(this);
     }
 
-    static orders=["move", "support_hold", "support_move", "convoy", "build"]
+    gloss = false;
+
+    static orders=["move", "hold", "support_hold", "support_move", "convoy", "build"];
+
+    static tones=["Haughty", "Objective", "Obsequious", "Relaxed", "Urgent"];
 
     static countries=[
         {
-            id: "eng",
+            id: "austria",
+            name: "Austria"
+        },
+        {
+            id: "england",
             name: "England"
         },
         {
-            id:"rus",
+            id: "france",
+            name: "France"
+        },
+        {
+            id: "germany",
+            name: "Germany"
+        },
+        {
+            id: "italy",
+            name: "Italy"
+        },
+        {
+            id:"russia",
             name: "Russia"
         },
         {
-            id: "fra",
-            name: "France"
-        }
+            id:"turkey",
+            name: "Turkey"
+        },
     ];
 
     initState() {
-        return {selectedOption: 'order',
+        return {selectedAction: 'order',
                 selectedOrder: 'move',
-                selectedCountries: {eng: false,
-                    rus: false,
-                    fra: false},
+                selectedCountries: {},
+                targets: {},
+                actors: {},
+                selectedTones: {}
                 };
     }
 
     onValueChange(event) {
         event.persist();
-        console.log('My Button event: ', event);
+        console.log('Option event: ', event, "POWERS: ", this.props.powers);
         this.setState(prevState => ({
-            selectedOption: event.target.value,
+            selectedAction: event.target.value,
             selectedOrder: prevState.selectedOrder,
             selectedCountries: prevState.selectedCountries,
+            selectedTones: prevState.selectedTones,
         }));
     }
 
     onOrderChange(event) {
         event.persist();
-        console.log('My Order event: ', event);
+        console.log('Order event: ', event);
         this.setState(prevState => ({
-            selectedOption: prevState.selectedOption,
+            selectedAction: prevState.selectedAction,
             selectedOrder: event.target.value,
             selectedCountries: prevState.selectedCountries,
+            selectedTones: prevState.selectedTones,
         }));
     }
 
@@ -81,33 +105,75 @@ export class MessageForm extends React.Component {
         event.persist();
         console.log('Checkbox event: ', event);
         const {id, checked} = event.target;
-        console.log('ID: ', id, 'Checked: ', checked)
+        console.log('ID: ', id, 'Checked: ', checked);
         const updatedCountry = this.state.selectedCountries[id] = checked;
         this.setState(prevState => ({
             //checked: !prevState.checked
-            selectedOption: prevState.selectedOption,
+            selectedAction: prevState.selectedAction,
             selectedOrder: prevState.selectedOrder,
             selectedCountries: { ...prevState.selectedCountries, updatedCountry },
+            selectedTones: prevState.selectedTones,
+        }));
+    }
+
+    tonesOnChange(event) {
+        event.persist();
+        console.log('Tones event: ', event);
+        const {tone, checked} = event.target;
+        console.log('ID: ', tone, 'Checked: ', checked);
+        const updatedTones = this.state.selectedTones[tone] = checked;
+        this.setState(prevState => ({
+            selectedAction: prevState.selectedAction,
+            selectedOrder: prevState.selectedOrder,
+            selectedCountries: prevState.selectedCountries,
+            selectedTones: { ...prevState.selectedTones, updatedTones },
         }));
     }
 
     onGlossSubmit(event) {
-
+        event.preventDefault();
+        console.log("initial state: ", this.state);
+        let targetHolder = this.state.targets;
+        if(this.state.selectedAction === "alliance"){
+            targetHolder = this.state.selectedCountries;
+        }
+        MessageForm.gloss = true;
+        const message = {
+            action: this.state.selectedAction,
+            order: this.state.selectedOrder,
+            actors: this.state.selectedCountries,
+            targets: targetHolder,
+            tones: this.selectedTones,
+            gloss: true,
+        }
+        if (this.props.onSubmit){
+            this.props.onSubmit({message: JSON.stringify(message)});
+        }
+        setTimeout( () => {console.log(`State:`, this.state)});
+        console.log(`Final Gloss Event:`, event);
     }
 
     onFinalSubmit(event) {
         event.preventDefault();
         console.log("initial state: ", this.state);
+        let targetHolder = this.state.targets;
+        if(this.state.selectedAction === "alliance"){
+            targetHolder = this.state.selectedCountries;
+        }
         const message = {
-            option: this.state.selectedOption,
+            action: this.state.selectedAction,
             order: this.state.selectedOrder,
-            selectedCountries: this.state.selectedCountries
+            actors: this.state.selectedCountries,
+            targets: targetHolder,
+            tones: this.selectedTones,
+            gloss: false,
         }
         console.log('Inside the setState: ', this.state);
         if (this.props.onSubmit){
             this.props.onSubmit({message: JSON.stringify(message)});
         }
         this.setState(this.initState());
+        MessageForm.gloss = false;
         setTimeout( () => {console.log(`State:`, this.state)});
         console.log(`Final Submit Event:`, event);
     }
@@ -117,28 +183,26 @@ export class MessageForm extends React.Component {
             <form>
                 <div className={'form-group row'}>
                     <div className="form-group col-md-6">
-                        <input className={'form-input__input'} key={'order'} type={'radio'}
-                             name={'negotation_type'} value={'order'} checked={this.state.selectedOption === 'order'}
-                             id={'order'} onChange={this.onValueChange}/>
-                        <label className="form-input__label" htmlFor="order">Order</label>
-                        <input className={'form-input__input'} key={'alliance'} type={'radio'}
-                                 name={'negotation_type'} value={'alliance'} checked={this.state.selectedOption === 'alliance'}
-                                 id={'alliance'} onChange={this.onValueChange}/>
-                        <label className="form-input__label" htmlFor="alliance">Alliance</label>
-                        <input className={'form-input__input'} key={'peace'} type={'radio'}
-                                 name={'negotation_type'} value={'peace'} checked={this.state.selectedOption === 'peace'}
-                                 id={'peace'} onChange={this.onValueChange}/>
-                        <label className="form-input__label" htmlFor="peace">Peace</label>
-                        <input className={'form-input__input'} key={'draw'} type={'radio'}
-                                 name={'negotation_type'} value={'draw'} checked={this.state.selectedOption === 'draw'}
-                                 id={'draw'} onChange={this.onValueChange}/>
-                        <label className="form-input__label" htmlFor="draw">Draw</label>
-                        <input className={'form-input__input'} key={'solo_win'} type={'radio'}
-                                 name={'negotation_type'} value={'solo_win'} checked={this.state.selectedOption === 'solo_win'}
-                                 id={'solo_win'} onChange={this.onValueChange}/>
-                        <label className="form-input__label" htmlFor="solo_win">Solo Win</label>
+                        <select id="negotiation_type" value={this.state.selectedAction} onChange={this.onValueChange}>
+                            <option value="order">Propose Order</option>
+                            <option value="alliance">Propose Alliance</option>
+                            <option value="peace">Propose Peace</option>
+                            <option value="draw">Propose Draw</option>
+                            <option value="solo_win">Propose Solo Win</option>
+                            <option value="propose_dmz">Propose Demilitarized Zone</option>
+                            <option value="oppose_peace">Oppose Peace</option>
+                            <option value="oppose_order">Oppose Order</option>
+                            <option value="oppose_draw">Oppose Draw</option>
+                            <option value="oppose_dmz">Oppose Demilitarized Zone</option>
+                            <option value="oppose_alliance">Oppose Alliance</option>
+                            <option value="notify_peace">Notify about Peace</option>
+                            <option value="notify_order">Notify about Order</option>
+                            <option value="notify_dmz">Notify about Demilitarized Zone</option>
+                            <option value="notify_alliance">Notify about Alliance</option>
+                            <option value="cancel">Cancel Previous Proposal</option>
+                        </select>
                     </div>
-                    {this.state.selectedOption === "order" ? 
+                    {this.state.selectedAction === "order" ? 
                         <div className={'form-group col-md-6'}>
                             {MessageForm.orders.map((orderType, index) => {
                                 return(
@@ -153,7 +217,12 @@ export class MessageForm extends React.Component {
                         </div>
                         : null
                     }
-                    {this.state.selectedOption === "peace" || this.state.selectedOption === "alliance" ? 
+                    {this.state.selectedAction === "peace" || 
+                    this.state.selectedAction === "alliance" || 
+                    this.state.selectedAction === "notify_alliance" ||
+                    this.state.selectedAction === "notify_peace" ||
+                    this.state.selectedAction === "oppose_peace" ||
+                    this.state.selectedAction === "oppose_alliance" ? 
                         <div className={'form-group col-md-6'}>
                             {MessageForm.countries.map(({ id, name }, index) => {
                                 return(
@@ -161,7 +230,7 @@ export class MessageForm extends React.Component {
                                         <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
                                          name={`country_${id}`} value={`${id}`} checked={this.state.selectedCountries[id]}
                                          id={`${id}`} onChange={this.checkboxOnChange}/>
-                                        <label className="form-input__label" htmlFor="${id}-check">{name}</label>
+                                        <label className="form-input__label" htmlFor={`${id}-check`}>{name}</label>
                                     </li>
                                 );
                             })}
@@ -169,8 +238,23 @@ export class MessageForm extends React.Component {
                         : null
                     }
                 </div>
-                {/*<Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent/>*/}
-                <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
+                <div className={'form-group col-md-6'}>
+                    {MessageForm.tones.map(( name, index) => {
+                                return(
+                                    <li key={index}>
+                                        <input className={'form-input__input'} key={`${name}-tone`} type={'checkbox'}
+                                         name={`${name}-tone`} value={`${name}`} checked={this.state.selectedTones[name]}
+                                         id={`${name}`} onChange={this.tonesOnChange}/>
+                                        <label className="form-input__label" htmlFor={`${name}-tone`}>{name}</label>
+                                    </li>
+                                );
+                            })}
+                </div>
+                <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
+                {MessageForm.gloss &&
+                    <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
+                }
+                
 
             </form>
         );
@@ -180,6 +264,7 @@ export class MessageForm extends React.Component {
 MessageForm.propTypes = {
     sender: PropTypes.string,
     recipient: PropTypes.string,
+    powers: PropTypes.object,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
 };
