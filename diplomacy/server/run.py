@@ -28,6 +28,10 @@
         python -m diplomacy.server.run --port=<given port>
 
 """
+
+import sys
+sys.path.append('../jatadiplo')
+
 import argparse
 from diplomacy import Server
 from diplomacy.utils import constants

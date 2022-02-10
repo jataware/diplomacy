@@ -30,6 +30,8 @@ import logging
 from tornado import gen
 from tornado.concurrent import Future
 
+from diplomacy.negotiation import negotiation
+
 from diplomacy.communication import notifications, requests, responses
 from diplomacy.server.notifier import Notifier
 from diplomacy.server.server_game import ServerGame
@@ -820,10 +822,17 @@ def on_send_game_message(server, request, connection_handler):
         # If message not found, consider it as a new message.
     if message.time_sent is not None:
         raise exceptions.ResponseException('Server cannot receive a message with a time sent already set.')
-    message.time_sent = level.game.add_message(message)
-    Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
-    server.save_game(level.game)
-    return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
+
+    if not message.gloss:
+        message.time_sent = level.game.add_message(message)
+        Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
+        server.save_game(level.game)
+        return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
+    else: 
+        # PressGloss the negotiation information: add DAIDE and glossed message.
+        return_data = negotiation.pressgloss(message)
+        return responses.DataToken(data = return_data, request_id=request.request_id)
+
 
 def on_set_dummy_powers(server, request, connection_handler):
     """ Manage request SetDummyPowers.
