@@ -137,18 +137,21 @@ export class MessageForm extends React.Component {
         console.log("initial state: ", this.state);
         let actorHolder = [];
         for (let country in this.state.selectedCountries){
-            if (!country === "updatedCountry"){
+            if (!(country === "updatedCountry")){
                 actorHolder.push(country);
             }
         }
         let targetHolder = [];
-        if(this.state.selectedAction === "alliance"){
+        if(this.state.selectedAction === "propose_alliance"){
             for (let country in this.state.selectedCountries){
-                if (!country === "updatedCountry"){
+                console.log("country in loop ", country);
+                if (!(country === "updatedCountry")){
+                    console.log("pushed!");
                     targetHolder.push(country);
                 }
             }
         }
+        console.log('Actors', actorHolder, 'Targets', targetHolder);
         MessageForm.gloss = true;
         const message = {
             action: this.state.selectedAction,
@@ -173,14 +176,14 @@ export class MessageForm extends React.Component {
         console.log("initial state: ", this.state);
         let actorHolder = [];
         for (let country in this.state.selectedCountries){
-            if (!country === "updatedCountry"){
+            if (!(country === "updatedCountry")){
                 actorHolder.push(country);
             }
         }
         let targetHolder = [];
-        if(this.state.selectedAction === "alliance"){
+        if(this.state.selectedAction === "propose_alliance"){
             for (let country in this.state.selectedCountries){
-                if (!country === "updatedCountry"){
+                if (!(country === "updatedCountry")){
                     targetHolder.push(country);
                 }
             }
