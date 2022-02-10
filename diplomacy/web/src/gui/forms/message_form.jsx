@@ -38,6 +38,8 @@ export class MessageForm extends React.Component {
 
     static tones=["Haughty", "Objective", "Obsequious", "Relaxed", "Urgent"];
 
+    static locations=["MOS", "PAR", "BER", "LON", "ROM", "CON"]
+
     static countries=[
         {
             id: "austria",
@@ -147,7 +149,10 @@ export class MessageForm extends React.Component {
             gloss: true,
         }
         if (this.props.onSubmit){
-            this.props.onSubmit({message: JSON.stringify(message)});
+            this.props.onSubmit({negotiation: JSON.stringify(message),
+                                message: '',
+                                daide: '',
+                                gloss: true});
         }
         setTimeout( () => {console.log(`State:`, this.state)});
         console.log(`Final Gloss Event:`, event);
@@ -170,7 +175,10 @@ export class MessageForm extends React.Component {
         }
         console.log('Inside the setState: ', this.state);
         if (this.props.onSubmit){
-            this.props.onSubmit({message: JSON.stringify(message)});
+            this.props.onSubmit({negotiation: JSON.stringify(message),
+                                message: '',
+                                daide: '',
+                                gloss: false});
         }
         this.setState(this.initState());
         MessageForm.gloss = false;
