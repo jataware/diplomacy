@@ -121,9 +121,9 @@ export class MessageForm extends React.Component {
     tonesOnChange(event) {
         event.persist();
         console.log('Tones event: ', event);
-        const {tone, checked} = event.target;
-        console.log('ID: ', tone, 'Checked: ', checked);
-        const updatedTones = this.state.selectedTones[tone] = checked;
+        const {id, checked} = event.target;
+        console.log('ID: ', id, 'Checked: ', checked);
+        const updatedTones = this.state.selectedTones[id] = checked;
         this.setState(prevState => ({
             selectedAction: prevState.selectedAction,
             selectedOrder: prevState.selectedOrder,
@@ -144,23 +144,27 @@ export class MessageForm extends React.Component {
         let targetHolder = [];
         if(this.state.selectedAction === "propose_alliance"){
             for (let country in this.state.selectedCountries){
-                console.log("country in loop ", country);
                 if (!(country === "updatedCountry")){
-                    console.log("pushed!");
                     targetHolder.push(country);
                 }
             }
         }
-        console.log('Actors', actorHolder, 'Targets', targetHolder);
+        let toneHolder = [];
+        for (let tone in this.state.selectedTones){
+            if (!(tone === "updatedTones")){
+                toneHolder.push(tone);
+            }
+        }
         MessageForm.gloss = true;
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
             actors: actorHolder,
             targets: targetHolder,
-            tones: this.selectedTones,
+            tones: toneHolder,
             gloss: true,
         };
+        console.log("Full Negotiation: ", message);
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
                                 message: '',
@@ -188,15 +192,21 @@ export class MessageForm extends React.Component {
                 }
             }
         }
+        let toneHolder = [];
+        for (let tone in this.state.selectedTones){
+            if (!(tone === "updatedTones")){
+                toneHolder.push(tone);
+            }
+        }
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
             actors: actorHolder,
             targets: targetHolder,
-            tones: this.selectedTones,
+            tones: toneHolder,
             gloss: false,
         };
-        console.log('Inside the setState: ', this.state);
+        console.log("Full Negotiation: ", message);
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
                                 message: '',
@@ -205,7 +215,6 @@ export class MessageForm extends React.Component {
         }
         this.setState(this.initState());
         MessageForm.gloss = false;
-        setTimeout( () => {console.log(`State:`, this.state)});
         console.log(`Final Submit Event:`, event);
     }
 
