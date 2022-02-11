@@ -23,11 +23,29 @@ export class MessageView extends React.Component {
         const message = this.props.message;
         const owner = this.props.owner;
         const id = this.props.id ? {id: this.props.id} : {};
-        const messagesLines = message.message.replace('\r\n', '\n')
+        console.log("Props: ", this.props);
+        // const messagesLines = message.message.replace('\r\n', '\n')
+        //     .replace('\r', '\n')
+        //     .replace('<br>', '\n')
+        //     .replace('<br/>', '\n')
+        //     .split('\n');
+        let messagesLines = '';
+        if(!message.gloss){
+            messagesLines = message.message.replace('\r\n', '\n')
             .replace('\r', '\n')
             .replace('<br>', '\n')
             .replace('<br/>', '\n')
             .split('\n');
+        }
+        else{
+            const messageRaw = JSON.parse(message?.time_sent);
+            console.log("IN VIEW, MESSAGE: ",message, "TIME SENT: ", messageRaw);
+            messagesLines = messageRaw?.message.replace('\r\n', '\n')
+                .replace('\r', '\n')
+                .replace('<br>', '\n')
+                .replace('<br/>', '\n')
+                .split('\n');
+        }
         let onClick = null;
         const classNames = ['game-message', 'row'];
         if (owner === message.sender)
@@ -38,21 +56,27 @@ export class MessageView extends React.Component {
                 classNames.push('message-read');
             onClick = this.props.onClick ? {onClick: () => this.props.onClick(message)} : {};
         }
+        //console.log("Full message: ", message, "Message time sent: ", message.time_sent, "Gloss: ", message.gloss, "Glossed Message extracted: ", JSON.parse(message.time_sent).message);
         return (
-            <div className={'game-message-wrapper' + (
-                this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
-                 {...id}>
-                <div className={classNames.join(' ')} {...onClick}>
-                    <div className="message-header col-md-auto text-md-right text-center">
-                        {message.phase}
+            <div>
+                {!(message.gloss) &&
+                     <div className={'game-message-wrapper' + (
+                        this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
+                         {...id}>
+                        <div className={classNames.join(' ')} {...onClick}>
+                            <div className="message-header col-md-auto text-md-right text-center">
+                                {message.phase}
+                            </div>
+                            <div className="message-content col-md">
+                                {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
+                                    line.replace(/(<([^>]+)>)/ig, "")
+                                }</div>)}
+                            </div>
+                        </div>
                     </div>
-                    <div className="message-content col-md">
-                        {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
-                            line.replace(/(<([^>]+)>)/ig, "")
-                        }</div>)}
-                    </div>
-                </div>
+                }
             </div>
+            
         );
     }
 }

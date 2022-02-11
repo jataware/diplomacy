@@ -28,7 +28,7 @@ def pressgloss(message_obj: Message) -> Message:
     message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient)
 
     if 'tones' in negotiation:
-        tones = [tone.lower for tone in negotiation['tones']]
+        tones = [tone.lower() for tone in negotiation['tones']]
     else:
         tones = ["haughty","urgent"]
 

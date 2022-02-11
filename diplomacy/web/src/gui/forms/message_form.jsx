@@ -134,7 +134,7 @@ export class MessageForm extends React.Component {
 
     onGlossSubmit(event) {
         event.preventDefault();
-        console.log("initial state: ", this.state);
+        console.log("gloss initial state: ", this.state);
         let actorHolder = [];
         for (let country in this.state.selectedCountries){
             if (!(country === "updatedCountry")){

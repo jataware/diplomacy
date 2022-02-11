@@ -917,6 +917,14 @@ export class ContentGame extends React.Component {
 
     renderCurrentMessages(engine, role) {
         const messageChannels = engine.getMessageChannels(role, true);
+        let glossBool = false;
+        let glossedMessage = '';
+        if(engine.messages.size()){
+            console.log("CONTENT GAME MESSAGES: ", engine.messages, "Last key: ", engine.messages.lastValue());
+            glossBool = JSON.parse(engine.messages.__real_keys[0]).gloss;
+            glossedMessage = JSON.parse(engine.messages.__real_keys[0]).message;
+            console.log("GLOSS FROM CONTENT GAME: ", glossBool, "MESS: ", glossedMessage);
+        }
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
             tabNames.push(powerName);
@@ -963,6 +971,12 @@ export class ContentGame extends React.Component {
                         Go to 1st unread message
                     </Scrollchor>
                 )}
+                {glossBool && (
+                    <div>
+                        <h5>Gloss Preview:</h5>
+                        <p>{glossedMessage}</p>
+                    </div>)
+                }
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
                     <MessageForm sender={role} recipient={currentTabId} powers={engine.powers} onSubmit={form =>
