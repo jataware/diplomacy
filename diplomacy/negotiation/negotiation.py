@@ -18,7 +18,7 @@ def pressgloss(message_obj: Message) -> Message:
 
     Returns
     -------
-    The modified Message.
+    The modified Message as a string.
 
 
     """
@@ -27,9 +27,17 @@ def pressgloss(message_obj: Message) -> Message:
 
     message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient)
 
-    message_obj.message = to_tens(message_obj.daide, negotiation['tones'])
+    if 'tones' in negotiation:
+        tones = [tone.lower for tone in negotiation['tones']]
+    else:
+        tones = ["haughty","urgent"]
 
-    return message_obj
+    # str = "FRM (FRA) (ENG) (PRP (XDO ((ENG AMY LVP) HLD)))"
+
+    message_obj.message = to_tens(message_obj.daide, tones)
+    message_dict = message_obj.to_dict()
+    message_string = json.dumps(message_dict)
+    return message_string
 
 def to_daide(negotiation: dict, sender: str, recipient: str):
     """
@@ -54,8 +62,9 @@ def to_daide(negotiation: dict, sender: str, recipient: str):
     daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '
 
     # Process actors and targets to tokens.
-    actors  = [*map(LOOKUP_REF.get, negotiation['actors'] )].join(' ')
-    targets = [*map(LOOKUP_REF.get, negotiation['targets'])].join(' ')
+
+    actors  = ' '.join([*map(LOOKUP_REF.get, negotiation['actors'])])
+    targets = ' '.join([*map(LOOKUP_REF.get, negotiation['targets'])])
 
     # Build DAIDE based on the root negotiation action.
     action = str(negotiation['action']).lower()   
@@ -83,13 +92,15 @@ def to_daide(negotiation: dict, sender: str, recipient: str):
     # Handle action modifiers.
     if 'notify' in action:
         # Add FCT to arrangement.
-        order = order.replace('PRP', 'PRP (FCT') + ')'
+        daide = f"{daide.replace('PRP', 'PRP (FCT')})"
 
     if 'oppose' in action:
         # Add NOT to arrangement.
-        order = order.replace('PRP', 'PRP (NOT') + ')'
+        daide = f"{daide.replace('PRP', 'PRP (NOT')})"
 
-def to_tens(daide_text: str = "FRM (FRA) (ENG) (PRP (XDO ((ENG AMY LVP) HLD)))", tones: list =  ["haughty","urgent"]):
+    return daide
+
+def to_tens(daide_text, tones):
     """
     Description
     -----------
