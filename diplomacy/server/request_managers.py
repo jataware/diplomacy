@@ -824,6 +824,9 @@ def on_send_game_message(server, request, connection_handler):
         raise exceptions.ResponseException('Server cannot receive a message with a time sent already set.')
 
     if not message.gloss:
+        return_data = negotiation.pressgloss(message, return_object=False) # returns message string instead
+        message.message = return_data
+
         message.time_sent = level.game.add_message(message)
         Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
         server.save_game(level.game)

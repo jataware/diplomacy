@@ -9,12 +9,19 @@ from diplomacy.engine.message import Message
 # Load Name2Token lookup reference.
 LOOKUP_REF = json.loads(pkg_resources.resource_stream(__name__, 'reference.json').read().decode())
 
-
-def pressgloss(message_obj: Message) -> Message:
+def pressgloss(message_obj: Message, return_object: bool = True):
     """
     Description
     -----------
     Add DAIDE syntax to message.daide and pressgloss to message.message
+
+    Parameters
+    ----------
+    message_obj: Message
+        The Message to modify.
+
+    return_object: bool = True
+        Return the Message object (for press gloss), or the tens/glossed message string (send message).
 
     Returns
     -------
@@ -28,16 +35,19 @@ def pressgloss(message_obj: Message) -> Message:
     message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient)
 
     if 'tones' in negotiation:
-        tones = [tone.lower() for tone in negotiation['tones']]
+        tones = [tone.lower().capitalize() for tone in negotiation['tones']]
     else:
-        tones = ["haughty","urgent"]
+        tones = ["Haughty","Urgent"]
 
     # str = "FRM (FRA) (ENG) (PRP (XDO ((ENG AMY LVP) HLD)))"
 
     message_obj.message = to_tens(message_obj.daide, tones)
-    message_dict = message_obj.to_dict()
-    message_string = json.dumps(message_dict)
-    return message_string
+    if return_object:
+        message_dict = message_obj.to_dict()
+        message_string = json.dumps(message_dict)
+        return message_string
+    else:
+        return message_obj.message
 
 def to_daide(negotiation: dict, sender: str, recipient: str):
     """
