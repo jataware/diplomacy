@@ -38,6 +38,7 @@
       Use constant names defined below to specify recipient for system message when it's not a power name
       (GLOBAL, OBSERVER or OMNISCIENT).
 """
+from xxlimited import Str
 from diplomacy.utils import parsing, strings
 from diplomacy.utils.jsonable import Jsonable
 
@@ -67,14 +68,14 @@ class Message(Jsonable):
     """
     __slots__ = ['sender', 'recipient', 'time_sent', 'phase', 'message', 'negotiation', 'daide', 'gloss']
     model = {
-        strings.SENDER: str,                                # either SYSTEM or a power name.
-        strings.RECIPIENT: str,                             # either GLOBAL, OBSERVER, OMNISCIENT or a power name.
-        strings.TIME_SENT: parsing.OptionalValueType(int),  # given by server.
-        strings.PHASE: str,                                 # phase short name (e.g. 'S1901M' or 'COMPLETED')
-        strings.MESSAGE: parsing.OptionalValueType(str),
+        strings.SENDER:      str,                             # either SYSTEM or a power name.
+        strings.RECIPIENT:   str,                             # either GLOBAL, OBSERVER, OMNISCIENT or a power name.
+        strings.TIME_SENT:   parsing.OptionalValueType(int),  # given by server.
+        strings.PHASE:       str,                             # phase short name (e.g. 'S1901M' or 'COMPLETED')
+        strings.MESSAGE:     parsing.OptionalValueType(str),
         strings.NEGOTIATION: parsing.OptionalValueType(str), 
-        strings.DAIDE: parsing.OptionalValueType(str),
-        strings.GLOSS: parsing.OptionalValueType(bool),
+        strings.DAIDE:       parsing.OptionalValueType(str),
+        strings.GLOSS:       parsing.OptionalValueType(bool),
     }
     """
     “negotiation”: 
@@ -85,7 +86,6 @@ class Message(Jsonable):
             “tones” : [“Haughty”]
         }
     """
-    
     def __init__(self, **kwargs):
         self.sender      = None               # type: str
         self.recipient   = None               # type: str
@@ -98,7 +98,7 @@ class Message(Jsonable):
         super(Message, self).__init__(**kwargs)
 
     def __str__(self):
-        return '[%d/%s/%s->%s](%s)(%s)(%s)(%s)' % (self.time_sent or 0, self.phase, self.sender, self.recipient, self.message, str(self.negotiation), self.daide, self.gloss)
+        return '[%d/%s/%s->%s](%s)' % (self.time_sent or 0, self.phase, self.sender, self.recipient, self.message)
 
     def __hash__(self):
         return hash(self.time_sent)
