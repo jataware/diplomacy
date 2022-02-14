@@ -823,18 +823,22 @@ def on_send_game_message(server, request, connection_handler):
     if message.time_sent is not None:
         raise exceptions.ResponseException('Server cannot receive a message with a time sent already set.')
 
+    # gloss here means gloss_only, it is sent through the Pressgloss API regardless.
     if not message.gloss:
-        return_data = negotiation.pressgloss(message, return_object=False) # returns message string instead
-        message.message = return_data
+        # Pressgloss the message and add the returned string of the new text to the Message Obj.
+        gloss_message_text = negotiation.pressgloss(message, return_message_obj_str=False) 
+        message.message = gloss_message_text
 
+        # original code starts here:
         message.time_sent = level.game.add_message(message)
         Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
         server.save_game(level.game)
         return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
     else: 
-        # PressGloss the negotiation information: add DAIDE and glossed message.
-        return_data = negotiation.pressgloss(message)
-        return responses.DataToken(data = return_data, request_id=request.request_id)
+        # PressGloss the negotiation information: add DAIDE and glossed message string 
+        # to the Message object. The Message object is returned as a string.
+        new_message_obj_str = negotiation.pressgloss(message, return_message_obj_str=True)
+        return responses.DataToken(data = new_message_obj_str, request_id=request.request_id)
 
 
 def on_set_dummy_powers(server, request, connection_handler):
