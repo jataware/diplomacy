@@ -9,7 +9,7 @@ from diplomacy.engine.message import Message
 # Load Name2Token lookup reference.
 LOOKUP_REF = json.loads(pkg_resources.resource_stream(__name__, 'reference.json').read().decode())
 
-def build_daide(daide: str, action: str, actors: list(str), targets: list(str)):
+def build_daide(daide, action, actors, targets):
     if 'alliance' in action:
         # Level 10 ALY
         daide = daide + f'(PRP (ALY ({actors}) VSS ({targets})))'
