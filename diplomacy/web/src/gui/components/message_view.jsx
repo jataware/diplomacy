@@ -44,13 +44,11 @@ export class MessageView extends React.Component {
                     .replace('<br/>', '\n')
                     .split('\n');
             }
-            debugger;
         }
         else{
             //const messageRaw = JSON.parse(message?.time_sent);
             const messageRaw = JSON.parse(message.time_sent);
             console.log("IN VIEW, MESSAGE: ",message, "TIME SENT: ", messageRaw);
-            debugger;
             //messagesLines = messageRaw?.message.replace('\r\n', '\n')
             messagesLines = messageRaw.message.replace('\r\n', '\n')
                 .replace('\r', '\n')

@@ -72,12 +72,13 @@ export class MessageForm extends React.Component {
     ];
 
     initState() {
-        return {selectedAction: 'order',
+        return {selectedAction: 'propose_order',
                 selectedOrder: 'move',
                 selectedCountries: {},
                 targets: {},
                 actors: {},
-                selectedTones: {}
+                selectedTones: {},
+                response: '',
                 };
     }
 
@@ -89,6 +90,8 @@ export class MessageForm extends React.Component {
             selectedOrder: prevState.selectedOrder,
             selectedCountries: prevState.selectedCountries,
             selectedTones: prevState.selectedTones,
+            targets: prevState.targets,
+            response: prevState.response,
         }));
     }
 
@@ -100,6 +103,8 @@ export class MessageForm extends React.Component {
             selectedOrder: event.target.value,
             selectedCountries: prevState.selectedCountries,
             selectedTones: prevState.selectedTones,
+            targets: prevState.targets,
+            response: prevState.response,
         }));
     }
 
@@ -108,14 +113,31 @@ export class MessageForm extends React.Component {
         console.log('Checkbox event: ', event);
         const {id, checked} = event.target;
         console.log('ID: ', id, 'Checked: ', checked);
-        const updatedCountry = this.state.selectedCountries[id] = checked;
-        this.setState(prevState => ({
-            //checked: !prevState.checked
-            selectedAction: prevState.selectedAction,
-            selectedOrder: prevState.selectedOrder,
-            selectedCountries: { ...prevState.selectedCountries, updatedCountry },
-            selectedTones: prevState.selectedTones,
-        }));
+        if(id.includes('target_')){
+            const updatedTarget = this.state.targets[id.replace('target_', '')] = checked;
+            this.setState(prevState => ({
+                //checked: !prevState.checked
+                selectedAction: prevState.selectedAction,
+                selectedOrder: prevState.selectedOrder,
+                selectedCountries: prevState.selectedCountries,
+                targets: { ...prevState.targets, updatedTarget },
+                selectedTones: prevState.selectedTones,
+                response: prevState.response,
+            }));
+        }
+        else{
+            const updatedCountry = this.state.selectedCountries[id] = checked;
+            this.setState(prevState => ({
+                //checked: !prevState.checked
+                selectedAction: prevState.selectedAction,
+                selectedOrder: prevState.selectedOrder,
+                selectedCountries: { ...prevState.selectedCountries, updatedCountry },
+                selectedTones: prevState.selectedTones,
+                targets: prevState.targets,
+                response: prevState.response,
+            }));
+        }
+        
     }
 
     tonesOnChange(event) {
@@ -129,6 +151,8 @@ export class MessageForm extends React.Component {
             selectedOrder: prevState.selectedOrder,
             selectedCountries: prevState.selectedCountries,
             selectedTones: { ...prevState.selectedTones, updatedTones },
+            targets: prevState.targets,
+            response: prevState.response,
         }));
     }
 
@@ -138,14 +162,18 @@ export class MessageForm extends React.Component {
         let actorHolder = [];
         for (let country in this.state.selectedCountries){
             if (!(country === "updatedCountry")){
-                actorHolder.push(country);
+                if(this.state.selectedCountries[country]){
+                    actorHolder.push(country);
+                }
             }
         }
         let targetHolder = [];
         if(this.state.selectedAction === "propose_alliance"){
-            for (let country in this.state.selectedCountries){
-                if (!(country === "updatedCountry")){
-                    targetHolder.push(country);
+            for (let country in this.state.targets){
+                if (!(country === "updatedTarget")){
+                    if(this.state.targets[country]){
+                        targetHolder.push(country);
+                    }
                 }
             }
         }
@@ -162,6 +190,7 @@ export class MessageForm extends React.Component {
             actors: actorHolder,
             targets: targetHolder,
             tones: toneHolder,
+            response: this.state.response,
             gloss: true,
         };
         console.log("Full Negotiation: ", message);
@@ -181,14 +210,18 @@ export class MessageForm extends React.Component {
         let actorHolder = [];
         for (let country in this.state.selectedCountries){
             if (!(country === "updatedCountry")){
-                actorHolder.push(country);
+                if(this.state.selectedCountries[country]){
+                    actorHolder.push(country);
+                }
             }
         }
         let targetHolder = [];
         if(this.state.selectedAction === "propose_alliance"){
-            for (let country in this.state.selectedCountries){
-                if (!(country === "updatedCountry")){
-                    targetHolder.push(country);
+            for (let country in this.state.targets){
+                if (!(country === "updatedTarget")){
+                    if(this.state.targets[country]){
+                        targetHolder.push(country);
+                    }
                 }
             }
         }
@@ -204,6 +237,7 @@ export class MessageForm extends React.Component {
             actors: actorHolder,
             targets: targetHolder,
             tones: toneHolder,
+            response: this.state.response,
             gloss: false,
         };
         console.log("Full Negotiation: ", message);
@@ -240,6 +274,7 @@ export class MessageForm extends React.Component {
                             <option value="notify_dmz">Notify about Demilitarized Zone</option>
                             <option value="notify_alliance">Notify about Alliance</option>
                             <option value="cancel">Cancel Previous Proposal</option>
+                            <option value="response">Response</option>
                         </select>
                     </div>
                     {this.state.selectedAction === "propose_order" ? 
@@ -264,6 +299,7 @@ export class MessageForm extends React.Component {
                     this.state.selectedAction === "oppose_peace" ||
                     this.state.selectedAction === "oppose_alliance" ? 
                         <div className={'form-group col-md-6'}>
+                            <h6>Countries Involved: </h6>
                             {MessageForm.countries.map(({ id, name }, index) => {
                                 return(
                                     <li key={index}>
@@ -277,18 +313,47 @@ export class MessageForm extends React.Component {
                         </div>
                         : null
                     }
-                </div>
-                <div className={'form-group col-md-6'}>
-                    {MessageForm.tones.map(( name, index) => {
+                    {this.state.selectedAction === "propose_alliance" || 
+                    this.state.selectedAction === "notify_alliance" ||
+                    this.state.selectedAction === "oppose_alliance" ? 
+                        <div className={'form-group col-md-6'}>
+                            <h6>Alliance Targets: </h6>
+                            {MessageForm.countries.map(({ id, name }, index) => {
                                 return(
                                     <li key={index}>
-                                        <input className={'form-input__input'} key={`${name}-tone`} type={'checkbox'}
-                                         name={`${name}-tone`} value={`${name}`} checked={this.state.selectedTones[name]}
-                                         id={`${name}`} onChange={this.tonesOnChange}/>
-                                        <label className="form-input__label" htmlFor={`${name}-tone`}>{name}</label>
+                                        <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
+                                         name={`target_${id}`} value={`${id}`} checked={this.state.targets[id]}
+                                         id={`target_${id}`} onChange={this.checkboxOnChange}/>
+                                        <label className="form-input__label" htmlFor={`${id}-check`}>{name}</label>
                                     </li>
                                 );
                             })}
+                        </div>
+                        : null
+                    }
+                </div>
+                {this.state.selectedAction === "response" ?
+                    <div className={'form-group col-md-6'}>
+                        <select id="response_type" value={this.state.response} onChange={this.onValueChange}>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                            <option value="noyb">None of your business</option>
+                        </select>
+                    </div>
+                    :null
+                }
+               
+                <div className={'form-group col-md-6'}>
+                {MessageForm.tones.map(( name, index) => {
+                    return(
+                        <li key={index}>
+                            <input className={'form-input__input'} key={`${name}-tone`} type={'checkbox'}
+                             name={`${name}-tone`} value={`${name}`} checked={this.state.selectedTones[name]}
+                             id={`${name}`} onChange={this.tonesOnChange}/>
+                            <label className="form-input__label" htmlFor={`${name}-tone`}>{name}</label>
+                        </li>
+                    );
+                })}
                 </div>
                 <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
                 {MessageForm.gloss &&
