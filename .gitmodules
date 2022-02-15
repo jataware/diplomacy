@@ -1,0 +1,3 @@
+[submodule "pressgloss"]
+	path = pressgloss
+	url = https://github.com/jpowersdevtech/pressgloss.git

@@ -20,8 +20,8 @@ RUN cd diplomacy/web \
     && npm install --only=dev
 
 
-# Install and run Pressgloss from .whl
-RUN pip3 install pressgloss-0.0.1-py3-none-any.whl
+# Install Pressgloss from .whl
+#RUN pip3 install pressgloss-0.0.1-py3-none-any.whl
 
 
 # The following two cmds are moved to the docker-compose, and only 

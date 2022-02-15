@@ -37,8 +37,8 @@ services:
       - "8432"
   
   pressgloss:
-    build: .
-    image: jataware/diplomacy
+    build: ./pressgloss
+    image: jpowersdevtech/pressgloss
     container_name: pressgloss
     volumes:
         - ./:/diplomacy
@@ -48,12 +48,6 @@ services:
       - "5000"
     networks:
       - diplomacy
-    command:
-      - python3
-      - -m
-      - pressgloss
-      - --operation
-      - app
 
 networks:
   diplomacy:
