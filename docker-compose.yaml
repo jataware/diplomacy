@@ -28,11 +28,32 @@ services:
       - "8432"
     networks:
       - diplomacy
+    depends_on:
+      - pressgloss
     command:
       - python3
       - diplomacy/server/run.py
       - --port
       - "8432"
+  
+  pressgloss:
+    build: .
+    image: jataware/diplomacy
+    container_name: pressgloss
+    volumes:
+        - ./:/diplomacy
+    ports:
+    - 5000:5000
+    expose: 
+      - "5000"
+    networks:
+      - diplomacy
+    command:
+      - python3
+      - -m
+      - pressgloss
+      - --operation
+      - app
 
 networks:
   diplomacy:

@@ -153,7 +153,7 @@ def to_tens(daide_text, tones):
 
     """
 
-    endpoint = "http://127.0.0.1:5000/daide2gloss"
+    endpoint = "http://pressgloss:5000/daide2gloss"
     request_json = {"daidetext": daide_text, "tones": tones}
 
     try:
