@@ -17,6 +17,7 @@
 import React from 'react';
 import {Forms} from "../components/forms";
 import {UTILS} from "../../diplomacy/utils/utils";
+import {ORDER_BUILDER} from "../utils/order_building";
 import PropTypes from "prop-types";
 import {Button} from "../components/button";
 
@@ -30,15 +31,14 @@ export class MessageForm extends React.Component {
         this.onFinalSubmit = this.onFinalSubmit.bind(this);
         this.onGlossSubmit = this.onGlossSubmit.bind(this);
         this.tonesOnChange = this.tonesOnChange.bind(this);
+        this.onResponseChange = this.onResponseChange.bind(this);
+        this.onSelectChange = this.onSelectChange.bind(this);
     }
 
     gloss = false;
-
-    static orders=["move", "hold", "support_hold", "support_move", "convoy", "build"];
-
     static tones=["Haughty", "Objective", "Obsequious", "Relaxed", "Urgent"];
 
-    static locations=["MOS", "PAR", "BER", "LON", "ROM", "CON"]
+    static locations=["ADR", "AEG", "ALB", "ANK", "APU", "ARM", "BAL", "BAR", "BEL", "BER", "BLA", "BOH", "BOT", "BRE", "BUD", "BUL", "BUR", "CLY", "CON", "DEN", "EAS", "EDI", "ENG", "FIN", "GAL", "GAS", "GRE", "HEL", "HOL", "ION", "IRI", "KIE", "LON", "LVN", "LVP", "LYO", "MAO", "MAR", "MOS", "MUN", "NAF", "NAO", "NAP", "NTH", "NWG", "NWY", "PAR", "PIC", "PIE", "POR", "PRU", "ROM", "RUH", "RUM", "SER", "SEV", "SIL", "SKA", "SMY", "SPA", "STP", "SWE", "SYR", "TRI", "TUN", "TUS", "TYR", "TYS", "UKR", "VEN", "VIE", "WAL", "WAR", "WES", "YOR"]
 
     static countries=[
         {
@@ -73,12 +73,15 @@ export class MessageForm extends React.Component {
 
     initState() {
         return {selectedAction: 'propose_order',
-                selectedOrder: 'move',
+                selectedOrder: 'M',
+                startLocation: '',
+                endLocation: '',
                 selectedCountries: {},
                 targets: {},
                 actors: {},
                 selectedTones: {},
                 response: '',
+                orderTarget: 'player',
                 };
     }
 
@@ -93,6 +96,19 @@ export class MessageForm extends React.Component {
             targets: prevState.targets,
             response: prevState.response,
         }));
+        debugger;
+    }
+
+    onResponseChange(event) {
+        event.persist();
+        this.setState(prevState => ({
+            selectedAction: prevState.selectedAction,
+            selectedOrder: prevState.selectedOrder,
+            selectedCountries: prevState.selectedCountries,
+            selectedTones: prevState.selectedTones,
+            targets: prevState.targets,
+            response: event.target.value,
+        }));
     }
 
     onOrderChange(event) {
@@ -106,6 +122,17 @@ export class MessageForm extends React.Component {
             targets: prevState.targets,
             response: prevState.response,
         }));
+    }
+
+    onSelectChange(event) {
+        event.persist();
+        console.log('Location Event: ', event);
+        const id = event.target.id;
+        const value = event.target.value;
+        let locationReturn = {};
+        locationReturn[id] = value; 
+        setTimeout( () => this.setState( locationReturn ));
+        console.log("STATE: ", this.state);
     }
 
     checkboxOnChange(event) {
@@ -180,13 +207,17 @@ export class MessageForm extends React.Component {
         let toneHolder = [];
         for (let tone in this.state.selectedTones){
             if (!(tone === "updatedTones")){
-                toneHolder.push(tone);
+                if(this.state.selectedTones[tone]){
+                    toneHolder.push(tone);
+                }
             }
         }
         MessageForm.gloss = true;
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
+            startLocation: this.state.startLocation,
+            endLocation: this.state.endLocation,
             actors: actorHolder,
             targets: targetHolder,
             tones: toneHolder,
@@ -228,12 +259,16 @@ export class MessageForm extends React.Component {
         let toneHolder = [];
         for (let tone in this.state.selectedTones){
             if (!(tone === "updatedTones")){
-                toneHolder.push(tone);
+                if(this.state.selectedTones[tone]){
+                    toneHolder.push(tone);
+                }
             }
         }
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
+            startLocation: this.state.startLocation,
+            endLocation: this.state.endLocation,
             actors: actorHolder,
             targets: targetHolder,
             tones: toneHolder,
@@ -277,18 +312,72 @@ export class MessageForm extends React.Component {
                             <option value="response">Response</option>
                         </select>
                     </div>
-                    {this.state.selectedAction === "propose_order" ? 
+                    {this.state.selectedAction === "propose_order" ||
+                    this.state.selectedAction === "oppose_order" ||
+                    this.state.selectedAction === "notify_order" ? 
                         <div className={'form-group col-md-6'}>
-                            {MessageForm.orders.map((orderType, index) => {
-                                return(
-                                    <li key={index}>
-                                        <input className={'form-input__input'} key={`${orderType}-button`} type={'radio'}
-                                         name={`order_${orderType}`} value={`${orderType}`} checked={this.state.selectedOrder === `${orderType}`}
-                                         id={`${orderType}-button`} onChange={this.onOrderChange}/>
-                                        <label className="form-input__label" htmlFor="${orderType}-button">{orderType}</label>
-                                    </li>
-                                );
-                            })}
+                            <select id="orderTarget" value={this.state.orderTarget} onChange={this.onSelectChange}>
+                                <option value="player">Order I can do</option>
+                                <option value="recipient">Order they can do</option>
+                            </select>
+                            {this.state.orderTarget === "player" ?
+                                <div>
+                                    <h6>Order</h6>
+                                    <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
+                                        {Object.keys(this.props.senderMoves).map((orderType) => {
+                                            return(
+                                                <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
+                                            );
+                                        })}
+                                    </select>
+                                    <h6>Start Location</h6>
+                                    <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
+                                        {this.props.senderMoves[this.state.selectedOrder].map((location) => {
+                                            return(
+                                                <option key={`${location}-key`} value={location}>{location}</option>
+                                            );
+                                        })}
+                                    </select>
+                                    <h6>End Location</h6>
+                                    <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
+                                        {MessageForm.locations.map((location) =>{
+                                            return(
+                                                <option key={`${location}-key`} value={location}>{location}</option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
+                                :null
+                            }
+                            {this.state.orderTarget === "recipient" ?
+                                <div>
+                                    <h6>Order</h6>
+                                    <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
+                                        {Object.keys(this.props.recipientMoves).map((orderType) => {
+                                            return(
+                                                <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
+                                            );
+                                        })}
+                                    </select>
+                                    <h6>Start Location</h6>
+                                    <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
+                                        {this.props.recipientMoves[this.state.selectedOrder].map((location) => {
+                                            return(
+                                                <option key={`${location}-key`} value={location}>{location}</option>
+                                            );
+                                        })}
+                                    </select>
+                                    <h6>End Location</h6>
+                                    <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
+                                        {MessageForm.locations.map((location) =>{
+                                            return(
+                                                <option key={`${location}-key`} value={location}>{location}</option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
+                                :null
+                            }
                         </div>
                         : null
                     }
@@ -334,7 +423,7 @@ export class MessageForm extends React.Component {
                 </div>
                 {this.state.selectedAction === "response" ?
                     <div className={'form-group col-md-6'}>
-                        <select id="response_type" value={this.state.response} onChange={this.onValueChange}>
+                        <select id="response_type" value={this.state.response} onChange={this.onResponseChange}>
                             <option value="yes">Yes</option>
                             <option value="no">No</option>
                             <option value="noyb">None of your business</option>
@@ -370,6 +459,8 @@ MessageForm.propTypes = {
     sender: PropTypes.string,
     recipient: PropTypes.string,
     powers: PropTypes.object,
+    senderMoves: PropTypes.object,
+    recipientMoves: PropTypes.object,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
 };

@@ -979,8 +979,15 @@ export class ContentGame extends React.Component {
                 }
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
-                    <MessageForm sender={role} recipient={currentTabId} powers={engine.powers} onSubmit={form =>
-                        this.sendMessage(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss)}/>)}
+                    <MessageForm 
+                    sender={role} 
+                    recipient={currentTabId} 
+                    powers={engine.powers} 
+                    senderMoves = {engine.getOrderTypeToLocs(role)} 
+                    recipientMoves = {engine.getOrderTypeToLocs(currentTabId)} 
+                    onSubmit={form =>
+                        this.sendMessage(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss)}/>
+                )}
             </div>
         );
     }
