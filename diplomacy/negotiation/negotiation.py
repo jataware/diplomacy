@@ -9,7 +9,16 @@ from diplomacy.engine.message import Message
 # Load Name2Token lookup reference.
 LOOKUP_REF = json.loads(pkg_resources.resource_stream(__name__, 'reference.json').read().decode())
 
-def build_daide(daide, action, actors, targets):
+
+
+def build_daide(daide, negotiation):
+
+    # Process actors and targets to tokens.
+    actors  = ' '.join([*map(LOOKUP_REF.get, negotiation['actors'])])
+    targets = ' '.join([*map(LOOKUP_REF.get, negotiation['targets'])])
+
+    # Build DAIDE based on the root negotiation action.
+    action = str(negotiation['action']).lower() 
     if 'alliance' in action:
         # Level 10 ALY
         daide = daide + f'(PRP (ALY ({actors}) VSS ({targets})))'
@@ -24,10 +33,30 @@ def build_daide(daide, action, actors, targets):
             daide = daide + f'(PRP (DRW))'
         else:
             daide = daide + f'(PRP (DRW ({actors})))'
-
+        
     elif 'order' in action:
         # Level 20 XRD
-        pass
+        # move, hold, support move, support hold, convoy
+        # An XDO arrangement applies to the next turn in which the order type is valid – so the next movement turn for a HLD, MTO,
+        # SUP, CVY or CTO order, the next retreat turn for a RTO or DSB order, and the next adjustment turn for a BLD, REM or WVE
+        # order.
+            
+        # diplomacy/web/src/gui/utils/order_building.js LN 141 single letters lookup to DAIDE.
+
+        # Process order components.
+        order          = negotiation['order']         if 'order'         in negotiation else None
+        end_location   = negotiation['endLocation']   if 'endLocation'   in negotiation else None
+        start_location = negotiation['startLocation'] if 'startLocation' in negotiation else None
+        
+        # Hardcoding while developing
+        unit  = 'AMY'
+        order = 'MTO'
+        actor = 'ENG'
+        if not end_location:
+            end_location = 'ADR'
+            start_location = 'EDI'
+
+        daide = daide + f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} {end_location})))'
 
     elif 'peace' in action:
         # Level 10 PCE
@@ -37,12 +66,10 @@ def build_daide(daide, action, actors, targets):
         # Level 10 SLO
         daide = daide + f'(PRP (SLO ({actors})))'
 
-    elif 'yes' in action:
+    elif 'response' in action:
         # Level 10 YES response
-        
-        pass
-    elif 'reject' in action:
         # Level 10 REJ response
+        # Level 10 BSW response
         pass
 
     # Handle action modifiers.
@@ -124,15 +151,8 @@ def to_daide(negotiation: dict, sender: str, recipient: str):
     """
 
     # Initialize the daide string with FROM TO e.g. FRM (FRA) (ENG) 
-    daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '
-
-    # Process actors and targets to tokens.
-    actors  = ' '.join([*map(LOOKUP_REF.get, negotiation['actors'])])
-    targets = ' '.join([*map(LOOKUP_REF.get, negotiation['targets'])])
-
-    # Build DAIDE based on the root negotiation action.
-    action = str(negotiation['action']).lower()   
-    daide = build_daide(daide, action, actors, targets)
+    daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '  
+    daide = build_daide(daide, negotiation)
     
     return daide
 
