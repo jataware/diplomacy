@@ -54,7 +54,7 @@ export class MessageView extends React.Component {
                 .replace('\r', '\n')
                 .replace('<br>', '\n')
                 .replace('<br/>', '\n')
-                .split('\n');
+                .split('\n'); 
         }
         let onClick = null;
         const classNames = ['game-message', 'row'];
