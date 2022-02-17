@@ -26,6 +26,7 @@
 """
 #pylint:disable=too-many-lines
 import logging
+import json
 
 from tornado import gen
 from tornado.concurrent import Future
@@ -828,6 +829,11 @@ def on_send_game_message(server, request, connection_handler):
         # Pressgloss the message and add the returned string of the new text to the Message Obj.
         gloss_message_text = negotiation.pressgloss(message, level.game.message_history, level.game.messages, return_message_obj_str=False) 
         message.message = gloss_message_text
+
+        # Set the tones key in the message obj for storage.
+        message_negotiation = json.loads(message.negotiation)
+        # Message demands a primitive type, so make tones a comma-delimited str.
+        message.tones = ','.join(message_negotiation['tones'])
 
         # original code starts here:
         message.time_sent = level.game.add_message(message)
