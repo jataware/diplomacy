@@ -72,8 +72,10 @@ class ConnectionHandler(WebSocketHandler):
         origin = parsed_origin.netloc.split(':')[0]
         origin = origin.lower()
 
+        LOGGER.debug("check_origin Origin %s", origin)
         # Split host with ':' and keep only first piece to ignore eventual port.
         host = self.request.headers.get("Host").split(':')[0]
+        LOGGER.debug("check_origin Host %s", host)
         return origin == host
 
     def on_close(self):
