@@ -31,7 +31,12 @@ docker_login-dockerhub:| check-DOCKERHUB_USER check-DOCKERHUB_TOKEN  ## Login to
 	@printf "${DOCKERHUB_TOKEN}\n" | docker login -u "${DOCKERHUB_USER}" --password-stdin
 
 
-
 .PHONY: docker_build
 docker_build:  ## Builds docker image
 	docker build -f Dockerfile -t jataware/diplomacy:${VERSION} .
+
+
+.PHONY: docker_push
+docker_push:| docker_login-dockerhub  ## Pushes docker image to docker hub
+	@echo "push ${VERSION}"
+	docker push "jataware/diplomacy:${VERSION}"
