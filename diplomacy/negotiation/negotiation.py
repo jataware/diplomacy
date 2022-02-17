@@ -10,8 +10,7 @@ from diplomacy.engine.message import Message
 LOOKUP_REF = json.loads(pkg_resources.resource_stream(__name__, 'reference.json').read().decode())
 
 
-
-def build_daide(daide, negotiation):
+def build_daide(daide, negotiation, message_daide):
 
     # Process actors and targets to tokens.
     actors  = ' '.join([*map(LOOKUP_REF.get, negotiation['actors'])])
@@ -70,7 +69,22 @@ def build_daide(daide, negotiation):
         # Level 10 YES response
         # Level 10 REJ response
         # Level 10 BSW response
-        pass
+
+        # message_daide: FRM (AUS) (ITA) (PRP (ALY (ITA) VSS (GER)))
+        print(message_daide)
+
+        # no: REJ, noyb: BWX, default to yes
+        response = str(negotiation['response']).lower()
+        if response == 'no':
+            response = 'REJ'
+        elif response == 'noyb':
+            response = 'BWX'
+        else:
+            response = 'YES' 
+        print(response)
+
+        daide = daide + f'({response} ({message_daide}))'
+        print(daide)
 
     # Handle action modifiers.
     if 'notify' in action:
@@ -83,7 +97,38 @@ def build_daide(daide, negotiation):
 
     return daide
 
-def pressgloss(message_obj: Message, return_message_obj_str: bool = True):
+def get_message_daide(message_history, messages, sender, recipient):
+    # messages are current; message_history loaded from json db.
+    # So check messages, then message_history for the latest.
+
+    # messages is a StructuredDict
+    for message in messages.reversed_values():               
+        if (message.recipient == sender and message.sender == recipient):
+            # Last message between these powers.
+            # message.daide: FRM (AUS) (ITA) (PRP (ALY (ITA) VSS (GER)))
+            
+            # Leave only PRP or FCT ...
+            # Split after 3rd (.
+            proposal = message.daide.split('(')[3:]
+            # Rejoin array with ( and remove trailng ).
+            return '('.join(proposal)[:-1]
+
+    # message_history is a StructuredDict of StructuredDict
+    for phase_message_history in message_history.reversed_values():
+        for message in phase_message_history.reversed_values():
+            if (message.recipient == sender and message.sender == recipient):
+                # Last message between these powers.
+                # message.daide: FRM (AUS) (ITA) (PRP (ALY (ITA) VSS (GER)))
+                
+                # Leave only PRP or FCT ...
+                # Split after 3rd (.
+                proposal = message.daide.split('(')[3:]
+                # Rejoin array with ( and remove trailng ).
+                return '('.join(proposal)[:-1]
+    
+    return None
+
+def pressgloss(message_obj: Message, message_history, messages, return_message_obj_str: bool = True):
     """
     Description
     -----------
@@ -109,7 +154,7 @@ def pressgloss(message_obj: Message, return_message_obj_str: bool = True):
     negotiation = json.loads(message_obj.negotiation)
 
     # Convert the message to DAIDE.
-    message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient)
+    message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient, message_history, messages)
 
     # Backwards compatible massaging of the tones.
     if 'tones' in negotiation:
@@ -131,7 +176,7 @@ def pressgloss(message_obj: Message, return_message_obj_str: bool = True):
         # Return only the generated Pressgloss text.
         return message_obj.message
 
-def to_daide(negotiation: dict, sender: str, recipient: str):
+def to_daide(negotiation: dict, sender: str, recipient: str, message_history, messages):
     """
     Description
     -----------
@@ -150,9 +195,17 @@ def to_daide(negotiation: dict, sender: str, recipient: str):
 
     """
 
+    # Filter for messages between these powers.
+    # Maybe check for action == reponse first.
+    action = str(negotiation['action']).lower() 
+    if action == 'response':
+        message_daide = get_message_daide(message_history, messages, sender, recipient)
+    else:
+        message_daide = None
+
     # Initialize the daide string with FROM TO e.g. FRM (FRA) (ENG) 
     daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '  
-    daide = build_daide(daide, negotiation)
+    daide = build_daide(daide, negotiation, message_daide)
     
     return daide
 
@@ -173,7 +226,8 @@ def to_tens(daide_text, tones):
 
     """
 
-    endpoint = "http://pressgloss:5000/daide2gloss"
+    #endpoint = "http://pressgloss:5000/daide2gloss"
+    endpoint = "http://172.17.0.2:5000/daide2gloss"
     request_json = {"daidetext": daide_text, "tones": tones}
 
     try:
