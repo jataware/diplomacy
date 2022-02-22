@@ -24,25 +24,34 @@ export class MessageView extends React.Component {
         const owner = this.props.owner;
         const id = this.props.id ? {id: this.props.id} : {};
         console.log("Props: ", this.props);
-        // const messagesLines = message.message.replace('\r\n', '\n')
-        //     .replace('\r', '\n')
-        //     .replace('<br>', '\n')
-        //     .replace('<br/>', '\n')
-        //     .split('\n');
         let messagesLines = '';
+        //Check this because sometimes the backend stores the message here.
+        let messageTimeSent = JSON.parse(message.time_sent);
+        let messageBuried = '';
+        if(typeof(messageTimeSent) !== 'number'){
+            messageBuried = messageTimeSent.message;
+        }
         if(!message.gloss){
-            messagesLines = message.message.replace('\r\n', '\n')
-            .replace('\r', '\n')
-            .replace('<br>', '\n')
-            .replace('<br/>', '\n')
-            .split('\n');
-            if(messagesLines === ''){
-                const messageRaw = JSON.parse(message.time_sent);
-                messagesLines = messageRaw.message.replace('\r\n', '\n')
+            if(message.message !== ''){
+                messagesLines = message.message.replace('\r\n', '\n')
                     .replace('\r', '\n')
                     .replace('<br>', '\n')
                     .replace('<br/>', '\n')
                     .split('\n');
+            }
+            else if(messageBuried !== ''){
+                messagesLines = messageBuried.replace('\r\n', '\n')
+                    .replace('\r', '\n')
+                    .replace('<br>', '\n')
+                    .replace('<br/>', '\n')
+                    .split('\n');
+            }
+            else {
+                messagesLines = this.props.glossedBackup.replace('\r\n', '\n')
+                        .replace('\r', '\n')
+                        .replace('<br>', '\n')
+                        .replace('<br/>', '\n')
+                        .split('\n');
             }
         }
         else{
@@ -97,5 +106,6 @@ MessageView.propTypes = {
     owner: PropTypes.string,
     onClick: PropTypes.func,
     id: PropTypes.string,
-    read: PropTypes.bool
+    read: PropTypes.bool,
+    glossedBackup: PropTypes.string
 };
