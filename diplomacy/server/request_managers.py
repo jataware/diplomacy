@@ -827,11 +827,13 @@ def on_send_game_message(server, request, connection_handler):
     # gloss here means gloss_only, it is sent through the Pressgloss API regardless.
     if not message.gloss:
         # Pressgloss the message and add the returned string of the new text to the Message Obj.
+        LOGGER.info(message.to_dict())
         gloss_message_text = negotiation.pressgloss(message, level.game.message_history, level.game.messages, return_message_obj_str=False) 
         message.message = gloss_message_text
 
         # Set the tones key in the message obj for storage.
         message_negotiation = json.loads(message.negotiation)
+        
         # Message demands a primitive type, so make tones a comma-delimited str.
         message.tones = ','.join(message_negotiation['tones'])
 

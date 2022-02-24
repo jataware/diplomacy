@@ -73,20 +73,12 @@ class Message(Jsonable):
         strings.TIME_SENT:   parsing.OptionalValueType(int),  # given by server.
         strings.PHASE:       str,                             # phase short name (e.g. 'S1901M' or 'COMPLETED')
         strings.MESSAGE:     parsing.OptionalValueType(str),
-        strings.NEGOTIATION: parsing.OptionalValueType(str), 
+        strings.NEGOTIATION: parsing.OptionalValueType(str),  # string of form data json
         strings.DAIDE:       parsing.OptionalValueType(str),
         strings.TONES:       parsing.OptionalValueType(str),  # comma-delimited str of tones.
         strings.GLOSS:       parsing.OptionalValueType(bool),
     }
-    """
-    “negotiation”: 
-        {
-            “actors”: [“France”, “Italy],
-            “targets”: [“Russia”, “Turkey”],
-            “action”: “Propose alliance”,
-            “tones” : [“Haughty”]
-        }
-    """
+
     def __init__(self, **kwargs):
         self.sender      = None               # type: str
         self.recipient   = None               # type: str
