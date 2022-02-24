@@ -96,7 +96,6 @@ export class MessageForm extends React.Component {
             targets: prevState.targets,
             response: prevState.response,
         }));
-        debugger;
     }
 
     onResponseChange(event) {
@@ -216,6 +215,7 @@ export class MessageForm extends React.Component {
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
+            orderTarget: this.state.orderTarget,
             startLocation: this.state.startLocation,
             endLocation: this.state.endLocation,
             actors: actorHolder,
@@ -267,6 +267,7 @@ export class MessageForm extends React.Component {
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
+            orderTarget: this.state.orderTarget,
             startLocation: this.state.startLocation,
             endLocation: this.state.endLocation,
             actors: actorHolder,
@@ -420,6 +421,20 @@ export class MessageForm extends React.Component {
                         </div>
                         : null
                     }
+                    {this.state.selectedAction === "propose_dmz" ||
+                    this.state.selectedAction === "oppose_dmz" ||
+                    this.state.selectedAction === "notify_dmz" ?
+                        <div className={'form-group col-md-6'}>
+                            <select id="dmzLocation" value={this.state.dmzLocation} onChange={this.onSelectChange}>
+                                {MessageForm.locations.map((location) =>{
+                                    return(
+                                        <option key={`${location}-key`} value={location}>{location}</option>
+                                    );
+                                })}
+                            </select>
+                        </div>
+                        : null
+                    }
                 </div>
                 {this.state.selectedAction === "response" ?
                     <div className={'form-group col-md-6'}>
@@ -431,6 +446,7 @@ export class MessageForm extends React.Component {
                     </div>
                     :null
                 }
+
                
                 <div className={'form-group col-md-6'}>
                 {MessageForm.tones.map(( name, index) => {

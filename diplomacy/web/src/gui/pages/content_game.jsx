@@ -920,10 +920,10 @@ export class ContentGame extends React.Component {
         let glossBool = false;
         let glossedMessage = '';
         if(engine.messages.size()){
-            console.log("CONTENT GAME MESSAGES: ", engine.messages, "Last key: ", engine.messages.lastValue());
+            //console.log("CONTENT GAME MESSAGES: ", engine.messages, "Last key: ", engine.messages.lastValue());
             glossBool = JSON.parse(engine.messages.__real_keys[0]).gloss;
             glossedMessage = JSON.parse(engine.messages.__real_keys[0]).message;
-            console.log("GLOSS FROM CONTENT GAME: ", glossBool, "MESS: ", glossedMessage);
+            //console.log("GLOSS FROM CONTENT GAME: ", glossBool, "MESS: ", glossedMessage);
         }
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
@@ -954,9 +954,11 @@ export class ContentGame extends React.Component {
                                                 id = `${protagonist}-unread`;
                                             }
                                         }
+                                        console.log("MESSAGE: ", message, "Message");
                                         return <MessageView key={index} phase={engine.phase} owner={role}
                                                             message={message}
                                                             read={message.phase !== engine.phase}
+                                                            glossedBackup = {glossedMessage}
                                                             id={id} onClick={this.onClickMessage}/>;
                                     }))
                             )}
