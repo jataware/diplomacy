@@ -4,6 +4,10 @@ import json
 import logging
 import pkg_resources
 import requests
+
+import sys
+sys.path.append('../jatadiplo')
+
 from diplomacy.engine.message import Message
 
 
@@ -14,7 +18,8 @@ LOOKUP_REF = json.loads(pkg_resources.resource_stream(__name__, 'reference.json'
 
 def empires_to_tokens(empires):
     # Process empires list to tokens separated by
-    return ' '.join([*map(LOOKUP_REF.get, empires)])
+
+    return ' '.join([*map(LOOKUP_REF.get, [e.lower() for e in empires])])
 
 def build_daide(daide, negotiation, message_history, messages, sender, recipient):
     
@@ -212,7 +217,6 @@ def pressgloss(message_obj: Message, message_history, messages, return_message_o
     else:
         tones = ["Haughty","Urgent"]
 
-    
     # Set the message_obj message to the TENS message created by the Pressgloss API.
     message_obj.message = to_tens(message_obj.daide, tones)
 
@@ -236,21 +240,57 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
 
     The UI uses a discreet list of available orders.
 
-    Uses Message.negotiation which is a json string:
-        “negotiation”: 
+    Uses Message.negotiation which is a json string of the Web UI form data and can 
+    have multiple messages (e.g. for ORR and AND):
+        “negotiation": 
         {
-            “actors”: [“France”, “Italy"],
-            “targets”: [“Russia”, “Turkey”],
-            “action”: “Propose alliance”,
-            “tones” : [“Haughty”]
+            "1": {
+                “actors": [“France", “Italy"],
+                “targets": [“Russia", “Turkey"],
+                “action": “Propose alliance",
+                “tones" : [“Haughty"],
+                "conditional": "OR"
+            },
+            "2": {
+                “actors": [“France", “Italy"],
+                “targets": ["Austria", “Germany"],
+                “action": “Propose alliance",
+                “tones" : [“Haughty"],
+                "conditional": ""
         }
 
     """
-
     # Initialize the daide string with FROM TO e.g. FRM (FRA) (ENG) 
-    daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '  
-    daide = build_daide(daide, negotiation, message_history, messages, sender, recipient)
+    daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '
+
+    if len(negotiation.keys()) > 1:
+        # Handle Level 30 Mutlipart arrangements and multiple-negotiations.
+        # Loop through possibly multiple negotations in message.negotiation.
+        
+        for idx, neg in negotiation.items():
+            if idx == "1":
+                # Set the conditional based on the first negotiation.
+                conditional = neg['conditional']
+                if conditional.lower() == 'and':
+                    daide = daide + 'PRP (AND'
+                else:
+                    daide = daide + 'PRP (ORR'
+
+            # Build the arrangement based on the standard formula.
+            arrangement_daide = build_daide("", neg, message_history, messages, sender, recipient)
+
+            # Strip (PRP  and final )from the arrangement_daide.
+            arrangement_daide = arrangement_daide[5:][:-1]
+
+            # Add the arrangement daide to the main PRP AND/ORR daide.
+            daide = f'{daide} {arrangement_daide}'
+
+        # Add the closing PRP ).            
+        daide = daide + ')'
+    else:
+        daide = build_daide(daide, negotiation["1"], message_history, messages, sender, recipient)
     
+    LOGGER.info(daide)
     return daide
 
 def to_tens(daide_text, tones):
@@ -284,3 +324,39 @@ def to_tens(daide_text, tones):
 
     except Exception as e:
         print(e)
+
+
+"""
+negotiation = { 
+    "1": {
+        "actors": ["France", "Italy"],
+        "targets": ["Russia", "Turkey"],
+        "action": "Propose alliance",
+        "tones" : ["Haughty"],
+        "conditional": "OR"
+        },
+    "2": {
+        "actors": ["France", "Italy"],
+        "targets": ["Germany", "Austria"],
+        "action": "Propose alliance",
+        "tones" : ["Haughty"],
+        "conditional": ""
+        }
+}
+
+daide = to_daide(negotiation=negotiation, sender='France', recipient="Italy", message_history=None, messages=None)
+print(daide) # FRM (FRA) (ITA) PRP (ORR (ALY (FRA ITA) VSS (RUS TUR)) (ALY (FRA ITA) VSS (GER AUS)))
+"""
+
+"""
+negotiation = { 
+    "1": {
+        "actors": ["France", "Italy"],
+        "targets": [],
+        "action": "Propose peace",
+        "tones" : ["Haughty"],
+        "conditional": ""
+        }}
+daide = to_daide(negotiation=negotiation, sender='France', recipient="Italy", message_history=None, messages=None)
+print(daide) # FRM (FRA) (ITA) (PRP (PCE (FRA ITA)))
+"""
