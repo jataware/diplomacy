@@ -264,9 +264,15 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
     daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '
 
     if len(negotiation.keys()) > 1:
+        # Backwards compatibility patch for earlier version of negotiation without indices.
+        if ('action' in negotiation and 'order' in negotiation):
+            daide = build_daide(daide, negotiation, message_history, messages, sender, recipient)
+            return daide
+    
         # Handle Level 30 Mutlipart arrangements and multiple-negotiations.
         # Loop through possibly multiple negotations in message.negotiation.
-        
+    
+
         for idx, neg in negotiation.items():
             if idx == "1":
                 # Set the conditional based on the first negotiation.
@@ -288,6 +294,8 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
         # Add the closing PRP ).            
         daide = daide + ')'
     else:
+        LOGGER.info(negotiation)
+        LOGGER.info(negotiation["1"])
         daide = build_daide(daide, negotiation["1"], message_history, messages, sender, recipient)
     
     LOGGER.info(daide)

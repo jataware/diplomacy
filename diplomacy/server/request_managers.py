@@ -835,8 +835,11 @@ def on_send_game_message(server, request, connection_handler):
         message_negotiation = json.loads(message.negotiation)
         
         # Message demands a primitive type, so make tones a comma-delimited str.
-        message.tones = ','.join(message_negotiation['tones'])
-
+        # Handle old and new negotiation schemas:
+        if 'tones' in message_negotiation:
+            message.tones = ','.join(message_negotiation['tones'])
+        else:
+            message.tones = ','.join(message_negotiation['1']['tones'])
         # original code starts here:
         message.time_sent = level.game.add_message(message)
         Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
