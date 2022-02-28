@@ -33,6 +33,8 @@ export class MessageForm extends React.Component {
         this.tonesOnChange = this.tonesOnChange.bind(this);
         this.onResponseChange = this.onResponseChange.bind(this);
         this.onSelectChange = this.onSelectChange.bind(this);
+        this.addFormModule = this.addFormModule.bind(this);
+        this.subtractFormModule = this.subtractFormModule.bind(this);
     }
 
     gloss = false;
@@ -72,7 +74,7 @@ export class MessageForm extends React.Component {
     ];
 
     initState() {
-        return {selectedAction: 'propose_order',
+        return {selectedAction1: 'propose_order',
                 selectedOrder: 'M',
                 startLocation: '',
                 endLocation: '',
@@ -82,6 +84,8 @@ export class MessageForm extends React.Component {
                 selectedTones: {},
                 response: '',
                 orderTarget: 'player',
+                form_modules: 1,
+                conditionalSelect: '',
                 };
     }
 
@@ -180,6 +184,26 @@ export class MessageForm extends React.Component {
             targets: prevState.targets,
             response: prevState.response,
         }));
+    }
+
+    addFormModule(event) {
+        event.preventDefault();
+        event.persist();
+        let num_of_modules = this.state.form_modules;
+        let stateContainer = {};
+        stateContainer['form_modules'] = ++num_of_modules;
+        setTimeout( () => this.setState( stateContainer ));
+    }
+
+    subtractFormModule(event) {
+        event.preventDefault();
+        event.persist();
+        let num_of_modules = this.state.form_modules;
+        let stateContainer = {};
+        if(num_of_modules > 1){
+            stateContainer['form_modules'] = --num_of_modules;
+        }
+        setTimeout( () => this.setState( stateContainer ));
     }
 
     onGlossSubmit(event) {
@@ -288,12 +312,12 @@ export class MessageForm extends React.Component {
         console.log(`Final Submit Event:`, event);
     }
 
-    render() {
+    form_body(index) {
         return (
-            <form>
+            <div>
                 <div className={'form-group row'}>
                     <div className="form-group col-md-6">
-                        <select id="negotiation_type" value={this.state.selectedAction} onChange={this.onValueChange}>
+                        <select id={`selectedAction${index}`} value={this.state[`selectedAction${index}`]} onChange={this.onSelectChange}>
                             <option value="propose_order">Propose Order</option>
                             <option value="propose_alliance">Propose Alliance</option>
                             <option value="propose_peace">Propose Peace</option>
@@ -313,18 +337,18 @@ export class MessageForm extends React.Component {
                             <option value="response">Response</option>
                         </select>
                     </div>
-                    {this.state.selectedAction === "propose_order" ||
-                    this.state.selectedAction === "oppose_order" ||
-                    this.state.selectedAction === "notify_order" ? 
+                    {this.state[`selectedAction${index}`] === "propose_order" ||
+                    this.state[`selectedAction${index}`] === "oppose_order" ||
+                    this.state[`selectedAction${index}`] === "notify_order" ? 
                         <div className={'form-group col-md-6'}>
-                            <select id="orderTarget" value={this.state.orderTarget} onChange={this.onSelectChange}>
+                            <select id={`orderTarget${index}`} value={this.state[`orderTarget${index}`]} onChange={this.onSelectChange}>
                                 <option value="player">Order I can do</option>
                                 <option value="recipient">Order they can do</option>
                             </select>
-                            {this.state.orderTarget === "player" ?
+                            {this.state[`orderTarget${index}`] === "player" ?
                                 <div>
                                     <h6>Order</h6>
-                                    <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
+                                    <select id={`selectedOrder${index}`} value={this.state[`selectedOrder${index}`]} onChange={this.onSelectChange}>
                                         {Object.keys(this.props.senderMoves).map((orderType) => {
                                             return(
                                                 <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
@@ -332,7 +356,7 @@ export class MessageForm extends React.Component {
                                         })}
                                     </select>
                                     <h6>Start Location</h6>
-                                    <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
+                                    <select id={`startLocation${index}`} value={this.state[`startLocation${index}`]} onChange={this.onSelectChange}>
                                         {this.props.senderMoves[this.state.selectedOrder].map((location) => {
                                             return(
                                                 <option key={`${location}-key`} value={location}>{location}</option>
@@ -353,7 +377,7 @@ export class MessageForm extends React.Component {
                             {this.state.orderTarget === "recipient" ?
                                 <div>
                                     <h6>Order</h6>
-                                    <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
+                                    <select id={`selectedOrder${index}`} value={this.state[`selectedOrder${index}`]} onChange={this.onSelectChange}>
                                         {Object.keys(this.props.recipientMoves).map((orderType) => {
                                             return(
                                                 <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
@@ -382,12 +406,12 @@ export class MessageForm extends React.Component {
                         </div>
                         : null
                     }
-                    {this.state.selectedAction === "propose_peace" || 
-                    this.state.selectedAction === "propose_alliance" || 
-                    this.state.selectedAction === "notify_alliance" ||
-                    this.state.selectedAction === "notify_peace" ||
-                    this.state.selectedAction === "oppose_peace" ||
-                    this.state.selectedAction === "oppose_alliance" ? 
+                    {this.state[`selectedAction${index}`] === "propose_peace" || 
+                    this.state[`selectedAction${index}`] === "propose_alliance" || 
+                    this.state[`selectedAction${index}`] === "notify_alliance" ||
+                    this.state[`selectedAction${index}`] === "notify_peace" ||
+                    this.state[`selectedAction${index}`] === "oppose_peace" ||
+                    this.state[`selectedAction${index}`] === "oppose_alliance" ? 
                         <div className={'form-group col-md-6'}>
                             <h6>Countries Involved: </h6>
                             {MessageForm.countries.map(({ id, name }, index) => {
@@ -460,12 +484,27 @@ export class MessageForm extends React.Component {
                     );
                 })}
                 </div>
+                <button title="subtractFormModule" onClick={this.subtractFormModule}>-</button>
+                <select id="conditionalSelect" value={this.state.conditionalSelect} onChange={this.onSelectChange}>
+                    <option value=""> </option>
+                    <option value="and">AND</option>
+                    <option value="or">OR</option>
+                </select>
+                <button title="addFormModule" onClick={this.addFormModule}>+</button>
+            </div>
+        );
+    }
+
+    render() {
+        return (
+            <form>
+                {Array.apply(null, { length: this.state.form_modules }).map((e, i) => (
+                            this.form_body(i+1)
+                ))}
                 <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
                 {MessageForm.gloss &&
                     <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
                 }
-                
-
             </form>
         );
     }

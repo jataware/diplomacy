@@ -958,7 +958,7 @@ export class ContentGame extends React.Component {
                                         return <MessageView key={index} phase={engine.phase} owner={role}
                                                             message={message}
                                                             read={message.phase !== engine.phase}
-                                                            glossedBackup = {glossedMessage}
+                                                            glossedBackup={glossedMessage}
                                                             id={id} onClick={this.onClickMessage}/>;
                                     }))
                             )}
@@ -1019,7 +1019,10 @@ export class ContentGame extends React.Component {
                      onError={this.getPage().error}
                      orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
                      onHover={showOrders ? this.displayLocationOrders : null}
-                     onSelectVia={this.onSelectVia}/>
+                     onSelectVia={this.onSelectVia}
+                     //My changes 
+                     onSelectLocation={this.onSelectLocation}
+                     />
             </div>
         );
     }
