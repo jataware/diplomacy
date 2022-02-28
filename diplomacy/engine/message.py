@@ -66,26 +66,19 @@ class Message(Jsonable):
         are stored on server. Therefore, message timestamp is the time when server stores the message, not the time
         when message was sent by any client.
     """
-    __slots__ = ['sender', 'recipient', 'time_sent', 'phase', 'message', 'negotiation', 'daide', 'gloss']
+    __slots__ = ['sender', 'recipient', 'time_sent', 'phase', 'message', 'negotiation', 'daide', 'tones', 'gloss']
     model = {
         strings.SENDER:      str,                             # either SYSTEM or a power name.
         strings.RECIPIENT:   str,                             # either GLOBAL, OBSERVER, OMNISCIENT or a power name.
         strings.TIME_SENT:   parsing.OptionalValueType(int),  # given by server.
         strings.PHASE:       str,                             # phase short name (e.g. 'S1901M' or 'COMPLETED')
         strings.MESSAGE:     parsing.OptionalValueType(str),
-        strings.NEGOTIATION: parsing.OptionalValueType(str), 
+        strings.NEGOTIATION: parsing.OptionalValueType(str),  # string of form data json
         strings.DAIDE:       parsing.OptionalValueType(str),
+        strings.TONES:       parsing.OptionalValueType(str),  # comma-delimited str of tones.
         strings.GLOSS:       parsing.OptionalValueType(bool),
     }
-    """
-    “negotiation”: 
-        {
-            “actors”: [“France”, “Italy],
-            “targets”: [“Russia”, “Turkey”],
-            “action”: “Propose alliance”,
-            “tones” : [“Haughty”]
-        }
-    """
+
     def __init__(self, **kwargs):
         self.sender      = None               # type: str
         self.recipient   = None               # type: str
@@ -94,6 +87,7 @@ class Message(Jsonable):
         self.message     = None               # type: str
         self.negotiation = None               # type: str
         self.daide       = None               # type: str
+        self.tones       = None               # type: str
         self.gloss       = None               # type: bool
         super(Message, self).__init__(**kwargs)
 

@@ -26,6 +26,7 @@
 """
 #pylint:disable=too-many-lines
 import logging
+import json
 
 from tornado import gen
 from tornado.concurrent import Future
@@ -826,9 +827,19 @@ def on_send_game_message(server, request, connection_handler):
     # gloss here means gloss_only, it is sent through the Pressgloss API regardless.
     if not message.gloss:
         # Pressgloss the message and add the returned string of the new text to the Message Obj.
-        gloss_message_text = negotiation.pressgloss(message, return_message_obj_str=False) 
+        LOGGER.info(message.to_dict())
+        gloss_message_text = negotiation.pressgloss(message, level.game.message_history, level.game.messages, return_message_obj_str=False) 
         message.message = gloss_message_text
 
+        # Set the tones key in the message obj for storage.
+        message_negotiation = json.loads(message.negotiation)
+        
+        # Message demands a primitive type, so make tones a comma-delimited str.
+        # Handle old and new negotiation schemas:
+        if 'tones' in message_negotiation:
+            message.tones = ','.join(message_negotiation['tones'])
+        else:
+            message.tones = ','.join(message_negotiation['1']['tones'])
         # original code starts here:
         message.time_sent = level.game.add_message(message)
         Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
@@ -837,7 +848,7 @@ def on_send_game_message(server, request, connection_handler):
     else: 
         # PressGloss the negotiation information: add DAIDE and glossed message string 
         # to the Message object. The Message object is returned as a string.
-        new_message_obj_str = negotiation.pressgloss(message, return_message_obj_str=True)
+        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, return_message_obj_str=True)
         return responses.DataToken(data = new_message_obj_str, request_id=request.request_id)
 
 
