@@ -211,7 +211,8 @@ def pressgloss(message_obj: Message, message_history, messages, return_message_o
 
     # Convert the message to DAIDE.
     LOGGER.info(f'Converting message to DAIDE: {message_obj.message}')
-    message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient, message_history, messages)
+    if message_obj.negotiation != '{}':
+        message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient, message_history, messages)
 
     # Backwards compatible massaging of the tones.
     if 'tones' in negotiation:
@@ -299,7 +300,6 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
         daide = daide + ')'
     else:
         LOGGER.info(negotiation)
-        LOGGER.info(negotiation["1"])
         LOGGER.info('other negotiation')
         daide = build_daide(daide, negotiation["1"], message_history, messages, sender, recipient)
     
