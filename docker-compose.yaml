@@ -5,7 +5,7 @@ services:
     image: jataware/diplomacy
     container_name: diplomacy_ui
     volumes:
-      - ./:/diplomacy
+      - ./data/:/diplomacy/data
     ports:
     - 3000:3000
     expose: 
@@ -14,8 +14,7 @@ services:
       - diplomacy
     depends_on:
       - server
-    command: /bin/bash -c "npm start --prefix diplomacy/web"
-
+    command: "npm start --prefix diplomacy/web"
   server:
     build: .
     image: jataware/diplomacy
@@ -35,6 +34,8 @@ services:
       - diplomacy/server/run.py
       - --port
       - "8432"
+      - --auto_reload
+      - "True"
   
   pressgloss:
     build: ./pressgloss

@@ -475,7 +475,7 @@ class Server:
         signal.signal(signal.SIGINT, self.interruption_handler.handler)
         atexit.register(self.backup_now)
 
-    def start(self, port=None, io_loop=None):
+    def start(self, port=None, io_loop=None, auto_reload=False):
         """ Start server if not yet started. Raise an exception if server is already started.
 
             :param port: (optional) port where server must run. If not provided,
@@ -497,7 +497,8 @@ class Server:
             'xsrf_cookies': True,
             'websocket_ping_interval': self.ping_seconds,
             'websocket_ping_timeout': 2 * self.ping_seconds,
-            'websocket_max_message_size': 64 * 1024 * 1024
+            'websocket_max_message_size': 64 * 1024 * 1024,
+            'autoreload': auto_reload,
         }
         self.backend = _ServerBackend()
         self.backend.application = tornado.web.Application(handlers, **settings)

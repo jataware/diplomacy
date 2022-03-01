@@ -9,7 +9,7 @@ import sys
 sys.path.append('../jatadiplo')
 
 from diplomacy.engine.message import Message
-
+import diplomacy.settings
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def empires_to_tokens(empires):
     return ' '.join([*map(LOOKUP_REF.get, [e.lower() for e in empires])])
 
 def build_daide(daide, negotiation, message_history, messages, sender, recipient):
-    
+    LOGGER.info(f'Building DAIDE from: {negotiation}')
     # Build DAIDE based on the root negotiation action.
     action = str(negotiation['action']).lower() 
     
@@ -119,6 +119,7 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         # Add NOT to arrangement.
         daide = f"{daide.replace('PRP', 'PRP (NOT')})"
 
+    LOGGER.info(f'Built DAIDE: {daide}')
     return daide
 
 def get_message_daide(message_history, messages, sender, recipient, action):
@@ -209,6 +210,7 @@ def pressgloss(message_obj: Message, message_history, messages, return_message_o
     negotiation = json.loads(message_obj.negotiation)
 
     # Convert the message to DAIDE.
+    LOGGER.info(f'Converting message to DAIDE: {message_obj.message}')
     message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient, message_history, messages)
 
     # Backwards compatible massaging of the tones.
@@ -266,6 +268,7 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
     if len(negotiation.keys()) > 1:
         # Backwards compatibility patch for earlier version of negotiation without indices.
         if ('action' in negotiation and 'order' in negotiation):
+            LOGGER.info('action/order negotiation')
             daide = build_daide(daide, negotiation, message_history, messages, sender, recipient)
             return daide
     
@@ -283,6 +286,7 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
                     daide = daide + 'PRP (ORR'
 
             # Build the arrangement based on the standard formula.
+            LOGGER.info('multi-part negotiation')
             arrangement_daide = build_daide("", neg, message_history, messages, sender, recipient)
 
             # Strip (PRP  and final )from the arrangement_daide.
@@ -296,6 +300,7 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
     else:
         LOGGER.info(negotiation)
         LOGGER.info(negotiation["1"])
+        LOGGER.info('other negotiation')
         daide = build_daide(daide, negotiation["1"], message_history, messages, sender, recipient)
     
     LOGGER.info(daide)
@@ -317,18 +322,15 @@ def to_tens(daide_text, tones):
         Optional tones.
 
     """
-
-    #endpoint = "http://pressgloss:5000/daide2gloss"
-    endpoint = "http://172.17.0.2:5000/daide2gloss"
+    LOGGER.info("Sending DAIDE to Pressgloss API")
+    endpoint = f"{diplomacy.settings.PRESSGLOSS_URL}/daide2gloss"
     request_json = {"daidetext": daide_text, "tones": tones}
 
     try:
-        req = requests.post(endpoint, json=request_json)
-
-        if "gloss" in req.json():
-            return req.json()["gloss"]
-        else:
-            return None
+        gloss_response = requests.post(endpoint, json=request_json).json()
+        gloss = gloss_response.get("gloss",None)
+        LOGGER.info(f"Pressgloss response: {gloss}")
+        return gloss
 
     except Exception as e:
         print(e)
