@@ -47,11 +47,17 @@ export class MessageView extends React.Component {
                     .split('\n');
             }
             else {
-                messagesLines = this.props.glossedBackup.replace('\r\n', '\n')
+                try{
+                    messagesLines = this.props.glossedBackup.replace('\r\n', '\n')
                         .replace('\r', '\n')
                         .replace('<br>', '\n')
                         .replace('<br/>', '\n')
                         .split('\n');
+                }
+                catch (err) {
+                    console.log("Error displaying inital message: ", err);
+                    messagesLines = ['Loading'];
+                }
             }
         }
         else{
