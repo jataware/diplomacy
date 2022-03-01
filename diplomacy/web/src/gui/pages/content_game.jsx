@@ -923,7 +923,7 @@ export class ContentGame extends React.Component {
             //console.log("CONTENT GAME MESSAGES: ", engine.messages, "Last key: ", engine.messages.lastValue());
             glossBool = JSON.parse(engine.messages.__real_keys[0]).gloss;
             glossedMessage = JSON.parse(engine.messages.__real_keys[0]).message;
-            //console.log("GLOSS FROM CONTENT GAME: ", glossBool, "MESS: ", glossedMessage);
+            console.log("GLOSS FROM CONTENT GAME: ", glossBool, "MESS: ", glossedMessage, "ENGINE MESSAGES SIZE: ", engine.messages.size());
         }
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
