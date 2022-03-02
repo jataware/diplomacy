@@ -6,6 +6,7 @@ services:
     container_name: diplomacy_ui
     volumes:
       - ./data/:/diplomacy/data
+      - ./diplomacy/web/src/:/diplomacy/diplomacy/web/src/
     ports:
     - 3000:3000
     expose: 
