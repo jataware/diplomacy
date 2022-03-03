@@ -48,6 +48,7 @@ export const NOTIFICATION_MANAGERS = {
         game.channel.game_id_to_instances[game.local.game_id].remove(game.local.role);
     },
     game_message_received: function (game, notification) {
+        console.log('THIS IS HAPPENING IN NOTIFICATION MANAGERS')
         game.local.addMessage(notification.message);
     },
     game_processed: function (game, notification) {

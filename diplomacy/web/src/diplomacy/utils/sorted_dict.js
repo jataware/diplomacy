@@ -37,6 +37,7 @@ export class SortedDict {
     }
 
     put(key, value) {
+        console.log('this is the timesent key', key, value)
         const realKey = key;
         key = this.__key_fn(key);
         const position = UTILS.binarySearch.insert(this.__keys, key);

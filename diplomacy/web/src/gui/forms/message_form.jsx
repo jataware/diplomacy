@@ -21,6 +21,7 @@ import {ORDER_BUILDER} from "../utils/order_building";
 import PropTypes from "prop-types";
 import {Button} from "../components/button";
 
+
 export class MessageForm extends React.Component {
     constructor(props) {
         super(props);
@@ -35,59 +36,58 @@ export class MessageForm extends React.Component {
         this.onSelectChange = this.onSelectChange.bind(this);
     }
 
-    gloss = false;
-    static tones=["Haughty", "Objective", "Obsequious", "Relaxed", "Urgent"];
+static tones = ["Haughty", "Objective", "Obsequious", "Relaxed", "Urgent"];
 
-    static locations=["ADR", "AEG", "ALB", "ANK", "APU", "ARM", "BAL", "BAR", "BEL", "BER", "BLA", "BOH", "BOT", "BRE", "BUD", "BUL", "BUR", "CLY", "CON", "DEN", "EAS", "EDI", "ENG", "FIN", "GAL", "GAS", "GRE", "HEL", "HOL", "ION", "IRI", "KIE", "LON", "LVN", "LVP", "LYO", "MAO", "MAR", "MOS", "MUN", "NAF", "NAO", "NAP", "NTH", "NWG", "NWY", "PAR", "PIC", "PIE", "POR", "PRU", "ROM", "RUH", "RUM", "SER", "SEV", "SIL", "SKA", "SMY", "SPA", "STP", "SWE", "SYR", "TRI", "TUN", "TUS", "TYR", "TYS", "UKR", "VEN", "VIE", "WAL", "WAR", "WES", "YOR"]
+static locations = ["ADR", "AEG", "ALB", "ANK", "APU", "ARM", "BAL", "BAR", "BEL", "BER", "BLA", "BOH", "BOT", "BRE", "BUD", "BUL", "BUR", "CLY", "CON", "DEN", "EAS", "EDI", "ENG", "FIN", "GAL", "GAS", "GRE", "HEL", "HOL", "ION", "IRI", "KIE", "LON", "LVN", "LVP", "LYO", "MAO", "MAR", "MOS", "MUN", "NAF", "NAO", "NAP", "NTH", "NWG", "NWY", "PAR", "PIC", "PIE", "POR", "PRU", "ROM", "RUH", "RUM", "SER", "SEV", "SIL", "SKA", "SMY", "SPA", "STP", "SWE", "SYR", "TRI", "TUN", "TUS", "TYR", "TYS", "UKR", "VEN", "VIE", "WAL", "WAR", "WES", "YOR"]
 
-    static countries=[
-        {
-            id: "austria",
-            name: "Austria"
-        },
-        {
-            id: "england",
-            name: "England"
-        },
-        {
-            id: "france",
-            name: "France"
-        },
-        {
-            id: "germany",
-            name: "Germany"
-        },
-        {
-            id: "italy",
-            name: "Italy"
-        },
-        {
-            id:"russia",
-            name: "Russia"
-        },
-        {
-            id:"turkey",
-            name: "Turkey"
-        },
-    ];
-
+static countries = [
+    {
+        id: "austria",
+        name: "Austria"
+    },
+    {
+        id: "england",
+        name: "England"
+    },
+    {
+        id: "france",
+        name: "France"
+    },
+    {
+        id: "germany",
+        name: "Germany"
+    },
+    {
+        id: "italy",
+        name: "Italy"
+    },
+    {
+        id:"russia",
+        name: "Russia"
+    },
+    {
+        id:"turkey",
+        name: "Turkey"
+    },
+];
     initState() {
-        return {selectedAction: 'propose_order',
-                selectedOrder: 'M',
-                startLocation: '',
-                endLocation: '',
-                selectedCountries: {},
-                targets: {},
-                actors: {},
-                selectedTones: {},
-                response: '',
-                orderTarget: 'player',
-                };
+        return {
+            selectedAction: 'propose_order',
+            selectedOrder: 'M',
+            startLocation: '',
+            endLocation: '',
+            selectedCountries: {},
+            targets: {},
+            actors: {},
+            selectedTones: {},
+            response: '',
+            orderTarget: 'player',
+            gloss: true,
+        };
     }
 
     onValueChange(event) {
         event.persist();
-        console.log('Option event: ', event, "POWERS: ", this.props.powers);
         this.setState(prevState => ({
             selectedAction: event.target.value,
             selectedOrder: prevState.selectedOrder,
@@ -112,7 +112,6 @@ export class MessageForm extends React.Component {
 
     onOrderChange(event) {
         event.persist();
-        console.log('Order event: ', event);
         this.setState(prevState => ({
             selectedAction: prevState.selectedAction,
             selectedOrder: event.target.value,
@@ -125,20 +124,16 @@ export class MessageForm extends React.Component {
 
     onSelectChange(event) {
         event.persist();
-        console.log('Location Event: ', event);
         const id = event.target.id;
         const value = event.target.value;
         let locationReturn = {};
         locationReturn[id] = value; 
         setTimeout( () => this.setState( locationReturn ));
-        console.log("STATE: ", this.state);
     }
 
     checkboxOnChange(event) {
         event.persist();
-        console.log('Checkbox event: ', event);
         const {id, checked} = event.target;
-        console.log('ID: ', id, 'Checked: ', checked);
         if(id.includes('target_')){
             const updatedTarget = this.state.targets[id.replace('target_', '')] = checked;
             this.setState(prevState => ({
@@ -168,9 +163,7 @@ export class MessageForm extends React.Component {
 
     tonesOnChange(event) {
         event.persist();
-        console.log('Tones event: ', event);
         const {id, checked} = event.target;
-        console.log('ID: ', id, 'Checked: ', checked);
         const updatedTones = this.state.selectedTones[id] = checked;
         this.setState(prevState => ({
             selectedAction: prevState.selectedAction,
@@ -184,7 +177,6 @@ export class MessageForm extends React.Component {
 
     onGlossSubmit(event) {
         event.preventDefault();
-        console.log("gloss initial state: ", this.state);
         let actorHolder = [];
         for (let country in this.state.selectedCountries){
             if (!(country === "updatedCountry")){
@@ -211,7 +203,7 @@ export class MessageForm extends React.Component {
                 }
             }
         }
-        MessageForm.gloss = true;
+        this.setState({ gloss: true });
         const message = {
             action: this.state.selectedAction,
             order: this.state.selectedOrder,
@@ -224,7 +216,6 @@ export class MessageForm extends React.Component {
             response: this.state.response,
             gloss: true,
         };
-        console.log("Full Negotiation: ", message);
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
                                 message: '',
@@ -232,12 +223,10 @@ export class MessageForm extends React.Component {
                                 gloss: true});
         }
         setTimeout( () => {console.log(`State:`, this.state)});
-        console.log(`Final Gloss Event:`, event);
     }
 
     onFinalSubmit(event) {
         event.preventDefault();
-        console.log("initial state: ", this.state);
         let actorHolder = [];
         for (let country in this.state.selectedCountries){
             if (!(country === "updatedCountry")){
@@ -276,16 +265,14 @@ export class MessageForm extends React.Component {
             response: this.state.response,
             gloss: false,
         };
-        console.log("Full Negotiation: ", message);
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
                                 message: '',
                                 daide: '',
                                 gloss: false});
         }
+        this.props.onRealSubmit();
         this.setState(this.initState());
-        MessageForm.gloss = false;
-        console.log(`Final Submit Event:`, event);
     }
 
     render() {
@@ -461,7 +448,7 @@ export class MessageForm extends React.Component {
                 })}
                 </div>
                 <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
-                {MessageForm.gloss &&
+                {this.state.gloss &&
                     <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
                 }
                 
@@ -479,4 +466,5 @@ MessageForm.propTypes = {
     recipientMoves: PropTypes.object,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
+    onRealSubmit: PropTypes.func,
 };
