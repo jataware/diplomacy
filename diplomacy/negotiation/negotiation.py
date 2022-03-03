@@ -217,6 +217,8 @@ def pressgloss(message_obj: Message, message_history, messages, return_message_o
     # Backwards compatible massaging of the tones.
     if 'tones' in negotiation:
         tones = [tone.lower().capitalize() for tone in negotiation['tones']]
+    elif message_obj.tones:
+        tones = message_obj.tones
     else:
         tones = ["Haughty","Urgent"]
 
