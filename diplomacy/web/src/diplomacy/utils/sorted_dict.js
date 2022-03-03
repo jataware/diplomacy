@@ -37,7 +37,6 @@ export class SortedDict {
     }
 
     put(key, value) {
-        console.log('this is the timesent key', key, value)
         const realKey = key;
         key = this.__key_fn(key);
         const position = UTILS.binarySearch.insert(this.__keys, key);
@@ -54,11 +53,27 @@ export class SortedDict {
     remove(key) {
         key = this.__key_fn(key);
         const position = UTILS.binarySearch.find(this.__keys, key);
+
+        // this feels hacky and awful
+        if (position === -1 && isNaN(key)) {
+            // the glossed messages are passed in with a big unparsed json string
+            // as the key, so it is set as NaN and gets sorted to the top
+            this.clearGloss();
+            return;
+        }
         if (position < 0)
             return null;
         this.__keys.splice(position, 1);
         this.__real_keys.splice(position, 1);
         return this.__values.splice(position, 1)[0];
+    }
+
+    clearGloss() {
+        // just clear the top of the list, because that's where our gloss with
+        // its NaN key will go
+        this.__keys.splice(0, 1);
+        this.__real_keys.splice(0, 1);
+        return this.__values.splice(0, 1)[0];
     }
 
     contains(key) {

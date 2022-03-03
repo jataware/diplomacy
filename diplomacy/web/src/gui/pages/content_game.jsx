@@ -984,7 +984,12 @@ export class ContentGame extends React.Component {
                         powers={engine.powers}
                         senderMoves = {engine.getOrderTypeToLocs(role)}
                         recipientMoves = {engine.getOrderTypeToLocs(currentTabId)}
-                        onRealSubmit={() => {}}
+                        onRealSubmit={() => {
+                            if (glossBool) {
+                                engine.messages.remove(engine.messages.__real_keys[0]);
+                                glossBool = false;
+                            }
+                        }}
                         onSubmit={(form) => {
                             this.sendMessage(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss);
                         }}

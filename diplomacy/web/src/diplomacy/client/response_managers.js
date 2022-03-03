@@ -64,7 +64,6 @@ export const RESPONSE_MANAGERS = {
         context.removeChannel();
     },
     send_game_message: function (context, response) {
-        console.log("THIS IS HAPPENING IN RESPONSE MANAGERS")
         const message = context.request.message;
         message.time_sent = response.data;
         context.game.local.addMessage(message);
