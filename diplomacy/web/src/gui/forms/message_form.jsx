@@ -133,6 +133,8 @@ static countries = [
         event.persist();
         const {id, checked} = event.target;
         if (id.includes('target_')) {
+// TODO: FIX THIS
+            // eslint-disable-next-line react/no-direct-mutation-state
             const updatedTarget = this.state.targets[id.replace('target_', '')] = checked;
             this.setState(prevState => ({
                 //checked: !prevState.checked
@@ -148,6 +150,8 @@ static countries = [
             // this.setState((prevState) => ({ ...prevState, targets: {...prevState.targets, }}))
         }
         else{
+// TODO: FIX THIS
+            // eslint-disable-next-line react/no-direct-mutation-state
             const updatedCountry = this.state.selectedCountries[id] = checked;
             this.setState(prevState => ({
                 //checked: !prevState.checked
@@ -165,6 +169,8 @@ static countries = [
     tonesOnChange(event) {
         event.persist();
         const {id, checked} = event.target;
+// TODO: FIX THIS
+        // eslint-disable-next-line react/no-direct-mutation-state
         const updatedTones = this.state.selectedTones[id] = checked;
         this.setState(prevState => ({
             selectedAction: prevState.selectedAction,
