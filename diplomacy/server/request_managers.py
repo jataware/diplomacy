@@ -849,9 +849,10 @@ def on_send_game_message(server, request, connection_handler):
             else:
                 message.tones = ','.join(message_negotiation['1']['tones'])
         # original code starts here:
-        message.time_sent = level.game.add_message(message)
+        message.time_sent = int(level.game.add_message(message)/1000)
         Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
         server.save_game(level.game)
+        LOGGER.info(f"message from request manager: {message}")
         if from_ui:
             return responses.DataToken(data = gloss_message_text, request_id=request.request_id)
         else:
