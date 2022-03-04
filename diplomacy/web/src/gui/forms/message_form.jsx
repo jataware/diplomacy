@@ -15,8 +15,6 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Forms} from "../components/forms";
-import {UTILS} from "../../diplomacy/utils/utils";
 import {ORDER_BUILDER} from "../utils/order_building";
 import PropTypes from "prop-types";
 import {Button} from "../components/button";
@@ -38,7 +36,7 @@ export class MessageForm extends React.Component {
 
 static tones = ["Haughty", "Objective", "Obsequious", "Relaxed", "Urgent"];
 
-static locations = ["ADR", "AEG", "ALB", "ANK", "APU", "ARM", "BAL", "BAR", "BEL", "BER", "BLA", "BOH", "BOT", "BRE", "BUD", "BUL", "BUR", "CLY", "CON", "DEN", "EAS", "EDI", "ENG", "FIN", "GAL", "GAS", "GRE", "HEL", "HOL", "ION", "IRI", "KIE", "LON", "LVN", "LVP", "LYO", "MAO", "MAR", "MOS", "MUN", "NAF", "NAO", "NAP", "NTH", "NWG", "NWY", "PAR", "PIC", "PIE", "POR", "PRU", "ROM", "RUH", "RUM", "SER", "SEV", "SIL", "SKA", "SMY", "SPA", "STP", "SWE", "SYR", "TRI", "TUN", "TUS", "TYR", "TYS", "UKR", "VEN", "VIE", "WAL", "WAR", "WES", "YOR"]
+static locations = ["ADR", "AEG", "ALB", "ANK", "APU", "ARM", "BAL", "BAR", "BEL", "BER", "BLA", "BOH", "BOT", "BRE", "BUD", "BUL", "BUR", "CLY", "CON", "DEN", "EAS", "EDI", "ENG", "FIN", "GAL", "GAS", "GRE", "HEL", "HOL", "ION", "IRI", "KIE", "LON", "LVN", "LVP", "LYO", "MAO", "MAR", "MOS", "MUN", "NAF", "NAO", "NAP", "NTH", "NWG", "NWY", "PAR", "PIC", "PIE", "POR", "PRU", "ROM", "RUH", "RUM", "SER", "SEV", "SIL", "SKA", "SMY", "SPA", "STP", "SWE", "SYR", "TRI", "TUN", "TUS", "TYR", "TYS", "UKR", "VEN", "VIE", "WAL", "WAR", "WES", "YOR"];
 
 static countries = [
     {
@@ -134,7 +132,7 @@ static countries = [
     checkboxOnChange(event) {
         event.persist();
         const {id, checked} = event.target;
-        if(id.includes('target_')){
+        if (id.includes('target_')) {
             const updatedTarget = this.state.targets[id.replace('target_', '')] = checked;
             this.setState(prevState => ({
                 //checked: !prevState.checked
@@ -145,6 +143,9 @@ static countries = [
                 selectedTones: prevState.selectedTones,
                 response: prevState.response,
             }));
+
+            //TODO: reduce the above into one line and get rid of the direct state setting
+            // this.setState((prevState) => ({ ...prevState, targets: {...prevState.targets, }}))
         }
         else{
             const updatedCountry = this.state.selectedCountries[id] = checked;
