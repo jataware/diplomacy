@@ -920,10 +920,8 @@ export class ContentGame extends React.Component {
         let glossBool = false;
         let glossedMessage = '';
         if(engine.messages.size()){
-            //console.log("CONTENT GAME MESSAGES: ", engine.messages, "Last key: ", engine.messages.lastValue());
             glossBool = JSON.parse(engine.messages.__real_keys[0]).gloss;
             glossedMessage = JSON.parse(engine.messages.__real_keys[0]).message;
-            console.log("GLOSS FROM CONTENT GAME: ", glossBool, "MESS: ", glossedMessage, "ENGINE MESSAGES SIZE: ", engine.messages.size());
         }
         const tabNames = [];
         for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
@@ -954,7 +952,6 @@ export class ContentGame extends React.Component {
                                                 id = `${protagonist}-unread`;
                                             }
                                         }
-                                        console.log("MESSAGE: ", message, "Message");
                                         return <MessageView key={index} phase={engine.phase} owner={role}
                                                             message={message}
                                                             read={message.phase !== engine.phase}
@@ -982,13 +979,21 @@ export class ContentGame extends React.Component {
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
                     <MessageForm 
-                    sender={role} 
-                    recipient={currentTabId} 
-                    powers={engine.powers} 
-                    senderMoves = {engine.getOrderTypeToLocs(role)} 
-                    recipientMoves = {engine.getOrderTypeToLocs(currentTabId)} 
-                    onSubmit={form =>
-                        this.sendMessage(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss)}/>
+                        sender={role}
+                        recipient={currentTabId}
+                        powers={engine.powers}
+                        senderMoves = {engine.getOrderTypeToLocs(role)}
+                        recipientMoves = {engine.getOrderTypeToLocs(currentTabId)}
+                        onRealSubmit={() => {
+                            if (glossBool) {
+                                engine.messages.remove(engine.messages.__real_keys[0]);
+                                glossBool = false;
+                            }
+                        }}
+                        onSubmit={(form) => {
+                            this.sendMessage(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss);
+                        }}
+                    />
                 )}
             </div>
         );
