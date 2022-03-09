@@ -23,7 +23,6 @@ export class MessageView extends React.Component {
         const message = this.props.message;
         const owner = this.props.owner;
         const id = this.props.id ? {id: this.props.id} : {};
-        console.log("Props: ", this.props);
         let messagesLines = '';
         //Check this because sometimes the backend stores the message here.
         let messageTimeSent = JSON.parse(message.time_sent);
@@ -47,17 +46,23 @@ export class MessageView extends React.Component {
                     .split('\n');
             }
             else {
-                messagesLines = this.props.glossedBackup.replace('\r\n', '\n')
+                try{
+                    messagesLines = this.props.glossedBackup.replace('\r\n', '\n')
                         .replace('\r', '\n')
                         .replace('<br>', '\n')
                         .replace('<br/>', '\n')
                         .split('\n');
+                }
+                catch (err) {
+                    console.log("Error displaying inital message: ", err);
+                    messagesLines = ['Loading'];
+                }
             }
         }
         else{
             //const messageRaw = JSON.parse(message?.time_sent);
             const messageRaw = JSON.parse(message.time_sent);
-            console.log("IN VIEW, MESSAGE: ",message, "TIME SENT: ", messageRaw);
+
             //messagesLines = messageRaw?.message.replace('\r\n', '\n')
             messagesLines = messageRaw.message.replace('\r\n', '\n')
                 .replace('\r', '\n')
@@ -75,7 +80,6 @@ export class MessageView extends React.Component {
                 classNames.push('message-read');
             onClick = this.props.onClick ? {onClick: () => this.props.onClick(message)} : {};
         }
-        //console.log("Full message: ", message, "Message time sent: ", message.time_sent, "Gloss: ", message.gloss, "Glossed Message extracted: ", JSON.parse(message.time_sent).message);
         return (
             <div>
                 {!(message.gloss) &&

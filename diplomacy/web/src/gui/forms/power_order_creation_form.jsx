@@ -30,7 +30,6 @@ export class PowerOrderCreationForm extends React.Component {
     }
 
     initState() {
-        console.log("orderType: ", this.props.orderType)
         return {order_type: this.props.orderType};
     }
 

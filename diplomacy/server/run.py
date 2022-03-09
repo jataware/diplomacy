@@ -40,9 +40,11 @@ if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description='Run server.')
     PARSER.add_argument('--port', '-p', type=int, default=constants.DEFAULT_PORT,
                         help='run on the given port (default: %s)' % constants.DEFAULT_PORT)
+    PARSER.add_argument('--auto_reload', '-a', type=bool, default=False,
+                        help='Auto reload the application on code change.')
     ARGS = PARSER.parse_args()
 
     try:
-        Server().start(port=ARGS.port)
+        Server().start(port=ARGS.port, auto_reload=ARGS.auto_reload)
     except KeyboardInterrupt:
         print('Keyboard interruption.')

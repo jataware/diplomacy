@@ -9,14 +9,21 @@ Modified the [model](../engine/message.py#L70) and [__init__](../engine/message.
 - `gloss`: bool, if False the message is sent to the recipient
 - `daide`: str, DAIDE syntax string
 - `negotiation`: json string
+- `tones`: comma-delmited string of capitalized tones
 
 ```
 '“negotiation”: 
     {
-        “actors”: [“France”, “Italy],
-        “targets”: [“Russia”, “Turkey”],
-        “action”: “Propose alliance”,
-        “tones” : [“Haughty”]
+        “actors”       : [“France”, “Italy],
+        “targets”      : [“Russia”, “Turkey”],
+        “action”       : “Propose alliance”,
+        "order"        : ""
+        “tones”        : [“Haughty”],
+        "startLocation": ""
+        "endLocation"  : "",
+        "response      : "No",
+        "gloss"        : true
+        
     }'
 ```
 
