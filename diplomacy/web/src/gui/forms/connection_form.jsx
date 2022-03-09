@@ -89,12 +89,17 @@ export class ConnectionForm extends React.Component {
                     <input className={'form-control'} type={'password'} id={'password'}
                            value={Forms.getValue(this.state, 'password')} onChange={onChange}/>
                 )}
+                {Forms.createRow('', Forms.createSubmit('connect', true, onSubmit))}
                 <div>
                     <div className={this.state.showServerFields ? 'mb-2' : 'mb-4'}>
-                    <span className={'button-server'} onClick={this.updateServerFieldsView}>
-                        server settings {this.state.showServerFields ? UTILS.html.UNICODE_BOTTOM_ARROW : UTILS.html.UNICODE_TOP_ARROW}
-                    </span>
                     </div>
+                    <span
+                        className={'button-server'}
+                        onClick={this.updateServerFieldsView}
+                        style={{ opacity: 0.4 }}
+                    >
+                        {this.state.showServerFields ? UTILS.html.UNICODE_BOTTOM_ARROW : UTILS.html.UNICODE_TOP_ARROW}
+                    </span>
                     {this.state.showServerFields && (
                         <div className={'mb-4'}>
                             {Forms.createRow(
@@ -111,7 +116,6 @@ export class ConnectionForm extends React.Component {
                         </div>
                     )}
                 </div>
-                {Forms.createRow('', Forms.createSubmit('connect', true, onSubmit))}
             </form>
         );
     }

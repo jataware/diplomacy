@@ -920,7 +920,7 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
             tabNames.push(powerName);
         tabNames.sort();
-        tabNames.push('GLOBAL');
+
         const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
         const highlights = this.state.messageHighlights;
