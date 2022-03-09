@@ -69,20 +69,19 @@ export class MessageView extends React.Component {
                 .replace('<br/>', '\n')
                 .split('\n'); 
         }
-        let onClick = null;
+
         const classNames = ['game-message', 'row'];
         if (owner === message.sender)
             classNames.push('message-sender');
         else {
             classNames.push('message-recipient');
-            onClick = this.props.onClick ? {onClick: () => this.props.onClick(message)} : {};
 
         }
         return (
             <div>
                 {!(message.gloss) &&
                      <div className={'game-message-wrapper' + (this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}>
-                        <div className={classNames.join(' ')} {...onClick}>
+                        <div className={classNames.join(' ')}>
                             <div className="message-header col-md-auto text-md-right text-center">
                                 {message.phase}
                             </div>
@@ -104,7 +103,6 @@ MessageView.propTypes = {
     message: PropTypes.object,
     phase: PropTypes.string,
     owner: PropTypes.string,
-    onClick: PropTypes.func,
     read: PropTypes.bool,
     glossedBackup: PropTypes.string
 };

@@ -15,7 +15,6 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import Scrollchor from 'react-scrollchor';
 import {SelectLocationForm} from "../forms/select_location_form";
 import {SelectViaForm} from "../forms/select_via_form";
 import {Order} from "../utils/order";
@@ -162,7 +161,7 @@ export class ContentGame extends React.Component {
         this.onChangeShowAbbreviations = this.onChangeShowAbbreviations.bind(this);
         this.onChangeTabCurrentMessages = this.onChangeTabCurrentMessages.bind(this);
         this.onChangeTabPastMessages = this.onChangeTabPastMessages.bind(this);
-        this.onClickMessage = this.onClickMessage.bind(this);
+        this.clearMessageHighlights = this.clearMessageHighlights.bind(this);
         this.onDecrementPastPhase = this.onDecrementPastPhase.bind(this);
         this.onIncrementPastPhase = this.onIncrementPastPhase.bind(this);
         this.onOrderBuilding = this.onOrderBuilding.bind(this);
@@ -847,21 +846,6 @@ export class ContentGame extends React.Component {
         return this.setState({showAbbreviations: event.target.checked});
     }
 
-    onClickMessage(message) {
-        if (!message.read) {
-            message.read = true;
-            let protagonist = message.sender;
-            if (message.recipient === 'GLOBAL')
-                protagonist = message.recipient;
-            this.getPage().load(`game: ${this.props.data.game_id}`, <ContentGame data={this.props.data}/>);
-            if (this.state.messageHighlights.hasOwnProperty(protagonist) && this.state.messageHighlights[protagonist] > 0) {
-                const messageHighlights = Object.assign({}, this.state.messageHighlights);
-                --messageHighlights[protagonist];
-                this.setState({messageHighlights: messageHighlights});
-            }
-        }
-    }
-
     displayLocationOrders(loc, orders) {
         return this.setState({
             historyCurrentLoc: loc || null,
@@ -904,8 +888,7 @@ export class ContentGame extends React.Component {
                                     (<div className={'no-game-message'}>No
                                         messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
                                     messageChannels[protagonist].map((message, index) => (
-                                        <MessageView key={index} phase={engine.phase} owner={role} message={message}
-                                                     read={true}/>
+                                        <MessageView key={index} phase={engine.phase} owner={role} message={message} />
                                     ))
                             )}
                         </Tab>
@@ -914,6 +897,16 @@ export class ContentGame extends React.Component {
             </div>
         );
     }
+
+    clearMessageHighlights(protagonist) {
+        this.getPage().load(`game: ${this.props.data.game_id}`, <ContentGame data={this.props.data}/>);
+        if (this.state.messageHighlights.hasOwnProperty(protagonist) && this.state.messageHighlights[protagonist] > 0) {
+            const messageHighlights = Object.assign({}, this.state.messageHighlights);
+            messageHighlights[protagonist] = 0;
+            this.setState({messageHighlights: messageHighlights});
+        }
+    }
+
 
     renderCurrentMessages(engine, role) {
         const messageChannels = engine.getMessageChannels(role, true);
@@ -948,6 +941,10 @@ export class ContentGame extends React.Component {
                             className={'game-messages'}
                             display={currentTabId === protagonist}
                             id={`panel-current-messages-${protagonist}`}
+                            onTabView={() => this.clearMessageHighlights(protagonist)}
+                            tabHighlights={highlights[protagonist]}
+                            highlights={highlights}
+                            protagonist={protagonist}
                         >
                             {!messageChannels.hasOwnProperty(protagonist) || !messageChannels[protagonist].length
                                 ? (<div className={'no-game-message'}>No messages {engine.isPlayerGame() && ` with ${protagonist}`}.</div>)
@@ -957,9 +954,7 @@ export class ContentGame extends React.Component {
                                         phase={engine.phase}
                                         owner={role}
                                         message={message}
-                                        read={message.phase !== engine.phase}
                                         glossedBackup={glossedMessage}
-                                        onClick={this.onClickMessage}
                                     />
                                 )))
                             }
