@@ -22,7 +22,6 @@ export class MessageView extends React.Component {
     render() {
         const message = this.props.message;
         const owner = this.props.owner;
-        const id = this.props.id ? {id: this.props.id} : {};
         let messagesLines = '';
         //Check this because sometimes the backend stores the message here.
         let messageTimeSent = JSON.parse(message.time_sent);
@@ -76,16 +75,13 @@ export class MessageView extends React.Component {
             classNames.push('message-sender');
         else {
             classNames.push('message-recipient');
-            if (message.read || this.props.read)
-                classNames.push('message-read');
             onClick = this.props.onClick ? {onClick: () => this.props.onClick(message)} : {};
+
         }
         return (
             <div>
                 {!(message.gloss) &&
-                     <div className={'game-message-wrapper' + (
-                        this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
-                         {...id}>
+                     <div className={'game-message-wrapper' + (this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}>
                         <div className={classNames.join(' ')} {...onClick}>
                             <div className="message-header col-md-auto text-md-right text-center">
                                 {message.phase}
@@ -109,7 +105,6 @@ MessageView.propTypes = {
     phase: PropTypes.string,
     owner: PropTypes.string,
     onClick: PropTypes.func,
-    id: PropTypes.string,
     read: PropTypes.bool,
     glossedBackup: PropTypes.string
 };
