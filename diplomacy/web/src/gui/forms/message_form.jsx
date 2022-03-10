@@ -20,11 +20,13 @@ import PropTypes from "prop-types";
 import {Button} from "../components/button";
 import ToneToggle from '../components/ToneToggle';
 
+import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
-import Grid from '@mui/material/Grid';
 import InputLabel from '@mui/material/InputLabel';
+import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
 
 
 export class MessageForm extends React.Component {
@@ -273,7 +275,7 @@ static countries = [
 
     displayFormContents() {
         switch (this.state.selectedAction) {
-            case ("propose_order" || "oppose_order" || "notify_order"):
+            case "propose_order": case "oppose_order": case "notify_order":
                 return (
                         <div className={'form-group'}>
                             <select id="orderTarget" value={this.state.orderTarget} onChange={this.onSelectChange}>
@@ -338,10 +340,8 @@ static countries = [
                             )}
                         </div>
                 );
-            case (
-                "propose_peace" || "propose_alliance" || "notify_alliance"
-                || "notify_peace" || "oppose_peace" || "oppose_alliance"
-            ):
+            case "propose_peace": case "propose_alliance": case "notify_alliance":
+            case "notify_peace": case "oppose_peace": case "oppose_alliance":
                 return (
                     <>
                         <div className={'form-group'}>
@@ -377,7 +377,7 @@ static countries = [
                         )}
                     </>
                 );
-            case ("propose_dmz" || "oppose_dmz" || "notify_dmz"):
+            case "propose_dmz": case "oppose_dmz": case "notify_dmz":
                 return (
                     <div className={'form-group'}>
                         <select id="dmzLocation" value={this.state.dmzLocation} onChange={this.onSelectChange}>
@@ -389,7 +389,7 @@ static countries = [
                         </select>
                     </div>
                 );
-            case ("response"):
+            case "response":
                 return (
                     <div>
                         <div className={'form-group'}>
@@ -411,14 +411,14 @@ static countries = [
             <form>
                 <Grid container alignItems="center" justifyContent="center" direction="column">
                     <Grid item>
-                        <FormControl>
+                        <Typography variant="h6">Choose your negiotiation type</Typography>
+                        <FormControl sx={{ my: 3, minWidth: 300 }}>
                             <InputLabel id="negotiation-type">Negotiation Type</InputLabel>
                             <Select
                                 value={this.state.selectedAction}
                                 onChange={this.onValueChange}
-                                id="negotiation_type"
                                 label="Negotiation Type"
-                                labelId="negotiation-type"
+                                id="negotiation-type"
                             >
                                 <MenuItem value="propose_order">Propose Order</MenuItem>
                                 <MenuItem value="propose_alliance">Propose Alliance</MenuItem>
@@ -440,153 +440,22 @@ static countries = [
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item container alignItems="center" justifyContent="center" direction="row">
-                        <div>
-                            {this.state.selectedAction === "propose_order" ||
-                            this.state.selectedAction === "oppose_order" ||
-                            this.state.selectedAction === "notify_order" ?
-                                <div className={'form-group'}>
-                                    <select id="orderTarget" value={this.state.orderTarget} onChange={this.onSelectChange}>
-                                        <option value="player">Order I can do</option>
-                                        <option value="recipient">Order they can do</option>
-                                    </select>
-                                    {this.state.orderTarget === "player" ?
-                                        <div>
-                                            <h6>Order</h6>
-                                            <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
-                                                {Object.keys(this.props.senderMoves).map((orderType) => {
-                                                    return(
-                                                        <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
-                                                    );
-                                                })}
-                                            </select>
-                                            <h6>Start Location</h6>
-                                            <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
-                                                {this.props.senderMoves[this.state.selectedOrder].map((location) => {
-                                                    return(
-                                                        <option key={`${location}-key`} value={location}>{location}</option>
-                                                    );
-                                                })}
-                                            </select>
-                                            <h6>End Location</h6>
-                                            <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
-                                                {MessageForm.locations.map((location) =>{
-                                                    return(
-                                                        <option key={`${location}-key`} value={location}>{location}</option>
-                                                    );
-                                                })}
-                                            </select>
-                                        </div>
-                                        :null
-                                    }
-                                    {this.state.orderTarget === "recipient" ?
-                                        <div>
-                                            <h6>Order</h6>
-                                            <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
-                                                {Object.keys(this.props.recipientMoves).map((orderType) => {
-                                                    return(
-                                                        <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
-                                                    );
-                                                })}
-                                            </select>
-                                            <h6>Start Location</h6>
-                                            <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
-                                                {this.props.recipientMoves[this.state.selectedOrder].map((location) => {
-                                                    return(
-                                                        <option key={`${location}-key`} value={location}>{location}</option>
-                                                    );
-                                                })}
-                                            </select>
-                                            <h6>End Location</h6>
-                                            <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
-                                                {MessageForm.locations.map((location) =>{
-                                                    return(
-                                                        <option key={`${location}-key`} value={location}>{location}</option>
-                                                    );
-                                                })}
-                                            </select>
-                                        </div>
-                                        :null
-                                    }
-                                </div>
-                                : null
-                            }
-                            {this.state.selectedAction === "propose_peace" ||
-                            this.state.selectedAction === "propose_alliance" ||
-                            this.state.selectedAction === "notify_alliance" ||
-                            this.state.selectedAction === "notify_peace" ||
-                            this.state.selectedAction === "oppose_peace" ||
-                            this.state.selectedAction === "oppose_alliance" ?
-                                <div className={'form-group'}>
-                                    <h6>Countries Involved: </h6>
-                                    {MessageForm.countries.map(({ id, name }, index) => {
-                                        return(
-                                            <li key={index}>
-                                                <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
-                                                 name={`country_${id}`} value={`${id}`} checked={this.state.selectedCountries[id]}
-                                                 id={`${id}`} onChange={this.checkboxOnChange}/>
-                                                <label className="form-input__label" htmlFor={`${id}-check`}>{name}</label>
-                                            </li>
-                                        );
-                                    })}
-                                </div>
-                                : null
-                            }
-                            {this.state.selectedAction === "propose_alliance" ||
-                            this.state.selectedAction === "notify_alliance" ||
-                            this.state.selectedAction === "oppose_alliance" ?
-                                <div className={'form-group'}>
-                                    <h6>Alliance Targets: </h6>
-                                    {MessageForm.countries.map(({ id, name }, index) => {
-                                        return(
-                                            <li key={index}>
-                                                <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
-                                                 name={`target_${id}`} value={`${id}`} checked={this.state.targets[id]}
-                                                 id={`target_${id}`} onChange={this.checkboxOnChange}/>
-                                                <label className="form-input__label" htmlFor={`${id}-check`}>{name}</label>
-                                            </li>
-                                        );
-                                    })}
-                                </div>
-                                : null
-                            }
-                            {this.state.selectedAction === "propose_dmz" ||
-                            this.state.selectedAction === "oppose_dmz" ||
-                            this.state.selectedAction === "notify_dmz" ?
-                                <div className={'form-group'}>
-                                    <select id="dmzLocation" value={this.state.dmzLocation} onChange={this.onSelectChange}>
-                                        {MessageForm.locations.map((location) =>{
-                                            return(
-                                                <option key={`${location}-key`} value={location}>{location}</option>
-                                            );
-                                        })}
-                                    </select>
-                                </div>
-                                : null
-                            }
-                        </div>
-                        {this.state.selectedAction === "response" && (
-                            <div>
-                                <div className={'form-group'}>
-                                    <select id="response_type" value={this.state.response} onChange={this.onResponseChange}>
-                                        <option value="yes">Yes</option>
-                                        <option value="no">No</option>
-                                        <option value="noyb">None of your business</option>
-                                    </select>
-                                </div>
-                            </div>
-                        )}
+                    <Grid item container justifyContent="center" direction="row">
+                        {this.displayFormContents()}
+                    </Grid>
+
+                    <Box sx={{ my: 3 }}>
+                        <Typography variant="h6" align="center">Choose your negiotiation tone</Typography>
+                        <ToneToggle onToneChange={this.onToneChange} />
+                    </Box>
+
+                    <Grid item container direction="row" spacing={2} justifyContent="center" style={{marginTop: '16px'}}>
+                        <Grid item xs={5}>
+                            <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
                         </Grid>
-
-
-                    <ToneToggle onToneChange={this.onToneChange} />
-
-                    <Grid item container direction="row">
-                        <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
-
-                        {this.state.gloss &&
+                        <Grid item xs={5}>
                             <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
-                        }
+                        </Grid>
                     </Grid>
                 </Grid>
             </form>
