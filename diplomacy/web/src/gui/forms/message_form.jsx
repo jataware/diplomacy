@@ -21,7 +21,9 @@ import {Button} from "../components/button";
 import ToneToggle from '../components/ToneToggle';
 
 import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import InputLabel from '@mui/material/InputLabel';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
@@ -131,41 +133,12 @@ static countries = [
         setTimeout( () => this.setState( locationReturn ));
     }
 
-    checkboxOnChange(event) {
-        event.persist();
-        const {id, checked} = event.target;
-        if (id.includes('target_')) {
-// TODO: FIX THIS
-            // eslint-disable-next-line react/no-direct-mutation-state
-            const updatedTarget = this.state.targets[id.replace('target_', '')] = checked;
-            this.setState(prevState => ({
-                //checked: !prevState.checked
-                selectedAction: prevState.selectedAction,
-                selectedOrder: prevState.selectedOrder,
-                selectedCountries: prevState.selectedCountries,
-                targets: { ...prevState.targets, updatedTarget },
-                selectedTones: prevState.selectedTones,
-                response: prevState.response,
-            }));
-
-            //TODO: reduce the above into one line and get rid of the direct state setting
-            // this.setState((prevState) => ({ ...prevState, targets: {...prevState.targets, }}))
+    checkboxOnChange(event, checkboxType, name) {
+        if (checkboxType === 'selected') {
+            this.setState((prevState) => ({ selectedCountries: { ...prevState.selectedCountries, [name]: event.target.checked }}));
+        } else if (checkboxType === 'target') {
+            this.setState((prevState) => ({ targets: { ...prevState.targets, [name]: event.target.checked }}));
         }
-        else{
-// TODO: FIX THIS
-            // eslint-disable-next-line react/no-direct-mutation-state
-            const updatedCountry = this.state.selectedCountries[id] = checked;
-            this.setState(prevState => ({
-                //checked: !prevState.checked
-                selectedAction: prevState.selectedAction,
-                selectedOrder: prevState.selectedOrder,
-                selectedCountries: { ...prevState.selectedCountries, updatedCountry },
-                selectedTones: prevState.selectedTones,
-                targets: prevState.targets,
-                response: prevState.response,
-            }));
-        }
-        
     }
 
     onToneChange(newTone) {
@@ -263,6 +236,7 @@ static countries = [
             response: this.state.response,
             gloss: false,
         };
+
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
                                 message: '',
@@ -343,39 +317,43 @@ static countries = [
             case "propose_peace": case "propose_alliance": case "notify_alliance":
             case "notify_peace": case "oppose_peace": case "oppose_alliance":
                 return (
-                    <>
-                        <div className={'form-group'}>
-                            <h6>Countries Involved: </h6>
-                            {MessageForm.countries.map(({ id, name }, index) => {
-                                return (
-                                    <li key={index}>
-                                        <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
-                                         name={`country_${id}`} value={`${id}`} checked={this.state.selectedCountries[id]}
-                                         id={`${id}`} onChange={this.checkboxOnChange}/>
-                                        <label className="form-input__label" htmlFor={`${id}-check`}>{name}</label>
-                                    </li>
-                                );
-                            })}
-                        </div>
+                    <Grid container justifyContent="center" spacing={4}>
+                        <Grid item xs={2}>
+                            <div className={'form-group'}>
+                                <h6>Countries Involved: </h6>
+                                {MessageForm.countries.map(({ id, name }) => (
+                                    <FormControlLabel key={id}
+                                        control={
+                                            <Checkbox
+                                                checked={this.state.selectedCountries[id]}
+                                                onChange={(event) => this.checkboxOnChange(event, 'selected', name)}
+                                            />
+                                        } label={name}
+                                    />
+                                ))}
+                            </div>
+                        </Grid>
                         {/* Also make sure to stick in Alliance Targets if we're in one of these three action types*/}
                         {(this.state.selectedAction === "propose_alliance"
                             || this.state.selectedAction === "notify_alliance"
                             || this.state.selectedAction === "oppose_alliance") && (
-                                <div className={'form-group'}>
-                                    <h6>Alliance Targets: </h6>
-                                    {MessageForm.countries.map(({ id, name }, index) => {
-                                        return(
-                                            <li key={index}>
-                                                <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
-                                                 name={`target_${id}`} value={`${id}`} checked={this.state.targets[id]}
-                                                 id={`target_${id}`} onChange={this.checkboxOnChange}/>
-                                                <label className="form-input__label" htmlFor={`${id}-check`}>{name}</label>
-                                            </li>
-                                        );
-                                    })}
-                                </div>
+                                <Grid item xs={2}>
+                                    <div className={'form-group'}>
+                                        <h6>Alliance Targets: </h6>
+                                        {MessageForm.countries.map(({ id, name }) => (
+                                            <FormControlLabel key={id}
+                                                control={
+                                                    <Checkbox
+                                                        checked={this.state.targets[id]}
+                                                        onChange={(event) => this.checkboxOnChange(event, 'target', name)}
+                                                    />
+                                                } label={name}
+                                            />
+                                        ))}
+                                    </div>
+                                </Grid>
                         )}
-                    </>
+                    </Grid>
                 );
             case "propose_dmz": case "oppose_dmz": case "notify_dmz":
                 return (
@@ -403,6 +381,7 @@ static countries = [
                 );
             default:
                 console.log('Please select a valid action');
+                // return false so we know not to show any header text when we don't have a form to show
                 return false;
         }
     }
