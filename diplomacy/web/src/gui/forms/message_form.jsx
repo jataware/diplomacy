@@ -403,6 +403,7 @@ static countries = [
                 );
             default:
                 console.log('Please select a valid action');
+                return false;
         }
     }
 
@@ -411,8 +412,8 @@ static countries = [
             <form>
                 <Grid container alignItems="center" justifyContent="center" direction="column">
                     <Grid item>
-                        <Typography variant="h6">Choose your negiotiation type</Typography>
-                        <FormControl sx={{ my: 3, minWidth: 300 }}>
+                        <Typography variant="h6" gutterBottom>Choose your negiotiation type</Typography>
+                        <FormControl sx={{ mb: 3, minWidth: 300 }}>
                             <InputLabel id="negotiation-type">Negotiation Type</InputLabel>
                             <Select
                                 value={this.state.selectedAction}
@@ -440,12 +441,13 @@ static countries = [
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item container justifyContent="center" direction="row">
+                    {this.displayFormContents() && <Typography variant="h6" align="center" gutterBottom>Choose your message</Typography>}
+                    <Grid item container justifyContent="center" direction="row" sx={{ height: '285px' }}>
                         {this.displayFormContents()}
                     </Grid>
 
                     <Box sx={{ my: 3 }}>
-                        <Typography variant="h6" align="center">Choose your negiotiation tone</Typography>
+                        <Typography variant="h6" align="center" gutterBottom>Choose your negiotiation tone</Typography>
                         <ToneToggle onToneChange={this.onToneChange} />
                     </Box>
 
