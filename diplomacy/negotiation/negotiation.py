@@ -86,6 +86,7 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         daide = daide + f'(PRP (SLO ({actors})))'
 
     elif 'response' in action:
+
         # Level 10 YES, REJ, BSW responses
         # message_daide: (PRP (ALY (ITA) VSS (GER)))
 

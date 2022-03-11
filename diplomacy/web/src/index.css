@@ -343,10 +343,11 @@ span.power-name {
 }
 
 .game-message {
-    width: 90%;
+    width: 80%;
     border-width: 2px;
     border-style: solid;
     margin: 0;
+    border-radius: 4px;
 }
 
 .game-message .message-header {
@@ -369,6 +370,7 @@ span.power-name {
 .game-message-wrapper {
     clear: both;
     overflow: auto;
+    margin-bottom: 10px;
 }
 
 .game-message-wrapper.other-phase {
