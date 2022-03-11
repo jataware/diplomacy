@@ -344,7 +344,7 @@ static countries = [
             case "notify_peace": case "oppose_peace": case "oppose_alliance":
                 return (
                     <Grid container justifyContent="center" spacing={4}>
-                        <Grid item xs={2}>
+                        <Grid item xs={3}>
                             <div className={'form-group'}>
                                 <h6>Countries Involved: </h6>
                                 {this.generateCheckboxes('selectedCountries')}
@@ -354,7 +354,7 @@ static countries = [
                         {(this.state.selectedAction === "propose_alliance"
                             || this.state.selectedAction === "notify_alliance"
                             || this.state.selectedAction === "oppose_alliance") && (
-                                <Grid item xs={2}>
+                                <Grid item xs={3}>
                                     <div className={'form-group'}>
                                         <h6>Alliance Targets: </h6>
                                         {this.generateCheckboxes('targets')}
