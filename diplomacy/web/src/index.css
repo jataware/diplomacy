@@ -356,14 +356,8 @@ span.power-name {
 }
 
 .game-message.message-recipient {
-    border-color: rgb(240, 200, 200);
-    background-color: rgb(255, 220, 220);
-    cursor: pointer;
-}
-
-.game-message.message-recipient.message-read {
-    border-color: rgb(224, 224, 224);
-    background-color: rgb(244, 244, 244, 1);
+    border-color: rgb(200, 240, 200);
+    background-color: rgb(220, 255, 220);
     cursor: default;
 }
 

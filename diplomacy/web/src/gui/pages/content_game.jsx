@@ -15,7 +15,6 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import Scrollchor from 'react-scrollchor';
 import {SelectLocationForm} from "../forms/select_location_form";
 import {SelectViaForm} from "../forms/select_via_form";
 import {Order} from "../utils/order";
@@ -162,7 +161,7 @@ export class ContentGame extends React.Component {
         this.onChangeShowAbbreviations = this.onChangeShowAbbreviations.bind(this);
         this.onChangeTabCurrentMessages = this.onChangeTabCurrentMessages.bind(this);
         this.onChangeTabPastMessages = this.onChangeTabPastMessages.bind(this);
-        this.onClickMessage = this.onClickMessage.bind(this);
+        this.clearMessageHighlights = this.clearMessageHighlights.bind(this);
         this.onDecrementPastPhase = this.onDecrementPastPhase.bind(this);
         this.onIncrementPastPhase = this.onIncrementPastPhase.bind(this);
         this.onOrderBuilding = this.onOrderBuilding.bind(this);
@@ -847,21 +846,6 @@ export class ContentGame extends React.Component {
         return this.setState({showAbbreviations: event.target.checked});
     }
 
-    onClickMessage(message) {
-        if (!message.read) {
-            message.read = true;
-            let protagonist = message.sender;
-            if (message.recipient === 'GLOBAL')
-                protagonist = message.recipient;
-            this.getPage().load(`game: ${this.props.data.game_id}`, <ContentGame data={this.props.data}/>);
-            if (this.state.messageHighlights.hasOwnProperty(protagonist) && this.state.messageHighlights[protagonist] > 0) {
-                const messageHighlights = Object.assign({}, this.state.messageHighlights);
-                --messageHighlights[protagonist];
-                this.setState({messageHighlights: messageHighlights});
-            }
-        }
-    }
-
     displayLocationOrders(loc, orders) {
         return this.setState({
             historyCurrentLoc: loc || null,
@@ -904,8 +888,7 @@ export class ContentGame extends React.Component {
                                     (<div className={'no-game-message'}>No
                                         messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
                                     messageChannels[protagonist].map((message, index) => (
-                                        <MessageView key={index} phase={engine.phase} owner={role} message={message}
-                                                     read={true}/>
+                                        <MessageView key={index} phase={engine.phase} owner={role} message={message} />
                                     ))
                             )}
                         </Tab>
@@ -914,6 +897,16 @@ export class ContentGame extends React.Component {
             </div>
         );
     }
+
+    clearMessageHighlights(protagonist) {
+        this.getPage().load(`game: ${this.props.data.game_id}`, <ContentGame data={this.props.data}/>);
+        if (this.state.messageHighlights.hasOwnProperty(protagonist) && this.state.messageHighlights[protagonist] > 0) {
+            const messageHighlights = Object.assign({}, this.state.messageHighlights);
+            messageHighlights[protagonist] = 0;
+            this.setState({messageHighlights: messageHighlights});
+        }
+    }
+
 
     renderCurrentMessages(engine, role) {
         const messageChannels = engine.getMessageChannels(role, true);
@@ -927,49 +920,47 @@ export class ContentGame extends React.Component {
         for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
             tabNames.push(powerName);
         tabNames.sort();
-        tabNames.push('GLOBAL');
+
         const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
         const highlights = this.state.messageHighlights;
-        const unreadMarked = new Set();
 
         return (
             <div className={'panel-messages'} key={'panel-messages'}>
                 {/* Messages. */}
-                <Tabs menu={tabNames} titles={titles} onChange={this.onChangeTabCurrentMessages} active={currentTabId}
-                      highlights={highlights}>
-                    {tabNames.map(protagonist => (
-                        <Tab key={protagonist} className={'game-messages'} display={currentTabId === protagonist}
-                             id={`panel-current-messages-${protagonist}`}>
-                            {(!messageChannels.hasOwnProperty(protagonist) || !messageChannels[protagonist].length ?
-                                    (<div className={'no-game-message'}>No
-                                        messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
-                                    (messageChannels[protagonist].map((message, index) => {
-                                        let id = null;
-                                        if (!message.read && !unreadMarked.has(protagonist)) {
-                                            if (engine.isOmniscientGame() || message.sender !== role) {
-                                                unreadMarked.add(protagonist);
-                                                id = `${protagonist}-unread`;
-                                            }
-                                        }
-                                        return <MessageView key={index} phase={engine.phase} owner={role}
-                                                            message={message}
-                                                            read={message.phase !== engine.phase}
-                                                            glossedBackup = {glossedMessage}
-                                                            id={id} onClick={this.onClickMessage}/>;
-                                    }))
-                            )}
+                <Tabs
+                    menu={tabNames}
+                    titles={titles}
+                    onChange={this.onChangeTabCurrentMessages}
+                    active={currentTabId}
+                    highlights={highlights}
+                >
+                    {tabNames.map((protagonist) => (
+                        <Tab
+                            key={protagonist}
+                            className={'game-messages'}
+                            display={currentTabId === protagonist}
+                            id={`panel-current-messages-${protagonist}`}
+                            onTabView={() => this.clearMessageHighlights(protagonist)}
+                            tabHighlights={highlights[protagonist]}
+                            highlights={highlights}
+                            protagonist={protagonist}
+                        >
+                            {!messageChannels.hasOwnProperty(protagonist) || !messageChannels[protagonist].length
+                                ? (<div className={'no-game-message'}>No messages {engine.isPlayerGame() && ` with ${protagonist}`}.</div>)
+                                : (messageChannels[protagonist].map((message, index) => (
+                                    <MessageView
+                                        key={index}
+                                        phase={engine.phase}
+                                        owner={role}
+                                        message={message}
+                                        glossedBackup={glossedMessage}
+                                    />
+                                )))
+                            }
                         </Tab>
                     ))}
                 </Tabs>
-                {/* Link to go to first unread received message. */}
-                {unreadMarked.has(currentTabId) && (
-                    <Scrollchor className={'link-unread-message'}
-                                to={`${currentTabId}-unread`}
-                                target={`panel-current-messages-${currentTabId}`}>
-                        Go to 1st unread message
-                    </Scrollchor>
-                )}
                 {glossBool && (
                     <div>
                         <h5>Gloss Preview:</h5>

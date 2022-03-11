@@ -20,6 +20,8 @@
         "plugin:react/recommended"
     ],
     "rules": {
-        "semi": [2, "always", { "omitLastInOneLineBlock": true}]
+        "semi": [2, "always", { "omitLastInOneLineBlock": true}],
+        "no-prototype-builtins": "off",
+        "no-loss-of-precision": "off",
     }
 }

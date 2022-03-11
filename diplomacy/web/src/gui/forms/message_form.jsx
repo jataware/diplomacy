@@ -15,11 +15,20 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Forms} from "../components/forms";
-import {UTILS} from "../../diplomacy/utils/utils";
 import {ORDER_BUILDER} from "../utils/order_building";
 import PropTypes from "prop-types";
 import {Button} from "../components/button";
+import ToneToggle from '../components/ToneToggle';
+
+import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import InputLabel from '@mui/material/InputLabel';
+import Grid from '@mui/material/Grid';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
 
 
 export class MessageForm extends React.Component {
@@ -31,14 +40,16 @@ export class MessageForm extends React.Component {
         this.checkboxOnChange = this.checkboxOnChange.bind(this);
         this.onFinalSubmit = this.onFinalSubmit.bind(this);
         this.onGlossSubmit = this.onGlossSubmit.bind(this);
-        this.tonesOnChange = this.tonesOnChange.bind(this);
+        this.onToneChange = this.onToneChange.bind(this);
         this.onResponseChange = this.onResponseChange.bind(this);
         this.onSelectChange = this.onSelectChange.bind(this);
+        this.displayFormContents = this.displayFormContents.bind(this);
+        this.generateCheckboxes = this.generateCheckboxes.bind(this);
     }
 
-static tones = ["Haughty", "Objective", "Obsequious", "Relaxed", "Urgent"];
 
-static locations = ["ADR", "AEG", "ALB", "ANK", "APU", "ARM", "BAL", "BAR", "BEL", "BER", "BLA", "BOH", "BOT", "BRE", "BUD", "BUL", "BUR", "CLY", "CON", "DEN", "EAS", "EDI", "ENG", "FIN", "GAL", "GAS", "GRE", "HEL", "HOL", "ION", "IRI", "KIE", "LON", "LVN", "LVP", "LYO", "MAO", "MAR", "MOS", "MUN", "NAF", "NAO", "NAP", "NTH", "NWG", "NWY", "PAR", "PIC", "PIE", "POR", "PRU", "ROM", "RUH", "RUM", "SER", "SEV", "SIL", "SKA", "SMY", "SPA", "STP", "SWE", "SYR", "TRI", "TUN", "TUS", "TYR", "TYS", "UKR", "VEN", "VIE", "WAL", "WAR", "WES", "YOR"]
+
+static locations = ["ADR", "AEG", "ALB", "ANK", "APU", "ARM", "BAL", "BAR", "BEL", "BER", "BLA", "BOH", "BOT", "BRE", "BUD", "BUL", "BUR", "CLY", "CON", "DEN", "EAS", "EDI", "ENG", "FIN", "GAL", "GAS", "GRE", "HEL", "HOL", "ION", "IRI", "KIE", "LON", "LVN", "LVP", "LYO", "MAO", "MAR", "MOS", "MUN", "NAF", "NAO", "NAP", "NTH", "NWG", "NWY", "PAR", "PIC", "PIE", "POR", "PRU", "ROM", "RUH", "RUM", "SER", "SEV", "SIL", "SKA", "SMY", "SPA", "STP", "SWE", "SYR", "TRI", "TUN", "TUS", "TYR", "TYS", "UKR", "VEN", "VIE", "WAL", "WAR", "WES", "YOR"];
 
 static countries = [
     {
@@ -87,15 +98,7 @@ static countries = [
     }
 
     onValueChange(event) {
-        event.persist();
-        this.setState(prevState => ({
-            selectedAction: event.target.value,
-            selectedOrder: prevState.selectedOrder,
-            selectedCountries: prevState.selectedCountries,
-            selectedTones: prevState.selectedTones,
-            targets: prevState.targets,
-            response: prevState.response,
-        }));
+        this.setState(prevState => ({ ...prevState, selectedAction: event.target.value }));
     }
 
     onResponseChange(event) {
@@ -131,48 +134,23 @@ static countries = [
         setTimeout( () => this.setState( locationReturn ));
     }
 
-    checkboxOnChange(event) {
-        event.persist();
-        const {id, checked} = event.target;
-        if(id.includes('target_')){
-            const updatedTarget = this.state.targets[id.replace('target_', '')] = checked;
-            this.setState(prevState => ({
-                //checked: !prevState.checked
-                selectedAction: prevState.selectedAction,
-                selectedOrder: prevState.selectedOrder,
-                selectedCountries: prevState.selectedCountries,
-                targets: { ...prevState.targets, updatedTarget },
-                selectedTones: prevState.selectedTones,
-                response: prevState.response,
-            }));
-        }
-        else{
-            const updatedCountry = this.state.selectedCountries[id] = checked;
-            this.setState(prevState => ({
-                //checked: !prevState.checked
-                selectedAction: prevState.selectedAction,
-                selectedOrder: prevState.selectedOrder,
-                selectedCountries: { ...prevState.selectedCountries, updatedCountry },
-                selectedTones: prevState.selectedTones,
-                targets: prevState.targets,
-                response: prevState.response,
-            }));
-        }
-        
+    checkboxOnChange(event, checkboxType, name) {
+        this.setState((prevState) => {
+            if (!event.target.checked) {
+                // remove any previous country keys from the state object if it's an uncheck
+                // but do it to this prevState here, so we aren't modifying state directly
+                delete prevState[checkboxType][name];
+            } else if (event.target.checked) {
+                // or add a check to the appropriate state field (targets or selectedCountries)
+                prevState[checkboxType][name] = true;
+            }
+
+            return prevState;
+        });
     }
 
-    tonesOnChange(event) {
-        event.persist();
-        const {id, checked} = event.target;
-        const updatedTones = this.state.selectedTones[id] = checked;
-        this.setState(prevState => ({
-            selectedAction: prevState.selectedAction,
-            selectedOrder: prevState.selectedOrder,
-            selectedCountries: prevState.selectedCountries,
-            selectedTones: { ...prevState.selectedTones, updatedTones },
-            targets: prevState.targets,
-            response: prevState.response,
-        }));
+    onToneChange(newTone) {
+        this.setState((prevState) => ({...prevState, selectedTones: { [newTone]: true, updatedTone: true }}));
     }
 
     onGlossSubmit(event) {
@@ -216,6 +194,7 @@ static countries = [
             response: this.state.response,
             gloss: true,
         };
+
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
                                 message: '',
@@ -265,6 +244,7 @@ static countries = [
             response: this.state.response,
             gloss: false,
         };
+
         if (this.props.onSubmit){
             this.props.onSubmit({negotiation: JSON.stringify(message),
                                 message: '',
@@ -275,40 +255,34 @@ static countries = [
         this.setState(this.initState());
     }
 
-    render() {
+    generateCheckboxes(checkboxType) {
         return (
-            <form>
-                <div className={'form-group row'}>
-                    <div className="form-group col-md-6">
-                        <select id="negotiation_type" value={this.state.selectedAction} onChange={this.onValueChange}>
-                            <option value="propose_order">Propose Order</option>
-                            <option value="propose_alliance">Propose Alliance</option>
-                            <option value="propose_peace">Propose Peace</option>
-                            <option value="propose_draw">Propose Draw</option>
-                            <option value="propose_solo_win">Propose Solo Win</option>
-                            <option value="propose_dmz">Propose Demilitarized Zone</option>
-                            <option value="oppose_peace">Oppose Peace</option>
-                            <option value="oppose_order">Oppose Order</option>
-                            <option value="oppose_draw">Oppose Draw</option>
-                            <option value="oppose_dmz">Oppose Demilitarized Zone</option>
-                            <option value="oppose_alliance">Oppose Alliance</option>
-                            <option value="notify_peace">Notify about Peace</option>
-                            <option value="notify_order">Notify about Order</option>
-                            <option value="notify_dmz">Notify about Demilitarized Zone</option>
-                            <option value="notify_alliance">Notify about Alliance</option>
-                            <option value="cancel">Cancel Previous Proposal</option>
-                            <option value="response">Response</option>
-                        </select>
-                    </div>
-                    {this.state.selectedAction === "propose_order" ||
-                    this.state.selectedAction === "oppose_order" ||
-                    this.state.selectedAction === "notify_order" ? 
-                        <div className={'form-group col-md-6'}>
+            <>
+                {MessageForm.countries.map(({ id, name }) => (
+                    <FormControlLabel key={id}
+                        control={
+                            <Checkbox
+                                checked={this.state[checkboxType][id]}
+                                onChange={(event) => this.checkboxOnChange(event, checkboxType, name)}
+                            />
+                        } label={name}
+                        sx={{ margin: 0, display: 'block' }}
+                    />
+                ))}
+            </>
+        );
+    }
+
+    displayFormContents() {
+        switch (this.state.selectedAction) {
+            case "propose_order": case "oppose_order": case "notify_order":
+                return (
+                        <div className={'form-group'}>
                             <select id="orderTarget" value={this.state.orderTarget} onChange={this.onSelectChange}>
                                 <option value="player">Order I can do</option>
                                 <option value="recipient">Order they can do</option>
                             </select>
-                            {this.state.orderTarget === "player" ?
+                            {this.state.orderTarget === "player" && (
                                 <div>
                                     <h6>Order</h6>
                                     <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
@@ -335,9 +309,8 @@ static countries = [
                                         })}
                                     </select>
                                 </div>
-                                :null
-                            }
-                            {this.state.orderTarget === "recipient" ?
+                            )}
+                            {this.state.orderTarget === "recipient" && (
                                 <div>
                                     <h6>Order</h6>
                                     <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
@@ -364,95 +337,120 @@ static countries = [
                                         })}
                                     </select>
                                 </div>
-                                :null
-                            }
+                            )}
                         </div>
-                        : null
-                    }
-                    {this.state.selectedAction === "propose_peace" || 
-                    this.state.selectedAction === "propose_alliance" || 
-                    this.state.selectedAction === "notify_alliance" ||
-                    this.state.selectedAction === "notify_peace" ||
-                    this.state.selectedAction === "oppose_peace" ||
-                    this.state.selectedAction === "oppose_alliance" ? 
-                        <div className={'form-group col-md-6'}>
-                            <h6>Countries Involved: </h6>
-                            {MessageForm.countries.map(({ id, name }, index) => {
+                );
+            case "propose_peace": case "propose_alliance": case "notify_alliance":
+            case "notify_peace": case "oppose_peace": case "oppose_alliance":
+                return (
+                    <Grid container justifyContent="center" spacing={4}>
+                        <Grid item xs={3}>
+                            <div className={'form-group'}>
+                                <h6>Countries Involved: </h6>
+                                {this.generateCheckboxes('selectedCountries')}
+                            </div>
+                        </Grid>
+                        {/* Also make sure to stick in Alliance Targets if we're in one of these three action types*/}
+                        {(this.state.selectedAction === "propose_alliance"
+                            || this.state.selectedAction === "notify_alliance"
+                            || this.state.selectedAction === "oppose_alliance") && (
+                                <Grid item xs={3}>
+                                    <div className={'form-group'}>
+                                        <h6>Alliance Targets: </h6>
+                                        {this.generateCheckboxes('targets')}
+                                    </div>
+                                </Grid>
+                        )}
+                    </Grid>
+                );
+            case "propose_dmz": case "oppose_dmz": case "notify_dmz":
+                return (
+                    <div className={'form-group'}>
+                        <select id="dmzLocation" value={this.state.dmzLocation} onChange={this.onSelectChange}>
+                            {MessageForm.locations.map((location) =>{
                                 return(
-                                    <li key={index}>
-                                        <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
-                                         name={`country_${id}`} value={`${id}`} checked={this.state.selectedCountries[id]}
-                                         id={`${id}`} onChange={this.checkboxOnChange}/>
-                                        <label className="form-input__label" htmlFor={`${id}-check`}>{name}</label>
-                                    </li>
+                                    <option key={`${location}-key`} value={location}>{location}</option>
                                 );
                             })}
-                        </div>
-                        : null
-                    }
-                    {this.state.selectedAction === "propose_alliance" || 
-                    this.state.selectedAction === "notify_alliance" ||
-                    this.state.selectedAction === "oppose_alliance" ? 
-                        <div className={'form-group col-md-6'}>
-                            <h6>Alliance Targets: </h6>
-                            {MessageForm.countries.map(({ id, name }, index) => {
-                                return(
-                                    <li key={index}>
-                                        <input className={'form-input__input'} key={`${id}-check`} type={'checkbox'}
-                                         name={`target_${id}`} value={`${id}`} checked={this.state.targets[id]}
-                                         id={`target_${id}`} onChange={this.checkboxOnChange}/>
-                                        <label className="form-input__label" htmlFor={`${id}-check`}>{name}</label>
-                                    </li>
-                                );
-                            })}
-                        </div>
-                        : null
-                    }
-                    {this.state.selectedAction === "propose_dmz" ||
-                    this.state.selectedAction === "oppose_dmz" ||
-                    this.state.selectedAction === "notify_dmz" ?
-                        <div className={'form-group col-md-6'}>
-                            <select id="dmzLocation" value={this.state.dmzLocation} onChange={this.onSelectChange}>
-                                {MessageForm.locations.map((location) =>{
-                                    return(
-                                        <option key={`${location}-key`} value={location}>{location}</option>
-                                    );
-                                })}
-                            </select>
-                        </div>
-                        : null
-                    }
-                </div>
-                {this.state.selectedAction === "response" ?
-                    <div className={'form-group col-md-6'}>
-                        <select id="response_type" value={this.state.response} onChange={this.onResponseChange}>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                            <option value="noyb">None of your business</option>
                         </select>
                     </div>
-                    :null
-                }
+                );
+            case "response":
+                return (
+                    <div>
+                        <div className={'form-group'}>
+                            <select id="response_type" value={this.state.response} onChange={this.onResponseChange}>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                                <option value="noyb">None of your business</option>
+                            </select>
+                        </div>
+                    </div>
+                );
+            default:
+                console.log('Please select a valid action');
+                // return false so we know not to show any header text when we don't have a form to show
+                return false;
+        }
+    }
 
-               
-                <div className={'form-group col-md-6'}>
-                {MessageForm.tones.map(( name, index) => {
-                    return(
-                        <li key={index}>
-                            <input className={'form-input__input'} key={`${name}-tone`} type={'checkbox'}
-                             name={`${name}-tone`} value={`${name}`} checked={this.state.selectedTones[name]}
-                             id={`${name}`} onChange={this.tonesOnChange}/>
-                            <label className="form-input__label" htmlFor={`${name}-tone`}>{name}</label>
-                        </li>
-                    );
-                })}
-                </div>
-                <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
-                {this.state.gloss &&
-                    <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
-                }
-                
+    render() {
+        return (
+            <form>
+                <Grid container alignItems="center" justifyContent="center" direction="column">
+                    <Grid item>
+                        <Typography variant="h6" gutterBottom>Choose your negiotiation type</Typography>
+                        <FormControl sx={{ marginBottom: '16px', minWidth: 300 }}>
+                            <InputLabel id="negotiation-type">Negotiation Type</InputLabel>
+                            <Select
+                                value={this.state.selectedAction}
+                                onChange={this.onValueChange}
+                                label="Negotiation Type"
+                                id="negotiation-type"
+                            >
+                                <MenuItem value="propose_order">Propose Order</MenuItem>
+                                <MenuItem value="propose_alliance">Propose Alliance</MenuItem>
+                                <MenuItem value="propose_peace">Propose Peace</MenuItem>
+                                <MenuItem value="propose_draw">Propose Draw</MenuItem>
+                                <MenuItem value="propose_solo_win">Propose Solo Win</MenuItem>
+                                <MenuItem value="propose_dmz">Propose Demilitarized Zone</MenuItem>
+                                <MenuItem value="oppose_peace">Oppose Peace</MenuItem>
+                                <MenuItem value="oppose_order">Oppose Order</MenuItem>
+                                <MenuItem value="oppose_draw">Oppose Draw</MenuItem>
+                                <MenuItem value="oppose_dmz">Oppose Demilitarized Zone</MenuItem>
+                                <MenuItem value="oppose_alliance">Oppose Alliance</MenuItem>
+                                <MenuItem value="notify_peace">Notify about Peace</MenuItem>
+                                <MenuItem value="notify_order">Notify about Order</MenuItem>
+                                <MenuItem value="notify_dmz">Notify about Demilitarized Zone</MenuItem>
+                                <MenuItem value="notify_alliance">Notify about Alliance</MenuItem>
+                                <MenuItem value="cancel">Cancel Previous Proposal</MenuItem>
+                                <MenuItem value="response">Response</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Box sx={{ height: '350px', width: '100%' }}>
+                        {this.displayFormContents() && (
+                            <Typography variant="h6" align="center" gutterBottom>Choose your message</Typography>
+                        )}
+                        <Grid item container justifyContent="center" direction="row">
+                            {this.displayFormContents()}
+                        </Grid>
+                    </Box>
 
+                    <Box sx={{ my: 3 }}>
+                        <Typography variant="h6" align="center" gutterBottom>Choose your negiotiation tone</Typography>
+                        <ToneToggle onToneChange={this.onToneChange} />
+                    </Box>
+
+                    <Grid item container direction="row" spacing={2} justifyContent="center" style={{marginTop: '16px'}}>
+                        <Grid item xs={5}>
+                            <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
+                        </Grid>
+                        <Grid item xs={5}>
+                            <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
+                        </Grid>
+                    </Grid>
+                </Grid>
             </form>
         );
     }
