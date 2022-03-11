@@ -135,7 +135,7 @@ static countries = [
 
     checkboxOnChange(event, checkboxType, name) {
         if (checkboxType === 'selected') {
-            this.setState((prevState) => ({ selectedCountries: { ...prevState.selectedCountries, [name]: event.target.checked }}));
+            this.setState((prevState) => ({ selectedCountries: { ...prevState.selectedCountries, [name]: event.target.checked || null }}));
         } else if (checkboxType === 'target') {
             this.setState((prevState) => ({ targets: { ...prevState.targets, [name]: event.target.checked }}));
         }
@@ -329,6 +329,7 @@ static countries = [
                                                 onChange={(event) => this.checkboxOnChange(event, 'selected', name)}
                                             />
                                         } label={name}
+                                        sx={{ margin: 0, display: 'block' }}
                                     />
                                 ))}
                             </div>
@@ -348,6 +349,7 @@ static countries = [
                                                         onChange={(event) => this.checkboxOnChange(event, 'target', name)}
                                                     />
                                                 } label={name}
+                                                sx={{ margin: 0, display: 'block' }}
                                             />
                                         ))}
                                     </div>
@@ -392,7 +394,7 @@ static countries = [
                 <Grid container alignItems="center" justifyContent="center" direction="column">
                     <Grid item>
                         <Typography variant="h6" gutterBottom>Choose your negiotiation type</Typography>
-                        <FormControl sx={{ mb: 3, minWidth: 300 }}>
+                        <FormControl sx={{ marginbBottom: 3, minWidth: 300 }}>
                             <InputLabel id="negotiation-type">Negotiation Type</InputLabel>
                             <Select
                                 value={this.state.selectedAction}
@@ -420,8 +422,10 @@ static countries = [
                             </Select>
                         </FormControl>
                     </Grid>
-                    {this.displayFormContents() && <Typography variant="h6" align="center" gutterBottom>Choose your message</Typography>}
-                    <Grid item container justifyContent="center" direction="row" sx={{ height: '285px' }}>
+                    {this.displayFormContents() && (
+                        <Typography variant="h6" align="center" gutterBottom sx={{ marginTop: 2 }}>Choose your message</Typography>
+                    )}
+                    <Grid item container justifyContent="center" direction="row" sx={{ height: '315px' }}>
                         {this.displayFormContents()}
                     </Grid>
 
