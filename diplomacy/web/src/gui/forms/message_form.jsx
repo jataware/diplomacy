@@ -44,6 +44,7 @@ export class MessageForm extends React.Component {
         this.onResponseChange = this.onResponseChange.bind(this);
         this.onSelectChange = this.onSelectChange.bind(this);
         this.displayFormContents = this.displayFormContents.bind(this);
+        this.generateCheckboxes = this.generateCheckboxes.bind(this);
     }
 
 
@@ -134,11 +135,18 @@ static countries = [
     }
 
     checkboxOnChange(event, checkboxType, name) {
-        if (checkboxType === 'selected') {
-            this.setState((prevState) => ({ selectedCountries: { ...prevState.selectedCountries, [name]: event.target.checked || null }}));
-        } else if (checkboxType === 'target') {
-            this.setState((prevState) => ({ targets: { ...prevState.targets, [name]: event.target.checked }}));
-        }
+        this.setState((prevState) => {
+            if (!event.target.checked) {
+                // remove any previous country keys from the state object if it's an uncheck
+                // but do it to this prevState here, so we aren't modifying state directly
+                delete prevState[checkboxType][name];
+            } else if (event.target.checked) {
+                // or add a check to the appropriate state field (targets or selectedCountries)
+                prevState[checkboxType][name] = true;
+            }
+
+            return prevState;
+        });
     }
 
     onToneChange(newTone) {
@@ -247,6 +255,24 @@ static countries = [
         this.setState(this.initState());
     }
 
+    generateCheckboxes(checkboxType) {
+        return (
+            <>
+                {MessageForm.countries.map(({ id, name }) => (
+                    <FormControlLabel key={id}
+                        control={
+                            <Checkbox
+                                checked={this.state[checkboxType][id]}
+                                onChange={(event) => this.checkboxOnChange(event, checkboxType, name)}
+                            />
+                        } label={name}
+                        sx={{ margin: 0, display: 'block' }}
+                    />
+                ))}
+            </>
+        );
+    }
+
     displayFormContents() {
         switch (this.state.selectedAction) {
             case "propose_order": case "oppose_order": case "notify_order":
@@ -321,17 +347,7 @@ static countries = [
                         <Grid item xs={2}>
                             <div className={'form-group'}>
                                 <h6>Countries Involved: </h6>
-                                {MessageForm.countries.map(({ id, name }) => (
-                                    <FormControlLabel key={id}
-                                        control={
-                                            <Checkbox
-                                                checked={this.state.selectedCountries[id]}
-                                                onChange={(event) => this.checkboxOnChange(event, 'selected', name)}
-                                            />
-                                        } label={name}
-                                        sx={{ margin: 0, display: 'block' }}
-                                    />
-                                ))}
+                                {this.generateCheckboxes('selectedCountries')}
                             </div>
                         </Grid>
                         {/* Also make sure to stick in Alliance Targets if we're in one of these three action types*/}
@@ -341,17 +357,7 @@ static countries = [
                                 <Grid item xs={2}>
                                     <div className={'form-group'}>
                                         <h6>Alliance Targets: </h6>
-                                        {MessageForm.countries.map(({ id, name }) => (
-                                            <FormControlLabel key={id}
-                                                control={
-                                                    <Checkbox
-                                                        checked={this.state.targets[id]}
-                                                        onChange={(event) => this.checkboxOnChange(event, 'target', name)}
-                                                    />
-                                                } label={name}
-                                                sx={{ margin: 0, display: 'block' }}
-                                            />
-                                        ))}
+                                        {this.generateCheckboxes('targets')}
                                     </div>
                                 </Grid>
                         )}
@@ -394,7 +400,7 @@ static countries = [
                 <Grid container alignItems="center" justifyContent="center" direction="column">
                     <Grid item>
                         <Typography variant="h6" gutterBottom>Choose your negiotiation type</Typography>
-                        <FormControl sx={{ marginbBottom: 3, minWidth: 300 }}>
+                        <FormControl sx={{ marginBottom: '16px', minWidth: 300 }}>
                             <InputLabel id="negotiation-type">Negotiation Type</InputLabel>
                             <Select
                                 value={this.state.selectedAction}
@@ -422,12 +428,14 @@ static countries = [
                             </Select>
                         </FormControl>
                     </Grid>
-                    {this.displayFormContents() && (
-                        <Typography variant="h6" align="center" gutterBottom sx={{ marginTop: 2 }}>Choose your message</Typography>
-                    )}
-                    <Grid item container justifyContent="center" direction="row" sx={{ height: '315px' }}>
-                        {this.displayFormContents()}
-                    </Grid>
+                    <Box sx={{ height: '350px', width: '100%' }}>
+                        {this.displayFormContents() && (
+                            <Typography variant="h6" align="center" gutterBottom>Choose your message</Typography>
+                        )}
+                        <Grid item container justifyContent="center" direction="row">
+                            {this.displayFormContents()}
+                        </Grid>
+                    </Box>
 
                     <Box sx={{ my: 3 }}>
                         <Typography variant="h6" align="center" gutterBottom>Choose your negiotiation tone</Typography>
