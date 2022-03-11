@@ -138,7 +138,9 @@ export class ContentGame extends React.Component {
             power: null,
             orderBuildingType: null,
             orderBuildingPath: [],
-            showAbbreviations: true
+            showAbbreviations: true,
+            gloss: false,
+            glossMessage: '',
         };
 
         // Bind some class methods to this instance.
@@ -502,6 +504,16 @@ export class ContentGame extends React.Component {
         const page = this.getPage();
         networkGame.sendGameMessage({message: message})
             .then(() => {
+                // when we get the message response, handle dealing with the gloss state
+                if (message.gloss) {
+                    this.setState({
+                        gloss: true, glossMessage: JSON.parse(message.time_sent).message
+                    });
+                } else if (!message.gloss) {
+                    // or clear it if it isn't a gloss message
+                    this.setState({ gloss: null, glossMessage: null });
+                }
+
                 page.load(
                     `game: ${engine.game_id}`,
                     <ContentGame data={engine}/>,
@@ -910,18 +922,11 @@ export class ContentGame extends React.Component {
 
     renderCurrentMessages(engine, role) {
         const messageChannels = engine.getMessageChannels(role, true);
-        let glossBool = false;
-        let glossedMessage = '';
-        if(engine.messages.size()){
-            glossBool = JSON.parse(engine.messages.__real_keys[0]).gloss;
-            glossedMessage = JSON.parse(engine.messages.__real_keys[0]).message;
-        }
-        const tabNames = [];
-        for (let powerName of Object.keys(engine.powers)) if (powerName !== role)
-            tabNames.push(powerName);
-        tabNames.sort();
 
-        const titles = tabNames.map(tabName => (tabName === 'GLOBAL' ? tabName : tabName.substr(0, 3)));
+        // fetch the names of the powers, except for the current player
+        const tabNames = Object.keys(engine.powers).filter((power) => power !== role).sort();
+
+        const titles = tabNames.map(tabName => tabName.substr(0, 3));
         const currentTabId = this.state.tabCurrentMessages || tabNames[0];
         const highlights = this.state.messageHighlights;
 
@@ -954,34 +959,29 @@ export class ContentGame extends React.Component {
                                         phase={engine.phase}
                                         owner={role}
                                         message={message}
-                                        glossedBackup={glossedMessage}
+                                        glossedBackup={this.state.glossMessage}
                                     />
                                 )))
                             }
                         </Tab>
                     ))}
                 </Tabs>
-                {glossBool && (
+                {this.state.gloss && (
                     <div>
                         <h5>Gloss Preview:</h5>
-                        <p>{glossedMessage}</p>
+                        <p>{this.state.glossMessage}</p>
                     </div>)
                 }
                 {/* Send form. */}
                 {engine.isPlayerGame() && (
-                    <MessageForm 
+                    <MessageForm
+                        glossed={this.state.gloss}
                         sender={role}
                         recipient={currentTabId}
                         powers={engine.powers}
                         senderMoves = {engine.getOrderTypeToLocs(role)}
                         recipientMoves = {engine.getOrderTypeToLocs(currentTabId)}
                         engine = {engine}
-                        onRealSubmit={() => {
-                            if (glossBool) {
-                                engine.messages.remove(engine.messages.__real_keys[0]);
-                                glossBool = false;
-                            }
-                        }}
                         onSubmit={(form) => {
                             this.sendMessage(engine.client, currentTabId, form.negotiation, form.message, form.daide, form.gloss);
                         }}

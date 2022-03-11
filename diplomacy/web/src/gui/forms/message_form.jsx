@@ -30,6 +30,9 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Typography from '@mui/material/Typography';
 
+import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
+
 
 export class MessageForm extends React.Component {
     constructor(props) {
@@ -95,6 +98,7 @@ static countries = [
             response: '',
             orderTarget: 'player',
             gloss: true,
+            disableSubmit: true,
         };
     }
 
@@ -137,16 +141,18 @@ static countries = [
 
     checkboxOnChange(event, checkboxType, name) {
         this.setState((prevState) => {
+            // deep clone the state object so react picks up our changes
+            const clonedState = cloneDeep(prevState);
             if (!event.target.checked) {
                 // remove any previous country keys from the state object if it's an uncheck
                 // but do it to this prevState here, so we aren't modifying state directly
-                delete prevState[checkboxType][name];
+                delete clonedState[checkboxType][name];
             } else if (event.target.checked) {
                 // or add a check to the appropriate state field (targets or selectedCountries)
-                prevState[checkboxType][name] = true;
+                clonedState[checkboxType][name] = true;
             }
 
-            return prevState;
+            return clonedState;
         });
     }
 
@@ -202,6 +208,9 @@ static countries = [
                                 daide: '',
                                 gloss: true});
         }
+
+        // enable the submit button
+        this.setState({ disableSubmit: false });
         setTimeout( () => {console.log(`State:`, this.state)});
     }
 
@@ -252,7 +261,7 @@ static countries = [
                                 daide: '',
                                 gloss: false});
         }
-        this.props.onRealSubmit();
+        // this.props.onRealSubmit();
         this.setState(this.initState());
     }
 
@@ -425,6 +434,20 @@ static countries = [
         }
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        // compare the old form state to the new, so we know when the gloss is out of date
+        if (!isEqual(prevState, this.state)
+            // but don't do this when it's the disableSubmit state that has changed, or we'll
+            // get in an infinite loop
+            && prevState.disableSubmit === this.state.disableSubmit) {
+            if (this.props.glossed) {
+                // if we have a glossed messaged, disable the submit button
+                // because the form has changed
+                this.setState({ disableSubmit: true });
+            }
+        }
+    }
+
     render() {
         return (
             <form>
@@ -478,7 +501,7 @@ static countries = [
                             <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
                         </Grid>
                         <Grid item xs={5}>
-                            <Button type='submit' title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
+                            <Button type='submit' disabled={this.state.disableSubmit} title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -496,5 +519,5 @@ MessageForm.propTypes = {
     engine: PropTypes.object,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
-    onRealSubmit: PropTypes.func,
+    glossed: PropTypes.bool,
 };
