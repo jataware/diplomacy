@@ -38,7 +38,7 @@ DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 8432
 
 # Default port for secure SSL server (not yet used).
-DEFAULT_SSL_PORT = 8433
+DEFAULT_SSL_PORT = 443
 
 # Special username and password to use to connect as a bot recognized by diplomacy module.
 # This bot is called "private bot".
