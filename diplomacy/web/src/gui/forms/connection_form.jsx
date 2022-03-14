@@ -44,7 +44,7 @@ export class ConnectionForm extends React.Component {
     initState() {
         return {
             hostname: window.location.hostname,
-            port: (window.location.protocol.toLowerCase() === 'https:') ? 443 : 8432,
+            port: 8432,
             username: '',
             password: '',
             showServerFields: false
