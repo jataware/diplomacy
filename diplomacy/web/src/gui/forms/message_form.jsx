@@ -294,20 +294,26 @@ static countries = [
                                     </select>
                                     <h6>Start Location</h6>
                                     <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
+                                        <option value="">-</option>
                                         {this.props.senderMoves[this.state.selectedOrder].map((location) => {
                                             return(
                                                 <option key={`${location}-key`} value={location}>{location}</option>
                                             );
                                         })}
                                     </select>
-                                    <h6>End Location</h6>
-                                    <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
-                                        {MessageForm.locations.map((location) =>{
-                                            return(
-                                                <option key={`${location}-key`} value={location}>{location}</option>
-                                            );
-                                        })}
-                                    </select>
+                                    {this.state.selectedOrder !== "H" && (
+                                        <div>
+                                            <h6>End Location</h6>
+                                            <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
+                                                <option value="">-</option>
+                                                {MessageForm.locations.map((location) =>{
+                                                    return(
+                                                        <option key={`${location}-key`} value={location}>{location}</option>
+                                                    );
+                                                })}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                             {this.state.orderTarget === "recipient" && (
@@ -322,20 +328,26 @@ static countries = [
                                     </select>
                                     <h6>Start Location</h6>
                                     <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
+                                        <option value="">-</option>
                                         {this.props.recipientMoves[this.state.selectedOrder].map((location) => {
                                             return(
                                                 <option key={`${location}-key`} value={location}>{location}</option>
                                             );
                                         })}
                                     </select>
-                                    <h6>End Location</h6>
-                                    <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
-                                        {MessageForm.locations.map((location) =>{
-                                            return(
-                                                <option key={`${location}-key`} value={location}>{location}</option>
-                                            );
-                                        })}
-                                    </select>
+                                    {this.state.selectedOrder !== "H" && (
+                                        <div>
+                                            <h6>End Location</h6>
+                                            <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
+                                                <option value="">-</option>
+                                                {MessageForm.locations.map((location) =>{
+                                                    return(
+                                                        <option key={`${location}-key`} value={location}>{location}</option>
+                                                    );
+                                                })}
+                                            </select>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -462,6 +474,7 @@ MessageForm.propTypes = {
     powers: PropTypes.object,
     senderMoves: PropTypes.object,
     recipientMoves: PropTypes.object,
+    engine: PropTypes.object,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
     onRealSubmit: PropTypes.func,
