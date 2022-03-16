@@ -828,7 +828,7 @@ def on_send_game_message(server, request, connection_handler):
     if not message.gloss:
         # Pressgloss the message and add the returned string of the new text to the Message Obj.
         LOGGER.info(message.to_dict())
-        gloss_message_text = negotiation.pressgloss(message, level.game.message_history, level.game.messages, return_message_obj_str=True) 
+        gloss_message_text = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True) 
         LOGGER.info(f"gloss_message_text: {gloss_message_text}")
         message.message = json.loads(gloss_message_text)["message"]
 
@@ -860,7 +860,7 @@ def on_send_game_message(server, request, connection_handler):
     else: 
         # PressGloss the negotiation information: add DAIDE and glossed message string 
         # to the Message object. The Message object is returned as a string.
-        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, return_message_obj_str=True)
+        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
         return responses.DataToken(data = new_message_obj_str, request_id=request.request_id)
 
 
