@@ -12,6 +12,18 @@ The complete documentation is available at [diplomacy.readthedocs.io](https://di
 
 ## Getting Started
 
+### Running with Docker (Jataware)
+
+When you have cloned the repo, run 
+```git submodule update --init``` from the root directory of the project.
+This command will initialize the pressgloss submodule that is needed for gloss conversion.
+
+Next, run ```docker-compose build``` from the root directory of the project. This should build all of the necessary docker containers.
+
+Finally, run ```docker-compose up``` or ```docker-compose up -d``` to start the application. Going to ```http://localhost:3000``` will bring you to the splash screen of the game.
+
+To get logs from the game docker container, you can use ```docker logs -f diplomacy_server```.
+
 ### Installation
 
 The latest version of the package can be installed with:
