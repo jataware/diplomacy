@@ -45,6 +45,7 @@ export class MessageForm extends React.Component {
         this.onSelectChange = this.onSelectChange.bind(this);
         this.displayFormContents = this.displayFormContents.bind(this);
         this.generateCheckboxes = this.generateCheckboxes.bind(this);
+        this.renderEndLocation = this.renderEndLocation.bind(this);
     }
 
 
@@ -273,6 +274,32 @@ static countries = [
         );
     }
 
+    renderEndLocation(){
+        console.log("Engine possible orders with var: ", this.props.engine.possibleOrders[this.state.startLocation], "Var: ", this.state.startLocation);
+        var renderedEndLocs = [];
+        if(this.state.startLocation !== "") {
+            return (
+                this.props.engine.possibleOrders[this.state.startLocation].map(order => {
+                    var possibleSplit = order.split(' ');
+                    console.log("possibleSplit: ", possibleSplit, "Last: ", possibleSplit[possibleSplit.length - 1]);
+                    if (possibleSplit[possibleSplit.length - 1] !== "H" && renderedEndLocs.includes(possibleSplit[possibleSplit.length - 1]) === false) {
+                        renderedEndLocs.push(possibleSplit[possibleSplit.length - 1]);
+                        return(
+                            <option value={possibleSplit[possibleSplit.length - 1]}>{possibleSplit[possibleSplit.length - 1]}</option>
+                        );
+                    }
+            }));
+        } else {
+            return (
+                MessageForm.locations.map((location) =>{
+                    return(
+                        <option key={`${location}-key`} value={location}>{location}</option>
+                    );
+                }
+            ));
+        }
+    }
+
     displayFormContents() {
         switch (this.state.selectedAction) {
             case "propose_order": case "oppose_order": case "notify_order":
@@ -306,11 +333,7 @@ static countries = [
                                             <h6>End Location</h6>
                                             <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
                                                 <option value="">-</option>
-                                                {MessageForm.locations.map((location) =>{
-                                                    return(
-                                                        <option key={`${location}-key`} value={location}>{location}</option>
-                                                    );
-                                                })}
+                                                {this.renderEndLocation()}
                                             </select>
                                         </div>
                                     )}
@@ -340,11 +363,7 @@ static countries = [
                                             <h6>End Location</h6>
                                             <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
                                                 <option value="">-</option>
-                                                {MessageForm.locations.map((location) =>{
-                                                    return(
-                                                        <option key={`${location}-key`} value={location}>{location}</option>
-                                                    );
-                                                })}
+                                                {this.renderEndLocation()}
                                             </select>
                                         </div>
                                     )}
