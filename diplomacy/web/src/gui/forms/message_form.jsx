@@ -87,6 +87,7 @@ static countries = [
 ];
     initState() {
         return {
+            submitted: false,
             selectedAction: 'propose_order',
             selectedOrder: 'M',
             startLocation: '',
@@ -256,13 +257,18 @@ static countries = [
         };
 
         if (this.props.onSubmit){
-            this.props.onSubmit({negotiation: JSON.stringify(message),
-                                message: '',
-                                daide: '',
-                                gloss: false});
+            this.props.onSubmit({
+                negotiation: JSON.stringify(message),
+                message: '',
+                daide: '',
+                gloss: false
+            });
         }
-        // this.props.onRealSubmit();
-        this.setState(this.initState());
+        // trigger the ToneToggle to reset
+        this.setState({ submitted: true });
+
+        // cause this setstate to happen after the above so that the updates don't get batched
+        setTimeout(() => this.setState(this.initState()));
     }
 
     generateCheckboxes(checkboxType) {
@@ -484,7 +490,9 @@ static countries = [
                     </Grid>
                     <Box sx={{ height: '350px', width: '100%' }}>
                         {this.displayFormContents() && (
-                            <Typography variant="h6" align="center" gutterBottom>Choose your message</Typography>
+                            <Typography variant="h6" align="center" gutterBottom>
+                                Choose your message
+                            </Typography>
                         )}
                         <Grid item container justifyContent="center" direction="row">
                             {this.displayFormContents()}
@@ -492,16 +500,31 @@ static countries = [
                     </Box>
 
                     <Box sx={{ my: 3 }}>
-                        <Typography variant="h6" align="center" gutterBottom>Choose your negiotiation tone</Typography>
-                        <ToneToggle onToneChange={this.onToneChange} />
+                        <Typography variant="h6" align="center" gutterBottom>
+                            Choose your negiotiation tone
+                        </Typography>
+                        <ToneToggle onToneChange={this.onToneChange} submitted={this.state.submitted} />
                     </Box>
 
                     <Grid item container direction="row" spacing={2} justifyContent="center" style={{marginTop: '16px'}}>
                         <Grid item xs={5}>
-                            <Button type='submit' title="Generate Gloss" onClick={this.onGlossSubmit} pickEvent large/>
+                            <Button
+                                type='submit'
+                                title="Generate Gloss"
+                                onClick={this.onGlossSubmit}
+                                pickEvent
+                                large
+                            />
                         </Grid>
                         <Grid item xs={5}>
-                            <Button type='submit' disabled={this.state.disableSubmit} title="Submit" onClick={this.onFinalSubmit} pickEvent large/>
+                            <Button
+                                type='submit'
+                                disabled={this.state.disableSubmit}
+                                title="Submit"
+                                onClick={this.onFinalSubmit}
+                                pickEvent
+                                large
+                            />
                         </Grid>
                     </Grid>
                 </Grid>

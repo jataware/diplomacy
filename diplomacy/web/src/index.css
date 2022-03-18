@@ -16,7 +16,7 @@ span.dropdown-item {
     position: -webkit-sticky;
     position: sticky;
     top: 0;
-    z-index: 1;
+    z-index: 2;
     background-color: white;
 }
 
@@ -356,8 +356,8 @@ span.power-name {
 }
 
 .game-message.message-recipient {
-    border-color: rgb(200, 240, 200);
-    background-color: rgb(220, 255, 220);
+    border-color: rgb(204, 204, 204);
+    background-color: rgb(224, 224, 224);
     cursor: default;
 }
 

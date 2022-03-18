@@ -512,6 +512,7 @@ export class ContentGame extends React.Component {
                 } else if (!message.gloss) {
                     // or clear it if it isn't a gloss message
                     this.setState({ gloss: null, glossMessage: null });
+                    engine.messages.clearGloss();
                 }
 
                 page.load(
