@@ -71,8 +71,10 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         # Check target
         if target == 'player':
             target_name = sender
+            second_name = recipient
         else:
             target_name = recipient
+            second_name = sender
 
         # Process order components to DAIDE.
         if order == 'H':
@@ -103,12 +105,28 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         actor = empires_to_tokens([target_name])
         secondary_unit = ''
         secondary_actor = ''
+        # We really need to check what the unit/power combo of the mid_location is agnostically from the sender/recipient data.
+        # Best way I have thought is to check first if the target has units in that location, then check recipient, then loop through all available powers.
+        # The possibleOrders object takes a location but doesn't tie to powers. The power.units needs the chosen power first.
         if mid_location:
-            secondary_unit = units_dict[mid_location]
-            secondary_actor = empires_to_tokens([recipient])
-        # if not end_location:
-        #     end_location = 'ADR'
-        #     start_location = 'EDI'
+            if mid_location in units_dict:
+                secondary_unit = units_dict[mid_location]
+                secondary_actor = empires_to_tokens([target_name])
+            else:
+                try:  
+                    second_unit_dict = construct_units_dict(power_name=second_name, powers=powers)
+                    secondary_unit = second_unit_dict[mid_location]
+                    secondary_actor = empires_to_tokens([second_name])
+                except Exception as e:
+                    LOGGER.info("Likely a third party in support move: {}".format(e))
+                    for power in powers:
+                        LOGGER.info("Power info: {}".format(power))
+                        if power != sender and power != recipient:
+                            second_unit_dict = construct_units_dict(power_name=power, powers=powers)
+                            if mid_location in second_unit_dict:
+                                secondary_unit = second_unit_dict[mid_location]
+                                secondary_actor = empires_to_tokens([power])
+
 
         if(order != "SUP" and order != "CVY"):
             daide = daide + \
@@ -374,7 +392,7 @@ def to_tens(daide_text, tones):
     """
     Description
     -----------
-    Pass DAIDE syntax to the pressgloss API to return 
+    Pass DAIDE syntax to the pressgloss API to return
     Tone-ENhanced Syntax
 
     Parameters
@@ -399,9 +417,25 @@ def to_tens(daide_text, tones):
     except Exception as e:
         print(e)
 
+# Returns a constructed unit dictionary for unit type lookup by location.
+def construct_units_dict(power_name, powers):
+    # Obtain the target power and its unit types
+    power = powers[power_name]
+    units = power.units
+    units_dict = {}
+    for i in units:
+        location = i.split(' ')[1]
+        unit_type = i.split(' ')[0]
+        if unit_type == 'F':
+            unit_type_daide = 'FLT'
+        elif unit_type == 'A':
+            unit_type_daide = 'AMY'
+        units_dict[location] = unit_type_daide
+    return units_dict
+
 
 """
-negotiation = { 
+negotiation = {
     "1": {
         "actors": ["France", "Italy"],
         "targets": ["Russia", "Turkey"],
