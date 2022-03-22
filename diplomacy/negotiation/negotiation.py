@@ -63,9 +63,9 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
 
         # Process order components.
         order = negotiation['order'] if 'order' in negotiation else None
-        end_location = negotiation['endLocation'] if 'endLocation' in negotiation else None
-        start_location = negotiation['startLocation'] if 'startLocation' in negotiation else None
-        mid_location = negotiation['midLocation'] if 'midLocation' in negotiation else None
+        end_location = negotiation['endLocation'].replace('ENG','ECH') if 'endLocation' in negotiation else None
+        start_location = negotiation['startLocation'].replace('ENG','ECH') if 'startLocation' in negotiation else None
+        mid_location = negotiation['midLocation'].replace('ENG','ECH') if 'midLocation' in negotiation else None
         target = negotiation['orderTarget'] if 'orderTarget' in negotiation else None
 
         # Check target
