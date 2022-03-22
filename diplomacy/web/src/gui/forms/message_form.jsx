@@ -36,16 +36,18 @@ export class MessageForm extends React.Component {
         super(props);
         this.state = this.initState();
         this.onValueChange = this.onValueChange.bind(this);
-        this.onOrderChange = this.onOrderChange.bind(this);
         this.checkboxOnChange = this.checkboxOnChange.bind(this);
         this.onFinalSubmit = this.onFinalSubmit.bind(this);
         this.onGlossSubmit = this.onGlossSubmit.bind(this);
         this.onToneChange = this.onToneChange.bind(this);
         this.onResponseChange = this.onResponseChange.bind(this);
         this.onSelectChange = this.onSelectChange.bind(this);
+        this.onSupportChange = this.onSupportChange.bind(this);
         this.displayFormContents = this.displayFormContents.bind(this);
         this.generateCheckboxes = this.generateCheckboxes.bind(this);
         this.renderEndLocation = this.renderEndLocation.bind(this);
+        this.generateSupportMoves = this.generateSupportMoves.bind(this);
+        this.generateConvoyMoves = this.generateConvoyMoves.bind(this);
     }
 
 
@@ -87,6 +89,7 @@ static countries = [
             selectedAction: 'propose_order',
             selectedOrder: 'M',
             startLocation: '',
+            midLocation: '',
             endLocation: '',
             selectedCountries: {},
             targets: {},
@@ -114,18 +117,6 @@ static countries = [
         }));
     }
 
-    onOrderChange(event) {
-        event.persist();
-        this.setState(prevState => ({
-            selectedAction: prevState.selectedAction,
-            selectedOrder: event.target.value,
-            selectedCountries: prevState.selectedCountries,
-            selectedTones: prevState.selectedTones,
-            targets: prevState.targets,
-            response: prevState.response,
-        }));
-    }
-
     onSelectChange(event) {
         event.persist();
         const id = event.target.id;
@@ -133,6 +124,18 @@ static countries = [
         let locationReturn = {};
         locationReturn[id] = value; 
         setTimeout( () => this.setState( locationReturn ));
+    }
+
+    onSupportChange(event) {
+        event.persist();
+        const value = event.target.value;
+        const locations = value.split(" ");
+        let supportReturn = {};
+        supportReturn['startLocation'] = locations[0];
+        supportReturn['midLocation'] = locations[1];
+        supportReturn['endLocation'] = locations[2];
+        console.log(supportReturn);
+        setTimeout( () => this.setState( supportReturn ));
     }
 
     checkboxOnChange(event, checkboxType, name) {
@@ -188,6 +191,7 @@ static countries = [
             order: this.state.selectedOrder,
             orderTarget: this.state.orderTarget,
             startLocation: this.state.startLocation,
+            midLocation: this.state.midLocation,
             endLocation: this.state.endLocation,
             actors: actorHolder,
             targets: targetHolder,
@@ -238,6 +242,7 @@ static countries = [
             order: this.state.selectedOrder,
             orderTarget: this.state.orderTarget,
             startLocation: this.state.startLocation,
+            midLocation: this.state.midLocation,
             endLocation: this.state.endLocation,
             actors: actorHolder,
             targets: targetHolder,
@@ -276,16 +281,16 @@ static countries = [
 
     renderEndLocation(){
         console.log("Engine possible orders with var: ", this.props.engine.possibleOrders[this.state.startLocation], "Var: ", this.state.startLocation);
-        var renderedEndLocs = [];
+        let renderedEndLocs = [];
         if(this.state.startLocation !== "") {
             return (
                 this.props.engine.possibleOrders[this.state.startLocation].map(order => {
-                    var possibleSplit = order.split(' ');
-                    console.log("possibleSplit: ", possibleSplit, "Last: ", possibleSplit[possibleSplit.length - 1]);
-                    if (possibleSplit[possibleSplit.length - 1] !== "H" && renderedEndLocs.includes(possibleSplit[possibleSplit.length - 1]) === false) {
-                        renderedEndLocs.push(possibleSplit[possibleSplit.length - 1]);
+                    let possibleSplit = order.split(' ');
+                    let lastElement = possibleSplit[possibleSplit.length - 1];
+                    if ( lastElement !== "H" && renderedEndLocs.includes(lastElement) === false) {
+                        renderedEndLocs.push(lastElement);
                         return(
-                            <option value={possibleSplit[possibleSplit.length - 1]}>{possibleSplit[possibleSplit.length - 1]}</option>
+                            <option key={`${lastElement}-key`} value={lastElement}>{lastElement}</option>
                         );
                     }
             }));
@@ -297,6 +302,84 @@ static countries = [
                     );
                 }
             ));
+        }
+    }
+
+    generateSupportMoves(){
+        let supportMoves = {};
+        if(this.state.startLocation !== ""){
+            this.props.engine.possibleOrders[this.state.startLocation].map(order => {
+                if(order.includes(' S ')){
+                    let possibleSplit = order.split(' ');
+                    let locKey = possibleSplit[1] + " " + possibleSplit[4] + " " + possibleSplit[6];
+                    console.log(possibleSplit);
+                    for (let i =0; i < possibleSplit.length; i++){
+                        if(possibleSplit[i] === 'A'){
+                            possibleSplit[i] = "Army in";
+                        }
+                        else if(possibleSplit[i] === 'F'){
+                            possibleSplit[i] = "Fleet in";
+                        }
+                        else if(possibleSplit[i] === "S"){
+                            possibleSplit[i] = "supports";
+                        }
+                        else if(possibleSplit[i] === '-'){
+                            possibleSplit[i] = "moving to";
+                        }
+                    }
+                    let supportString = "";
+                    possibleSplit.forEach(element => {
+                        supportString += element + " ";
+                    });
+                    if (supportString !== ""){
+                        supportMoves[locKey] = supportString.trim();
+                    }
+                }
+            });
+            return (Object.entries(supportMoves).map(([key, value]) => {
+                    return(
+                        <option key={`${key}-key`} value={key}>{value}</option>
+                    );
+                }));
+        }
+    }
+
+    generateConvoyMoves(){
+        let convoyMoves = {};
+        if(this.state.startLocation !== ""){
+            this.props.engine.possibleOrders[this.state.startLocation].map(order => {
+                if(order.includes(' C ')){
+                    let possibleSplit = order.split(' ');
+                    let locKey = possibleSplit[1] + " " + possibleSplit[4] + " " + possibleSplit[6];
+                    console.log(possibleSplit);
+                    for (let i =0; i < possibleSplit.length; i++){
+                        if(possibleSplit[i] === 'A'){
+                            possibleSplit[i] = "Army in";
+                        }
+                        else if(possibleSplit[i] === 'F'){
+                            possibleSplit[i] = "Fleet in";
+                        }
+                        else if(possibleSplit[i] === "C"){
+                            possibleSplit[i] = "convoys";
+                        }
+                        else if(possibleSplit[i] === '-'){
+                            possibleSplit[i] = "moving to";
+                        }
+                    }
+                    let supportString = "";
+                    possibleSplit.forEach(element => {
+                        supportString += element + " ";
+                    });
+                    if (supportString !== ""){
+                        convoyMoves[locKey] = supportString.trim();
+                    }
+                }
+            });
+            return (Object.entries(convoyMoves).map(([key, value]) => {
+                    return(
+                        <option key={`${key}-key`} value={key}>{value}</option>
+                    );
+                }));
         }
     }
 
@@ -312,28 +395,46 @@ static countries = [
                             {this.state.orderTarget === "player" && (
                                 <div>
                                     <h6>Order</h6>
-                                    <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
+                                    <select id="selectedOrder" value={this.state.selectedOrder} onChange={this.onSelectChange}>
                                         {Object.keys(this.props.senderMoves).map((orderType) => {
                                             return(
                                                 <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
                                             );
                                         })}
                                     </select>
-                                    <h6>Start Location</h6>
-                                    <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
-                                        <option value="">-</option>
-                                        {this.props.senderMoves[this.state.selectedOrder].map((location) => {
-                                            return(
-                                                <option key={`${location}-key`} value={location}>{location}</option>
-                                            );
-                                        })}
-                                    </select>
-                                    {this.state.selectedOrder !== "H" && (
+                                    <div>
+                                        <h6>Start Location</h6>
+                                        <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
+                                            <option value="">-</option>
+                                            {this.props.senderMoves[this.state.selectedOrder].map((location) => {
+                                                return(
+                                                    <option key={`${location}-key`} value={location}>{location}</option>
+                                                );
+                                            })}
+                                        </select>
+                                        {this.state.selectedOrder !== "H" && this.state.selectedOrder !== "S" && this.state.selectedOrder != "C" && (
+                                            <div>
+                                                <h6>End Location</h6>
+                                                <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
+                                                    <option value="">-</option>
+                                                    {this.renderEndLocation()}
+                                                </select>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {this.state.selectedOrder === "S" && (
                                         <div>
-                                            <h6>End Location</h6>
-                                            <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
+                                            <select id="supportSelector" onChange={this.onSupportChange}>
                                                 <option value="">-</option>
-                                                {this.renderEndLocation()}
+                                                {this.generateSupportMoves()}
+                                            </select>
+                                        </div>
+                                    )}
+                                    {this.state.selectedOrder === "C" && (
+                                        <div>
+                                            <select id="convoySelector" onChange={this.onSupportChange}>
+                                                <option value="">-</option>
+                                                {this.generateConvoyMoves()}
                                             </select>
                                         </div>
                                     )}
@@ -342,7 +443,7 @@ static countries = [
                             {this.state.orderTarget === "recipient" && (
                                 <div>
                                     <h6>Order</h6>
-                                    <select id="order_type" value={this.state.selectedOrder} onChange={this.onOrderChange}>
+                                    <select id="selectedOrder" value={this.state.selectedOrder} onChange={this.onSelectChange}>
                                         {Object.keys(this.props.recipientMoves).map((orderType) => {
                                             return(
                                                 <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
@@ -358,12 +459,28 @@ static countries = [
                                             );
                                         })}
                                     </select>
-                                    {this.state.selectedOrder !== "H" && (
+                                    {this.state.selectedOrder !== "H" && this.state.selectedOrder !== "S" && this.state.selectedOrder != "C" && (
                                         <div>
                                             <h6>End Location</h6>
                                             <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
                                                 <option value="">-</option>
                                                 {this.renderEndLocation()}
+                                            </select>
+                                        </div>
+                                    )}
+                                    {this.state.selectedOrder === "S" && (
+                                        <div>
+                                            <select id="supportSelector" onChange={this.onSupportChange}>
+                                                <option value="">-</option>
+                                                {this.generateSupportMoves()}
+                                            </select>
+                                        </div>
+                                    )}
+                                    {this.state.selectedOrder === "C" && (
+                                        <div>
+                                            <select id="convoySelector" onChange={this.onSupportChange}>
+                                                <option value="">-</option>
+                                                {this.generateConvoyMoves()}
                                             </select>
                                         </div>
                                     )}

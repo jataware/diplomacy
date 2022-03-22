@@ -15,23 +15,26 @@ import diplomacy.settings
 LOGGER = logging.getLogger(__name__)
 
 # Load Name2Token lookup reference.
-LOOKUP_REF = json.loads(pkg_resources.resource_stream(__name__, 'reference.json').read().decode())
+LOOKUP_REF = json.loads(pkg_resources.resource_stream(
+    __name__, 'reference.json').read().decode())
+
 
 def empires_to_tokens(empires):
     # Process empires list to tokens separated by
 
     return ' '.join([*map(LOOKUP_REF.get, [e.lower() for e in empires])])
 
+
 def build_daide(daide, negotiation, message_history, messages, sender, recipient, powers):
     LOGGER.info(f'Building DAIDE from: {negotiation}')
     # Build DAIDE based on the root negotiation action.
-    action = str(negotiation['action']).lower() 
-    
+    action = str(negotiation['action']).lower()
+
     if 'alliance' in action:
         # Level 10 ALY
-        actors  = empires_to_tokens(negotiation['actors'])
+        actors = empires_to_tokens(negotiation['actors'])
         targets = empires_to_tokens(negotiation['targets'])
-        daide   = daide + f"(PRP (ALY ({actors}) VSS ({targets})))"
+        daide = daide + f"(PRP (ALY ({actors}) VSS ({targets})))"
 
     elif 'demilitarized' in action:
         # Level 20 DMZ
@@ -43,32 +46,35 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
 
     elif 'draw' in action:
         # Level 10 DRW
-        actors  = empires_to_tokens(negotiation['actors'])
+        actors = empires_to_tokens(negotiation['actors'])
         if len(actors) > 0:
             daide = daide + f'(PRP (DRW))'
         else:
             daide = daide + f'(PRP (DRW ({actors})))'
-        
+
     elif 'order' in action:
         # Level 20 XRD
         # move, hold, support move, support hold, convoy
         # An XDO arrangement applies to the next turn in which the order type is valid – so the next movement turn for a HLD, MTO,
         # SUP, CVY or CTO order, the next retreat turn for a RTO or DSB order, and the next adjustment turn for a BLD, REM or WVE
         # order.
-            
+
         # diplomacy/web/src/gui/utils/order_building.js LN 141 single letters lookup to DAIDE.
 
         # Process order components.
-        order          = negotiation['order']         if 'order'         in negotiation else None
-        end_location   = negotiation['endLocation']   if 'endLocation'   in negotiation else None
-        start_location = negotiation['startLocation'] if 'startLocation' in negotiation else None
-        target         = negotiation['orderTarget']   if 'orderTarget'   in negotiation else None
+        order = negotiation['order'] if 'order' in negotiation else None
+        end_location = negotiation['endLocation'].replace('ENG','ECH') if 'endLocation' in negotiation else None
+        start_location = negotiation['startLocation'].replace('ENG','ECH') if 'startLocation' in negotiation else None
+        mid_location = negotiation['midLocation'].replace('ENG','ECH') if 'midLocation' in negotiation else None
+        target = negotiation['orderTarget'] if 'orderTarget' in negotiation else None
 
         # Check target
         if target == 'player':
             target_name = sender
+            second_name = recipient
         else:
             target_name = recipient
+            second_name = sender
 
         # Process order components to DAIDE.
         if order == 'H':
@@ -77,6 +83,8 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
             order = 'MTO'
         elif order == 'S':
             order = 'SUP'
+        elif order == "C":
+            order = "CVY"
 
         # Obtain the target power and its unit types
         power = powers[target_name]
@@ -93,25 +101,58 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         LOGGER.info(f"Units: {units_dict}")
 
         # Determine what type of unit it has at the start location (fleet vs army)
-        unit  = units_dict[start_location]
+        unit = units_dict[start_location]
         actor = empires_to_tokens([target_name])
-        # if not end_location:
-        #     end_location = 'ADR'
-        #     start_location = 'EDI'
+        secondary_unit = ''
+        secondary_actor = ''
+        # We really need to check what the unit/power combo of the mid_location is agnostically from the sender/recipient data.
+        # Best way I have thought is to check first if the target has units in that location, then check recipient, then loop through all available powers.
+        # The possibleOrders object takes a location but doesn't tie to powers. The power.units needs the chosen power first.
+        if mid_location:
+            if mid_location in units_dict:
+                secondary_unit = units_dict[mid_location]
+                secondary_actor = empires_to_tokens([target_name])
+            else:
+                try:  
+                    second_unit_dict = construct_units_dict(power_name=second_name, powers=powers)
+                    secondary_unit = second_unit_dict[mid_location]
+                    secondary_actor = empires_to_tokens([second_name])
+                except Exception as e:
+                    LOGGER.info("Likely a third party in support move: {}".format(e))
+                    for power in powers:
+                        LOGGER.info("Power info: {}".format(power))
+                        if power != sender and power != recipient:
+                            second_unit_dict = construct_units_dict(power_name=power, powers=powers)
+                            if mid_location in second_unit_dict:
+                                secondary_unit = second_unit_dict[mid_location]
+                                secondary_actor = empires_to_tokens([power])
 
-        daide = daide + f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} {end_location})))'
+
+        if(order != "SUP" and order != "CVY"):
+            daide = daide + \
+                f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} {end_location})))'
+        elif(order == "SUP"):
+            if end_location:
+                daide = daide + \
+                    f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location}) MTO {end_location})))'
+            else:
+                daide = daide + \
+                    f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location})))'
+        elif(order == "CVY"):
+            daide = daide + \
+                f'(PRP (XDO ( ({actor} {unit} {start_location}) {order} ({secondary_actor} {secondary_unit} {mid_location}) MTO {end_location})))'
 
     elif 'peace' in action:
         # Level 10 PCE
 
         # Process actors to tokens.
-        actors  = empires_to_tokens(negotiation['actors'])
+        actors = empires_to_tokens(negotiation['actors'])
         daide = daide + f'(PRP (PCE ({actors})))'
 
     elif 'solo' in action:
         # Level 10 SLO
 
-        actors  = empires_to_tokens(negotiation['actors'])
+        actors = empires_to_tokens(negotiation['actors'])
         daide = daide + f'(PRP (SLO ({actors})))'
 
     elif 'response' in action:
@@ -120,8 +161,9 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         # message_daide: (PRP (ALY (ITA) VSS (GER)))
 
         # Filter for messages between these powers.
-        message_daide = get_message_daide(message_history, messages, sender, recipient, 'response')
- 
+        message_daide = get_message_daide(
+            message_history, messages, sender, recipient, 'response')
+
         # no: REJ, noyb: BWX, default to yes
         response = str(negotiation['response']).lower()
         if response == 'no':
@@ -129,7 +171,7 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         elif response == 'noyb':
             response = 'BWX'
         else:
-            response = 'YES' 
+            response = 'YES'
 
         daide = daide + f'({response} ({message_daide}))'
 
@@ -137,7 +179,8 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         # Level 10 Cancelling a proposal
 
         # Filter for messages between these powers.
-        message_daide = get_message_daide(message_history, messages, sender, recipient, 'cancel')
+        message_daide = get_message_daide(
+            message_history, messages, sender, recipient, 'cancel')
         daide = daide + f'(CCL ({message_daide}))'
 
     # Handle action modifiers.
@@ -151,6 +194,7 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
 
     LOGGER.info(f'Built DAIDE: {daide}')
     return daide
+
 
 def get_message_daide(message_history, messages, sender, recipient, action):
     """
@@ -171,7 +215,7 @@ def get_message_daide(message_history, messages, sender, recipient, action):
             The recipient of the message being processed.
         action: str
             response or cancel, determines directionality of message we want.
-    
+
     Notes
     -----      
         For a response, we look for messages that reverse the directionality of the
@@ -188,12 +232,12 @@ def get_message_daide(message_history, messages, sender, recipient, action):
     else:
         messenger2 = sender
         messenger1 = recipient
-    
-    for message in messages.reversed_values():               
+
+    for message in messages.reversed_values():
         if (message.recipient == messenger1 and message.sender == messenger2):
             # Last message between these powers.
             # message.daide: FRM (AUS) (ITA) (PRP (ALY (ITA) VSS (GER)))
-            
+
             # Leave only PRP, FCT, etc. portion.
             # Split after 3rd (.
             proposal = message.daide.split('(')[3:]
@@ -205,14 +249,15 @@ def get_message_daide(message_history, messages, sender, recipient, action):
             if (message.recipient == messenger1 and message.sender == messenger2):
                 # Last message between these powers.
                 # message.daide: FRM (AUS) (ITA) (PRP (ALY (ITA) VSS (GER)))
-                
+
                 # Leave only PRP, FCT, etc. portion.
                 # Split after 3rd (.
                 proposal = message.daide.split('(')[3:]
                 # Rejoin array with ( and remove trailing ).
                 return '('.join(proposal)[:-1]
-    
+
     return None
+
 
 def pressgloss(message_obj: Message, message_history, messages, powers, return_message_obj_str: bool = True):
     """
@@ -242,7 +287,8 @@ def pressgloss(message_obj: Message, message_history, messages, powers, return_m
     # Convert the message to DAIDE.
     LOGGER.info(f'Converting message to DAIDE: {message_obj.message}')
     if message_obj.negotiation != '{}':
-        message_obj.daide = to_daide(negotiation, message_obj.sender, message_obj.recipient, message_history, messages, powers)
+        message_obj.daide = to_daide(
+            negotiation, message_obj.sender, message_obj.recipient, message_history, messages, powers)
 
     # Backwards compatible massaging of the tones.
     if 'tones' in negotiation:
@@ -250,14 +296,14 @@ def pressgloss(message_obj: Message, message_history, messages, powers, return_m
     elif message_obj.tones:
         tones = message_obj.tones
     else:
-        tones = ["Haughty","Urgent"]
+        tones = ["Haughty", "Urgent"]
 
     # Set the message_obj message to the TENS message created by the Pressgloss API.
     message_obj.message = to_tens(message_obj.daide, tones)
 
     LOGGER.info(message_obj.to_dict())
 
-    # If return_message_obj_str == True, then the entire Message object json 
+    # If return_message_obj_str == True, then the entire Message object json
     # is returned as a string.
     if return_message_obj_str:
         message_dict = message_obj.to_dict()
@@ -266,6 +312,7 @@ def pressgloss(message_obj: Message, message_history, messages, powers, return_m
     else:
         # Return only the generated Pressgloss text.
         return message_obj.message
+
 
 def to_daide(negotiation: dict, sender: str, recipient: str, message_history, messages, powers):
     """
@@ -295,19 +342,19 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
         }
 
     """
-    # Initialize the daide string with FROM TO e.g. FRM (FRA) (ENG) 
+    # Initialize the daide string with FROM TO e.g. FRM (FRA) (ENG)
     daide = f'FRM ({LOOKUP_REF[sender.lower()]}) ({LOOKUP_REF[recipient.lower()]}) '
 
     if len(negotiation.keys()) > 1:
         # Backwards compatibility patch for earlier version of negotiation without indices.
         if ('action' in negotiation and 'order' in negotiation):
             LOGGER.info('action/order negotiation')
-            daide = build_daide(daide, negotiation, message_history, messages, sender, recipient, powers)
+            daide = build_daide(daide, negotiation, message_history,
+                                messages, sender, recipient, powers)
             return daide
-    
+
         # Handle Level 30 Mutlipart arrangements and multiple-negotiations.
         # Loop through possibly multiple negotations in message.negotiation.
-    
 
         for idx, neg in negotiation.items():
             if idx == "1":
@@ -320,7 +367,8 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
 
             # Build the arrangement based on the standard formula.
             LOGGER.info('multi-part negotiation')
-            arrangement_daide = build_daide("", neg, message_history, messages, sender, recipient, powers)
+            arrangement_daide = build_daide(
+                "", neg, message_history, messages, sender, recipient, powers)
 
             # Strip (PRP  and final )from the arrangement_daide.
             arrangement_daide = arrangement_daide[5:][:-1]
@@ -328,21 +376,23 @@ def to_daide(negotiation: dict, sender: str, recipient: str, message_history, me
             # Add the arrangement daide to the main PRP AND/ORR daide.
             daide = f'{daide} {arrangement_daide}'
 
-        # Add the closing PRP ).            
+        # Add the closing PRP ).
         daide = daide + ')'
     else:
         LOGGER.info(negotiation)
         LOGGER.info('other negotiation')
-        daide = build_daide(daide, negotiation["1"], message_history, messages, sender, recipient, powers)
-    
+        daide = build_daide(
+            daide, negotiation["1"], message_history, messages, sender, recipient, powers)
+
     LOGGER.info(daide)
     return daide
+
 
 def to_tens(daide_text, tones):
     """
     Description
     -----------
-    Pass DAIDE syntax to the pressgloss API to return 
+    Pass DAIDE syntax to the pressgloss API to return
     Tone-ENhanced Syntax
 
     Parameters
@@ -360,16 +410,32 @@ def to_tens(daide_text, tones):
 
     try:
         gloss_response = requests.post(endpoint, json=request_json).json()
-        gloss = gloss_response.get("gloss",None)
+        gloss = gloss_response.get("gloss", None)
         LOGGER.info(f"Pressgloss response: {gloss}")
         return gloss
 
     except Exception as e:
         print(e)
 
+# Returns a constructed unit dictionary for unit type lookup by location.
+def construct_units_dict(power_name, powers):
+    # Obtain the target power and its unit types
+    power = powers[power_name]
+    units = power.units
+    units_dict = {}
+    for i in units:
+        location = i.split(' ')[1]
+        unit_type = i.split(' ')[0]
+        if unit_type == 'F':
+            unit_type_daide = 'FLT'
+        elif unit_type == 'A':
+            unit_type_daide = 'AMY'
+        units_dict[location] = unit_type_daide
+    return units_dict
+
 
 """
-negotiation = { 
+negotiation = {
     "1": {
         "actors": ["France", "Italy"],
         "targets": ["Russia", "Turkey"],
