@@ -138,6 +138,12 @@ export class Page extends React.Component {
     //// Methods to sign out channel and go back to connection page.
 
     __disconnect(error) {
+// WARNING: this may break stuff, but it keeps users logged in when code changes
+// refresh the page to log out
+        // skip all of the below if we're in development
+        if (process.env.NODE_ENV === 'development') return;
+
+        // in other situations, go through the normal flow
         // Clear local data and go back to connection page.
         this.connection.close();
         this.connection = null;
@@ -155,6 +161,7 @@ export class Page extends React.Component {
             games: {},
             myGames: {}
         });
+
     }
 
     logout() {
@@ -166,6 +173,8 @@ export class Page extends React.Component {
         } else {
             return this.__disconnect();
         }
+
+
     }
 
     //// Methods to be used to set page title and messages.

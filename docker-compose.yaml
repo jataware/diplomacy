@@ -1,0 +1,57 @@
+version: '2.2'
+services:
+  app:
+    build: .
+    image: jataware/diplomacy
+    container_name: diplomacy_ui
+    volumes:
+      - ./data/:/diplomacy/data
+      - ./diplomacy/web/src/:/diplomacy/diplomacy/web/src/
+    ports:
+    - 3000:3000
+    expose: 
+      - "3000"
+    networks:
+      - diplomacy
+    depends_on:
+      - server
+    command: "npm start --prefix diplomacy/web"
+  server:
+    build: .
+    image: jataware/diplomacy
+    container_name: diplomacy_server
+    volumes:
+        - ./:/diplomacy
+    ports:
+    - 8432:8432
+    expose: 
+      - "8432"
+    networks:
+      - diplomacy
+    depends_on:
+      - pressgloss
+    command:
+      - python3
+      - diplomacy/server/run.py
+      - --port
+      - "8432"
+      - --auto_reload
+      - "True"
+  
+  pressgloss:
+    build: ./pressgloss
+    image: jpowersdevtech/pressgloss
+    container_name: pressgloss
+    volumes:
+        - ./:/diplomacy
+    ports:
+    - 5000:5000
+    expose: 
+      - "5000"
+    networks:
+      - diplomacy
+
+networks:
+  diplomacy:
+    driver: bridge   
+  

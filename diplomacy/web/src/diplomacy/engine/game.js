@@ -215,6 +215,10 @@ export class Game {
             throw new Error('There is already a message with time sent ' + message.time_sent + ' in message history.');
         if (this.isPlayerGame() && !message.isGlobal() && this.role !== message.sender && this.role !== message.recipient)
             throw new Error('Given message is not related to current player ' + this.role);
+        if (typeof message.time_sent === "string" && !message.gloss) {
+            this.messages.put(Date.now(), message);
+            return;
+        }
         this.messages.put(message.time_sent, message);
     }
 

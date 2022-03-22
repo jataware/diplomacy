@@ -343,10 +343,11 @@ span.power-name {
 }
 
 .game-message {
-    width: 90%;
+    width: 80%;
     border-width: 2px;
     border-style: solid;
     margin: 0;
+    border-radius: 4px;
 }
 
 .game-message .message-header {
@@ -355,12 +356,6 @@ span.power-name {
 }
 
 .game-message.message-recipient {
-    border-color: rgb(240, 200, 200);
-    background-color: rgb(255, 220, 220);
-    cursor: pointer;
-}
-
-.game-message.message-recipient.message-read {
     border-color: rgb(200, 240, 200);
     background-color: rgb(220, 255, 220);
     cursor: default;
@@ -375,6 +370,7 @@ span.power-name {
 .game-message-wrapper {
     clear: both;
     overflow: auto;
+    margin-bottom: 10px;
 }
 
 .game-message-wrapper.other-phase {
@@ -427,6 +423,28 @@ button.collapsed .roll {
 
 .visibilityHidden {
     visibility: hidden;
+}
+
+.form-input {
+    display: grid;
+    grid-gap: 6.5px;
+
+    & > * {
+        padding-left: 20px;
+    }
+
+    &__label {
+        font-size: 14px;
+    }
+    &__input {
+        box-sizing: border-box;
+        height: 39px;
+        width: 426px;
+        border: 1px solid #E6E6E6;
+        border-radius: 20px;
+        color: #333333;
+        font-size: 18px;
+    }
 }
 
 /** Page login. **/

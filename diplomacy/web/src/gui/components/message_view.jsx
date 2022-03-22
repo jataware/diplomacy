@@ -22,37 +22,79 @@ export class MessageView extends React.Component {
     render() {
         const message = this.props.message;
         const owner = this.props.owner;
-        const id = this.props.id ? {id: this.props.id} : {};
-        const messagesLines = message.message.replace('\r\n', '\n')
-            .replace('\r', '\n')
-            .replace('<br>', '\n')
-            .replace('<br/>', '\n')
-            .split('\n');
-        let onClick = null;
+        let messagesLines = '';
+        //Check this because sometimes the backend stores the message here.
+        let messageTimeSent = JSON.parse(message.time_sent);
+        let messageBuried = '';
+        if(typeof(messageTimeSent) !== 'number'){
+            messageBuried = messageTimeSent.message;
+        }
+        if(!message.gloss){
+            if(message.message !== ''){
+                messagesLines = message.message.replace('\r\n', '\n')
+                    .replace('\r', '\n')
+                    .replace('<br>', '\n')
+                    .replace('<br/>', '\n')
+                    .split('\n');
+            }
+            else if(messageBuried !== ''){
+                messagesLines = messageBuried.replace('\r\n', '\n')
+                    .replace('\r', '\n')
+                    .replace('<br>', '\n')
+                    .replace('<br/>', '\n')
+                    .split('\n');
+            }
+            else {
+                try{
+                    messagesLines = this.props.glossedBackup.replace('\r\n', '\n')
+                        .replace('\r', '\n')
+                        .replace('<br>', '\n')
+                        .replace('<br/>', '\n')
+                        .split('\n');
+                }
+                catch (err) {
+                    console.log("Error displaying inital message: ", err);
+                    messagesLines = ['Loading'];
+                }
+            }
+        }
+        else{
+            //const messageRaw = JSON.parse(message?.time_sent);
+            const messageRaw = JSON.parse(message.time_sent);
+
+            //messagesLines = messageRaw?.message.replace('\r\n', '\n')
+            messagesLines = messageRaw.message.replace('\r\n', '\n')
+                .replace('\r', '\n')
+                .replace('<br>', '\n')
+                .replace('<br/>', '\n')
+                .split('\n'); 
+        }
+
         const classNames = ['game-message', 'row'];
         if (owner === message.sender)
             classNames.push('message-sender');
         else {
             classNames.push('message-recipient');
-            if (message.read || this.props.read)
-                classNames.push('message-read');
-            onClick = this.props.onClick ? {onClick: () => this.props.onClick(message)} : {};
+
         }
         return (
-            <div className={'game-message-wrapper' + (
-                this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
-                 {...id}>
-                <div className={classNames.join(' ')} {...onClick}>
-                    <div className="message-header col-md-auto text-md-right text-center">
-                        {message.phase}
+            <div>
+                {!(message.gloss) &&
+                     <div className={'game-message-wrapper' + (this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}>
+                        <div className={classNames.join(' ')}>
+                            <div className="message-header col-md-auto text-md-right text-center">
+                                {message.phase}
+                            </div>
+                            <div className="message-content col-md">
+                                {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
+                                    line.replace(/(<([^>]+)>)/ig, "")
+                                }</div>)}
+                            </div>
+                        </div>
                     </div>
-                    <div className="message-content col-md">
-                        {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
-                            line.replace(/(<([^>]+)>)/ig, "")
-                        }</div>)}
-                    </div>
-                </div>
+                }
             </div>
+            
         );
     }
 }
@@ -61,7 +103,6 @@ MessageView.propTypes = {
     message: PropTypes.object,
     phase: PropTypes.string,
     owner: PropTypes.string,
-    onClick: PropTypes.func,
-    id: PropTypes.string,
-    read: PropTypes.bool
+    read: PropTypes.bool,
+    glossedBackup: PropTypes.string
 };

@@ -26,9 +26,12 @@
 """
 #pylint:disable=too-many-lines
 import logging
+import json
 
 from tornado import gen
 from tornado.concurrent import Future
+
+from diplomacy.negotiation import negotiation
 
 from diplomacy.communication import notifications, requests, responses
 from diplomacy.server.notifier import Notifier
@@ -820,10 +823,46 @@ def on_send_game_message(server, request, connection_handler):
         # If message not found, consider it as a new message.
     if message.time_sent is not None:
         raise exceptions.ResponseException('Server cannot receive a message with a time sent already set.')
-    message.time_sent = level.game.add_message(message)
-    Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
-    server.save_game(level.game)
-    return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
+
+    # gloss here means gloss_only, it is sent through the Pressgloss API regardless.
+    if not message.gloss:
+        # Pressgloss the message and add the returned string of the new text to the Message Obj.
+        LOGGER.info(message.to_dict())
+        gloss_message_text = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True) 
+        LOGGER.info(f"gloss_message_text: {gloss_message_text}")
+        message.message = json.loads(gloss_message_text)["message"]
+
+        # Set the tones key in the message obj for storage.
+        message_negotiation = json.loads(message.negotiation)
+        
+        # We assume a message is from a bot; bots send a tone with message.tone
+        # Message demands a primitive type, so make tones a comma-delimited str.
+        # Handle old and new negotiation schemas:
+        from_ui = False
+
+        # However, if message.tones does NOT exist we know it is from the UI
+        # since the UI stuffs the tones in the message.negotiation field.
+        if not message.tones:
+            from_ui = True
+            if 'tones' in message_negotiation:
+                message.tones = ','.join(message_negotiation['tones'])
+            else:
+                message.tones = ','.join(message_negotiation['1']['tones'])
+        # original code starts here:
+        message.time_sent = int(level.game.add_message(message)/1000)
+        Notifier(server, ignore_addresses=[(request.game_role, token)]).notify_game_message(level.game, message)
+        server.save_game(level.game)
+        LOGGER.info(f"message from request manager: {message}")
+        if from_ui:
+            return responses.DataToken(data = gloss_message_text, request_id=request.request_id)
+        else:
+            return responses.DataTimeStamp(data=message.time_sent, request_id=request.request_id)
+    else: 
+        # PressGloss the negotiation information: add DAIDE and glossed message string 
+        # to the Message object. The Message object is returned as a string.
+        new_message_obj_str = negotiation.pressgloss(message, level.game.message_history, level.game.messages, level.game.powers, return_message_obj_str=True)
+        return responses.DataToken(data = new_message_obj_str, request_id=request.request_id)
+
 
 def on_set_dummy_powers(server, request, connection_handler):
     """ Manage request SetDummyPowers.

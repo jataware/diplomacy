@@ -21,6 +21,7 @@ import {Button} from "./button";
 export class Forms {
     static createOnChangeCallback(component, callback) {
         return (event) => {
+            event.persist();
             const value = UTILS.html.isCheckBox(event.target) ? event.target.checked : event.target.value;
             const fieldName = UTILS.html.isRadioButton(event.target) ? event.target.name : event.target.id;
             const update = {[fieldName]: value};

@@ -42,6 +42,10 @@ class ConnectionHandler(WebSocketHandler):
         self.server = None
         super(ConnectionHandler, self).__init__(*args, **kwargs)
 
+    def open(self, *args, **kwargs):
+        LOGGER.debug("open websocket")
+        super(ConnectionHandler, self).open(*args, **kwargs)
+
     def initialize(self, server=None):
         """ Initialize the connection handler.
 
@@ -63,6 +67,7 @@ class ConnectionHandler(WebSocketHandler):
 
         # It seems origin may be 'null', e.g. if client is a web page loaded from disk (`file:///my_test_file.html`).
         # Accept it.
+        LOGGER.debug("check_origin")
         if origin == 'null':
             return True
 
@@ -72,8 +77,10 @@ class ConnectionHandler(WebSocketHandler):
         origin = parsed_origin.netloc.split(':')[0]
         origin = origin.lower()
 
+        LOGGER.debug("check_origin Origin %s", origin)
         # Split host with ':' and keep only first piece to ignore eventual port.
         host = self.request.headers.get("Host").split(':')[0]
+        LOGGER.debug("check_origin Host %s", host)
         return origin == host
 
     def on_close(self):
