@@ -506,13 +506,14 @@ export class ContentGame extends React.Component {
             .then(() => {
                 // when we get the message response, handle dealing with the gloss state
                 if (message.gloss) {
+                    // we just store the message in local state, it doesn't end up
+                    // in the sortedDict with all the other messages (see game.js addMessage)
                     this.setState({
                         gloss: true, glossMessage: JSON.parse(message.time_sent).message
                     });
                 } else if (!message.gloss) {
                     // or clear it if it isn't a gloss message
                     this.setState({ gloss: null, glossMessage: null });
-                    engine.messages.clearGloss();
                 }
 
                 page.load(

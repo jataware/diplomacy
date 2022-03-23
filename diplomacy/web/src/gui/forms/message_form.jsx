@@ -295,7 +295,6 @@ static countries = [
     }
 
     renderEndLocation(){
-        console.log("Engine possible orders with var: ", this.props.engine.possibleOrders[this.state.startLocation], "Var: ", this.state.startLocation);
         let renderedEndLocs = [];
         if(this.state.startLocation !== "") {
             return (

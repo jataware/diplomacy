@@ -219,6 +219,13 @@ export class Game {
             this.messages.put(Date.now(), message);
             return;
         }
+
+        if (message.gloss) {
+            // don't put the message in the dict at all if it's a gloss
+            // we'll just keep track of it in content_game state
+            return;
+        }
+
         this.messages.put(message.time_sent, message);
     }
 
