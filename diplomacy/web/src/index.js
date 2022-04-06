@@ -22,7 +22,15 @@ import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
+import { Amplify } from 'aws-amplify';
+import { withAuthenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+
+import awsExports from './aws-exports';
+Amplify.configure(awsExports);
 
 // ========================================
 
-ReactDOM.render(<Page/>, document.getElementById('root'));
+const AuthenticatedApp = withAuthenticator(<Page/>);
+
+ReactDOM.render(<AuthenticatedApp />, document.getElementById('root'));

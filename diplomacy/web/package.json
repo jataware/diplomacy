@@ -4,10 +4,12 @@
   "homepage": ".",
   "private": true,
   "dependencies": {
+    "@aws-amplify/ui-react": "2.14.0",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@mui/material": "^5.5.0",
     "@primer/octicons-react": "^9.1.1",
+    "aws-amplify": "4.3.19",
     "bootstrap": "^4.3.1",
     "jquery": "^3.4.1",
     "lodash.clonedeep": "^4.5.0",
