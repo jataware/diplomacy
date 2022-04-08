@@ -42,11 +42,16 @@ export class ConnectionForm extends React.Component {
     }
 
     initState() {
+        const { user } = this.props;
+
         return {
             hostname: window.location.hostname,
             port: 8432,
-            username: '',
-            password: '',
+            // Cognito informaition inject username and uses GUID for password
+            // TODO Verify or implement better handoff than using sub GUID for password.
+            //      Required design.
+            username: user.username,
+            password: user.attributes.sub,
             showServerFields: false
         };
     }
@@ -58,64 +63,43 @@ export class ConnectionForm extends React.Component {
 
     onChange(newState) {
         const initialState = this.initState();
+
         if (newState.hostname !== initialState.hostname)
             DipStorage.setConnectionHostname(newState.hostname);
         else
             DipStorage.setConnectionHostname(null);
+
         if (newState.port !== initialState.port)
             DipStorage.setConnectionPort(newState.port);
         else
             DipStorage.setConnectionPort(null);
+
         if (newState.username !== initialState.username)
             DipStorage.setConnectionUsername(newState.username);
         else
             DipStorage.setConnectionUsername(null);
+
         if (this.props.onChange)
             this.props.onChange(newState);
     }
 
     render() {
+
         const onChange = Forms.createOnChangeCallback(this, this.onChange);
         const onSubmit = Forms.createOnSubmitCallback(this, this.props.onSubmit);
+        const { user } = this.props;
+
+        // TODO Skip this page entirely and go to games button, since we've
+        //      already authenticated and want to start browsing/playing games.
+
         return (
             <form>
-                {Forms.createRow(
-                    Forms.createColLabel('username', 'username:'),
-                    <input className={'form-control'} type={'text'} id={'username'}
-                           value={Forms.getValue(this.state, 'username')} onChange={onChange}/>
-                )}
-                {Forms.createRow(
-                    Forms.createColLabel('password', 'password:'),
-                    <input className={'form-control'} type={'password'} id={'password'}
-                           value={Forms.getValue(this.state, 'password')} onChange={onChange}/>
-                )}
+
+              <p>
+                Username: {user.username}
+              </p>
+
                 {Forms.createRow('', Forms.createSubmit('connect', true, onSubmit))}
-                <div>
-                    <div className={this.state.showServerFields ? 'mb-2' : 'mb-4'}>
-                    </div>
-                    <span
-                        className={'button-server'}
-                        onClick={this.updateServerFieldsView}
-                        style={{ opacity: 0.4 }}
-                    >
-                        {this.state.showServerFields ? UTILS.html.UNICODE_BOTTOM_ARROW : UTILS.html.UNICODE_TOP_ARROW}
-                    </span>
-                    {this.state.showServerFields && (
-                        <div className={'mb-4'}>
-                            {Forms.createRow(
-                                <label className={'col'} htmlFor={'hostname'}>hostname:</label>,
-                                <input className={'form-control'} type={'text'} id={'hostname'}
-                                       value={Forms.getValue(this.state, 'hostname')} onChange={onChange}/>
-                            )}
-                            {Forms.createRow(
-                                <label className={'col'} htmlFor={'port'}>port:</label>,
-                                <input className={'form-control'} type={'number'} id={'port'}
-                                       value={Forms.getValue(this.state, 'port')}
-                                       onChange={onChange}/>
-                            )}
-                        </div>
-                    )}
-                </div>
             </form>
         );
     }
@@ -123,5 +107,6 @@ export class ConnectionForm extends React.Component {
 
 ConnectionForm.propTypes = {
     onChange: PropTypes.func,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
+    user: PropTypes.object.isRequired
 };

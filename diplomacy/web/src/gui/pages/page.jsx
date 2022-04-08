@@ -27,6 +27,7 @@ import {loadGameFromDisk} from "../utils/load_game_from_disk";
 import {ContentGame} from "./content_game";
 import {confirmAlert} from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import PropTypes from "prop-types";
 
 export class Page extends React.Component {
 
@@ -69,8 +70,10 @@ export class Page extends React.Component {
         return games;
     }
 
-    static defaultPage() {
-        return <ContentConnection/>;
+    // TODO follow the rabbit hole and ensure this data gets set even if we skip connection form
+    static defaultPage(props) {
+        const { user } = props;
+        return <ContentConnection user={user} />;
     }
 
     setState(state) {
@@ -109,7 +112,10 @@ export class Page extends React.Component {
         }
         Diplog.printMessages(newState);
         newState.name = name;
+
+        // TODO possibly load the next page when skipping connection form?
         newState.body = body;
+
         return this.setState(newState);
     }
 
@@ -138,8 +144,8 @@ export class Page extends React.Component {
     //// Methods to sign out channel and go back to connection page.
 
     __disconnect(error) {
-// WARNING: this may break stuff, but it keeps users logged in when code changes
-// refresh the page to log out
+        // WARNING: this may break stuff, but it keeps users logged in when code changes
+        // refresh the page to log out
         // skip all of the below if we're in development
         if (process.env.NODE_ENV === 'development') return;
 
@@ -165,15 +171,22 @@ export class Page extends React.Component {
     }
 
     logout() {
-        // Disconnect channel and go back to connection page.
+
+        // TODO alias this var to portray whats going on here (sign out in contrast with logout..)
+        const { signOut } = this.props;
+
+        // Disconnect channel (logout), sign out from new authentication
         if (this.channel) {
             return this.channel.logout()
-                .then(() => this.__disconnect())
-                .catch(error => this.error(`Error while disconnecting: ${error.toString()}.`));
+                .then(() => {
+                    this.__disconnect();
+                })
+                .catch(error => this.error(`Error while disconnecting: ${error.toString()}.`))
+                .finally(signOut);
         } else {
-            return this.__disconnect();
+            this.__disconnect();
+            signOut();
         }
-
 
     }
 
@@ -373,9 +386,14 @@ export class Page extends React.Component {
                             {errorMessage}
                         </div>
                     </div>
-                    {this.state.body || Page.defaultPage()}
+                    {this.state.body || Page.defaultPage(this.props)}
                 </div>
             </PageContext.Provider>
         );
     }
 }
+
+Page.propTypes = {
+    user: PropTypes.object.isRequired,
+    signOut: PropTypes.func.isRequired
+};

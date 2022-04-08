@@ -21,6 +21,7 @@ import {DipStorage} from "../utils/dipStorage";
 import {Helmet} from "react-helmet";
 import {Navigation} from "../components/navigation";
 import {PageContext} from "../components/page_context";
+import PropTypes from "prop-types";
 
 export class ContentConnection extends React.Component {
     constructor(props) {
@@ -86,7 +87,11 @@ export class ContentConnection extends React.Component {
                     <title>{title} | Diplomacy</title>
                 </Helmet>
                 <Navigation title={title}/>
-                <ConnectionForm onSubmit={this.onSubmit}/>
+
+                <ConnectionForm
+                  onSubmit={this.onSubmit}
+                  user={this.props.user} />
+
             </main>
         );
     }
@@ -97,3 +102,7 @@ export class ContentConnection extends React.Component {
 }
 
 ContentConnection.contextType = PageContext;
+ContentConnection.propTypes = {
+    // TODO do we care to use shapes instead? Check
+    user: PropTypes.object.isRequired
+};

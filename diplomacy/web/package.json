@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "homepage": ".",
   "private": true,
+  "engines": {
+    "node": ">=12.22.12"
+  },
   "dependencies": {
     "@aws-amplify/ui-react": "2.14.0",
     "@emotion/react": "^11.8.2",
