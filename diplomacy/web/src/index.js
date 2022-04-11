@@ -21,7 +21,6 @@ import 'popper.js';
 import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
-import PropTypes from "prop-types";
 import { Amplify } from 'aws-amplify';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
@@ -29,29 +28,6 @@ import awsExports from './aws-exports';
 
 Amplify.configure(awsExports);
 
-// ========================================
-
-// TODO These contents go into Page since are page elements. Will move soon.
-const App = ({user, signOut}) => {
-    return (
-        <div>
-          <header style={{width: "100%", background: "#CCBB99"}}>
-            <span>
-              Hello {user.username}
-            </span>
-            <button onClick={signOut}>Sign out</button>
-          </header>
-
-          <Page user={user} signOut={signOut} />
-
-        </div>
-    );
-};
-App.propTypes = {
-    user: PropTypes.object.isRequired,
-    signOut: PropTypes.func.isRequired
-};
-
-const AuthenticatedApp = withAuthenticator(App);
+const AuthenticatedApp = withAuthenticator(Page);
 
 ReactDOM.render(<AuthenticatedApp />, document.getElementById('root'));
