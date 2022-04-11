@@ -6,5 +6,9 @@
   {
     "Key": "user:Application",
     "Value": "{project-name}"
+  },
+  {
+    "Key": "SHADE",
+    "Value": "shade-diplomacy-aws-auth-infra"
   }
 ]
