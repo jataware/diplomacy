@@ -51,7 +51,24 @@ services:
     networks:
       - diplomacy
 
+  dipnet_tensorflow:
+    image: jad952/dipnet_tf_server:v1
+    container_name: dipnet_tf
+    ports:
+    - 9501:9501
+    expose: 
+      - "9501"
+    networks:
+      - diplomacy
+
+  dipnet_bot:
+    image: jataware/dipnetbot
+    container_name: dipnet_bot
+    privileged: true
+    depends_on:
+      - dipnet_tensorflow    
+    network_mode: "host"
+
 networks:
   diplomacy:
-    driver: bridge   
-  
+    driver: bridge
