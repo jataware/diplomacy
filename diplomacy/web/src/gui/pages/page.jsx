@@ -17,6 +17,8 @@
 /** Main class to use to create app GUI. **/
 
 import React from "react";
+import PropTypes from "prop-types";
+
 import {ContentConnection} from "./content_connection";
 import {UTILS} from "../../diplomacy/utils/utils";
 import {Diplog} from "../../diplomacy/utils/diplog";
@@ -26,8 +28,9 @@ import {ContentGames} from "./content_games";
 import {loadGameFromDisk} from "../utils/load_game_from_disk";
 import {ContentGame} from "./content_game";
 import {confirmAlert} from 'react-confirm-alert';
+import { ConsentPage } from "./consent";
+
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import PropTypes from "prop-types";
 
 export class Page extends React.Component {
 
@@ -113,10 +116,25 @@ export class Page extends React.Component {
         Diplog.printMessages(newState);
         newState.name = name;
 
-        // TODO possibly load the next page when skipping connection form?
         newState.body = body;
 
         return this.setState(newState);
+    }
+
+    /*
+      We're gathering human behavior on a game for research. Enforce registered users
+      to accept before using our application/game.
+     */
+    loadIRBConsentPage() {
+        return this.load(
+            'consent',
+            <ConsentPage />,
+            null
+        );
+    }
+
+    loadConnectionPage() {
+        this.setState({body: null});
     }
 
     loadGames(messages) {
