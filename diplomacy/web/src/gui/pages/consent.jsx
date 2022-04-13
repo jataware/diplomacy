@@ -81,7 +81,9 @@ async function callAPI() {
     const user = await Auth.currentAuthenticatedUser();
 
     // Or:  Auth.currentSession().idToken.jwtToken
+
     const token = user.signInUserSession.idToken.jwtToken;
+    // TODO don't log
     log({ token });
 
     const requestInfo = {
