@@ -9,11 +9,18 @@
       "UnauthRoleName": "amplify-diplomacy-dev-152519-unauthRole",
       "StackName": "amplify-diplomacy-dev-152519",
       "StackId": "arn:aws:cloudformation:us-east-1:595603857057:stack/amplify-diplomacy-dev-152519/21148570-b9cd-11ec-b0f1-0e24840ffa95",
-      "AmplifyAppId": "d2ktv4fgckw2os"
+      "AmplifyAppId": "d2ktv4fgckw2os",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-diplomacy-dev-152519-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
       "auth": {
         "diplomacy8d729082": {}
+      },
+      "function": {
+        "diplomacyauthconsent": {
+          "deploymentBucketName": "amplify-diplomacy-dev-152519-deployment",
+          "s3Key": "amplify-builds/diplomacyauthconsent-576b775a6f784b347136-build.zip"
+        }
       }
     }
   }

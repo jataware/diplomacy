@@ -128,7 +128,7 @@ export class Page extends React.Component {
     loadIRBConsentPage() {
         return this.load(
             'consent',
-            <ConsentPage />,
+            <ConsentPage logout={this.logout} />,
             null
         );
     }

@@ -18,28 +18,18 @@
 /** **/
 
 import React from "react";
-
-// import {ContentConnection} from "./content_connection";
-// import {UTILS} from "../../diplomacy/utils/utils";
-// import {Diplog} from "../../diplomacy/utils/diplog";
-// import {DipStorage} from "../utils/dipStorage";
-
-// import {PageContext} from "../components/page_context";
-
-// import {ContentGames} from "./content_games";
-// import {loadGameFromDisk} from "../utils/load_game_from_disk";
-// import {ContentGame} from "./content_game";
-// import {confirmAlert} from 'react-confirm-alert';
-// import 'react-confirm-alert/src/react-confirm-alert.css';
-
-// import PropTypes from "prop-types";
-
+import PropTypes from "prop-types";
 import Container from '@mui/material/Container';
 import Text from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
+import { API, Auth } from 'aws-amplify';
+
+const { log } = console;
+
 const articles = [
     {
+        heading: false,
         text: 'We are inviting you to participate in a research study into the role of player negotiation in the board game Diplomacy. The study, titled “Collection and analysis of online Diplomacy gameplay,” is part of a project funded by the U.S. Department of Defense.  I will describe this study to you and answer any of your questions.  This study is led by Prof. Garrison LeMasters, Miami University Dept. of Emerging Technologies.'
     },
     {
@@ -81,48 +71,76 @@ const articles = [
 ];
 
 
-export class ConsentPage extends React.Component {
+/**
+ * TODO fn to call consent/ endpoint and save acceptance
+ * TODO rename
+ **/
+async function callAPI() {
+    log('calling consent API');
 
-    constructor(props) {
-        super(props);
-    }
+    const user = await Auth.currentAuthenticatedUser();
 
-    // TODO styles. Saw emotion/styled lib around will verify in order to to do.
-    // TODO on accept, send data to server, wait for response, redirect to content connection
-    // TODO What about on decline?
-    render() {
-        return (
-            <Container maxWidth="lg">
-              <section style={{margin: "1rem 0 2rem 0"}}>
+    // Or:  Auth.currentSession().idToken.jwtToken
+    const token = user.signInUserSession.idToken.jwtToken;
+    log({ token });
+
+    const requestInfo = {
+        headers: {
+            Authorization: token
+        }
+    };
+
+    log('should accept consent');
+    const data = await API.post('diplomacyutilapi', '/consent', requestInfo);
+    log('data from server', data);
+}
+
+export const ConsentPage = ({logout}) => {
+    return (
+        <Container maxWidth="md">
+            <section style={{margin: "1rem 0 2rem 0"}}>
                 <br />
 
                 <Text
-                  variant="h3"
-                  gutterBottom>
-                  IRB Research Consent Form
+                    variant="h3"
+                    gutterBottom>
+                    IRB Research Consent Form
                 </Text>
 
                 {articles.map(article => (
                     <article key={article.heading}>
-                      {article.heading && (
-                          <Text variant="h4" gutterBottom>
-                            {article.heading}
-                          </Text>
-                      )}
-                      <Text paragraph>
-                        {article.text}
-                      </Text>
+                        {article.heading && (
+                            <Text variant="h5" gutterBottom>
+                                {article.heading}
+                            </Text>
+                        )}
+                        <Text paragraph>
+                            {article.text}
+                        </Text>
                     </article>
                 ))}
 
                 <Box sx={{textAlign: 'center'}}>
-                  <button className="btn btn-success">Accept</button>
-                  &nbsp;
-                  <button className="btn btn-secondary">Decline</button>
+                    <button
+                        className="btn btn-success"
+                        onClick={callAPI}>
+                        Accept
+                    </button>
+
+                    &nbsp;
+
+                    <button
+                        className="btn btn-secondary"
+                        onClick={logout}>
+                        Decline
+                    </button>
                 </Box>
 
-              </section>
-            </Container>
-        );
-    }
-}
+            </section>
+        </Container>
+    );
+};
+
+ConsentPage.propTypes = {
+    logout: PropTypes.func.isRequired
+};

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "paths": {
+    "/consent": {
+      "name": "/consent",
+      "lambdaFunction": "diplomacyauthconsent",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "update"
+        ]
+      }
+    }
+  }
+}

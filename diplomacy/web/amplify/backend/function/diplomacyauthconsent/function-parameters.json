@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "auth": {
+      "diplomacy8d729082": [
+        "update"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}
