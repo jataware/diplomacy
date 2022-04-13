@@ -19,7 +19,7 @@
       "function": {
         "diplomacyauthconsent": {
           "deploymentBucketName": "amplify-diplomacy-dev-152519-deployment",
-          "s3Key": "amplify-builds/diplomacyauthconsent-576b775a6f784b347136-build.zip"
+          "s3Key": "amplify-builds/diplomacyauthconsent-55417849796d53455a35-build.zip"
         }
       }
     }

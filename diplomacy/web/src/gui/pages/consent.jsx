@@ -72,19 +72,12 @@ const articles = [
 
 
 /**
- * TODO fn to call consent/ endpoint and save acceptance
- * TODO rename
+ * TODO Calls auth api 'consent/' endpoint and saves acceptance.
  **/
-async function callAPI() {
-    log('calling consent API');
+async function userAPIConsent() {
 
     const user = await Auth.currentAuthenticatedUser();
-
-    // Or:  Auth.currentSession().idToken.jwtToken
-
     const token = user.signInUserSession.idToken.jwtToken;
-    // TODO don't log
-    log({ token });
 
     const requestInfo = {
         headers: {
@@ -92,19 +85,34 @@ async function callAPI() {
         }
     };
 
-    log('should accept consent');
-    const data = await API.post('diplomacyutilapi', '/consent', requestInfo);
-    log('data from server', data);
+    try {
+        return API.post('diplomacyutilapi', '/consent', requestInfo);
+    } catch(e) {
+        // TODO dev/debug logging.
+        log('Error updating user', e);
+    }
 }
 
-export const ConsentPage = ({logout}) => {
+/**
+ * Applicaiton page that describes IRB-mandated consent terms to the user,
+ * per research data gathered while playing. If user accepts, the acceptance date
+ * gets stored on auth user pool. If user declines, they should be logged out.
+ **/
+export const ConsentPage = ({onAccept, onDecline}) => {
+
+    function accept() {
+        userAPIConsent()
+            .then(onAccept);
+    }
+
     return (
+
         <Container maxWidth="md">
             <section style={{margin: "1rem 0 2rem 0"}}>
                 <br />
 
                 <Text
-                    variant="h3"
+                    variant="h4"
                     gutterBottom>
                     IRB Research Consent Form
                 </Text>
@@ -125,7 +133,7 @@ export const ConsentPage = ({logout}) => {
                 <Box sx={{textAlign: 'center'}}>
                     <button
                         className="btn btn-success"
-                        onClick={callAPI}>
+                        onClick={accept}>
                         Accept
                     </button>
 
@@ -133,7 +141,7 @@ export const ConsentPage = ({logout}) => {
 
                     <button
                         className="btn btn-secondary"
-                        onClick={logout}>
+                        onClick={onDecline}>
                         Decline
                     </button>
                 </Box>
@@ -144,5 +152,6 @@ export const ConsentPage = ({logout}) => {
 };
 
 ConsentPage.propTypes = {
-    logout: PropTypes.func.isRequired
+    onAccept: PropTypes.func.isRequired,
+    onDecline: PropTypes.func.isRequired
 };

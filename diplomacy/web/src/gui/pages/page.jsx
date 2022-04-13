@@ -61,6 +61,7 @@ export class Page extends React.Component {
         this._remove_from_my_games = this._remove_from_my_games.bind(this);
         this._remove_from_games = this._remove_from_games.bind(this);
         this.onReconnectionError = this.onReconnectionError.bind(this);
+        this.loadConnectionPage = this.loadConnectionPage.bind(this);
     }
 
     static wrapMessage(message) {
@@ -128,7 +129,10 @@ export class Page extends React.Component {
     loadIRBConsentPage() {
         return this.load(
             'consent',
-            <ConsentPage logout={this.logout} />,
+            <ConsentPage
+              onAccept={this.loadConnectionPage}
+              onDecline={this.logout} 
+            />,
             null
         );
     }

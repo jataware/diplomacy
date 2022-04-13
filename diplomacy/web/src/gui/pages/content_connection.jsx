@@ -128,15 +128,11 @@ export class ContentConnection extends React.Component {
     componentDidMount() {
         window.scrollTo(0, 0);
 
-        const page = this.context;
         const { user } = this.props;
-
-        const hasAcceptedConsent = user.attributes['accepted-terms-at'];
-
-        // TODO If user not accepted terms, send to terms page, else continue:
-        // accept terms page will redirect back to this page where we'll do the check again, and likely connect:
+        const hasAcceptedConsent = user.attributes['custom:accepted-terms-at'];
 
         if (!hasAcceptedConsent) {
+            const page = this.context;
             page.loadIRBConsentPage();
         } else {
             this.connect();
@@ -146,6 +142,5 @@ export class ContentConnection extends React.Component {
 
 ContentConnection.contextType = PageContext;
 ContentConnection.propTypes = {
-    // TODO do we care to use shapes instead? Check
     user: PropTypes.object.isRequired
 };
