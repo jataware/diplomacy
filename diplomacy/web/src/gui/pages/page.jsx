@@ -29,8 +29,26 @@ import {loadGameFromDisk} from "../utils/load_game_from_disk";
 import {ContentGame} from "./content_game";
 import {confirmAlert} from 'react-confirm-alert';
 import { ConsentPage } from "./consent";
+import { API } from 'aws-amplify';
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
+
+const { log } = console;
+
+/**
+ * Calls auth api 'consent/' endpoint and saves acceptance.
+ **/
+function userAPIConsent(authUser) {
+    const token = authUser.signInUserSession.idToken.jwtToken;
+
+    const requestInfo = {
+        headers: {
+            Authorization: token
+        }
+    };
+
+    return API.post('diplomacyutilapi', '/consent', requestInfo);
+}
 
 export class Page extends React.Component {
 
@@ -74,9 +92,8 @@ export class Page extends React.Component {
         return games;
     }
 
-    static defaultPage(props) {
-        const { user } = props;
-        return <ContentConnection user={user} />;
+    static defaultPage() {
+        return <ContentConnection />;
     }
 
     setState(state) {
@@ -121,21 +138,38 @@ export class Page extends React.Component {
         return this.setState(newState);
     }
 
-    /*
-      We're gathering human behavior on a game for research. Redirect registered users
-      to accept once before using our application.
-     */
+    /**
+     * We're gathering human behavior on a game for research. Redirect first-time
+     * registered users to accept before using our application.
+     **/
     loadIRBConsentPage() {
+
+        const { user } = this.props;
+        const { loadConnectionPage } = this;
+
+        async function accept() {
+            try {
+                await userAPIConsent(user);
+                loadConnectionPage();
+            } catch(e) {
+                // Unable to accept consent. What shall we do here.
+                log('Error updating user consent information:', e);
+            }
+        }
+
         return this.load(
             'consent',
             <ConsentPage
-              onAccept={this.loadConnectionPage}
+              onAccept={accept}
               onDecline={this.logout} 
             />,
             null
         );
     }
 
+    /**
+     * Resets back to the default connecting page
+     */
     loadConnectionPage() {
         this.setState({body: null});
     }
@@ -406,7 +440,7 @@ export class Page extends React.Component {
                             {errorMessage}
                         </div>
                     </div>
-                    {this.state.body || Page.defaultPage(this.props)}
+                    {this.state.body || Page.defaultPage()}
                 </div>
             </PageContext.Provider>
         );

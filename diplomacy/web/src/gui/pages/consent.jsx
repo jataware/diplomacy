@@ -23,10 +23,6 @@ import Container from '@mui/material/Container';
 import Text from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
-import { API, Auth } from 'aws-amplify';
-
-const { log } = console;
-
 const articles = [
     {
         heading: false,
@@ -71,26 +67,7 @@ const articles = [
 ];
 
 
-/**
- * Calls auth api 'consent/' endpoint and saves acceptance.
- **/
-async function userAPIConsent() {
 
-    const user = await Auth.currentAuthenticatedUser();
-    const token = user.signInUserSession.idToken.jwtToken;
-
-    const requestInfo = {
-        headers: {
-            Authorization: token
-        }
-    };
-
-    try {
-        return API.post('diplomacyutilapi', '/consent', requestInfo);
-    } catch(e) {
-        log('Error updating user', e);
-    }
-}
 
 /**
  * Application page that describes IRB-mandated consent terms to the user,
@@ -98,11 +75,6 @@ async function userAPIConsent() {
  * gets stored on auth user pool. If user declines, they should be logged out.
  **/
 export const ConsentPage = ({onAccept, onDecline}) => {
-
-    function accept() {
-        userAPIConsent()
-            .then(onAccept);
-    }
 
     return (
 
@@ -132,7 +104,7 @@ export const ConsentPage = ({onAccept, onDecline}) => {
                 <Box sx={{textAlign: 'center'}}>
                     <button
                         className="btn btn-success"
-                        onClick={accept}>
+                        onClick={onAccept}>
                         Accept
                     </button>
 

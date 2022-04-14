@@ -20,7 +20,6 @@ import {DipStorage} from "../utils/dipStorage";
 import {Helmet} from "react-helmet";
 import {Navigation} from "../components/navigation";
 import {PageContext} from "../components/page_context";
-import PropTypes from "prop-types";
 import { Auth } from 'aws-amplify';
 
 export class ContentConnection extends React.Component {
@@ -45,24 +44,22 @@ export class ContentConnection extends React.Component {
             if (savedState.showServerFields)
                 initialState.showServerFields = savedState.showServerFields;
         }
-        this.state = initialState;
+        this.serverData = initialState;
     }
 
     initState() {
-        const { user } = this.props;
-
         return {
             hostname: window.location.hostname,
             port: 8432,
-            username: user.username,
-            password: user.attributes.sub,
+            username: null,
+            password: null,
             showServerFields: false
         };
     }
 
     connect() {
 
-        const data = this.state;
+        const data = this.serverData;
         const page = this.context;
 
         page.info('Connecting ...');
@@ -126,33 +123,33 @@ export class ContentConnection extends React.Component {
         );
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         window.scrollTo(0, 0);
 
-        /* Fetch user async, we don't mind- this runs at the very end.
-         * Not using user from props in order to reset and bypass the
-         * user cache, since we may have accepted the consent within
+        /* Fetch user async, we don't mind- this runs at the very end of mount.
+         * We bypass the user token cache, since we may have accepted the consent within
          * the same logged in session and we need to re-fetch the user
-         * attribute.
+         * attributes.
          */
-        Auth.currentAuthenticatedUser({ bypassCache: true })
-            .then(user => {
-                const hasAcceptedConsent = user.attributes['custom:accepted-terms-at'];
+        const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
 
-                if (!hasAcceptedConsent) {
-                    console.log('Has not accepted consent');
-                    const page = this.context;
-                    page.loadIRBConsentPage();
-                } else {
-                    console.log('Has accepted consent');
-                    this.connect();
-                }
-            });
+        this.serverData.username = user.username;
+        this.serverData.password = user.attributes.sub;
+
+        const hasAcceptedConsent = user.attributes['custom:accepted-terms-at'];
+
+        if (!hasAcceptedConsent) {
+            console.log('Has not accepted consent');
+
+            const page = this.context;
+
+            page.loadIRBConsentPage();
+        } else {
+            console.log('Has accepted consent');
+            this.connect();
+        }
         
     }
 }
 
 ContentConnection.contextType = PageContext;
-ContentConnection.propTypes = {
-    user: PropTypes.object.isRequired
-};
