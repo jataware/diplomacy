@@ -21,6 +21,7 @@ import {Helmet} from "react-helmet";
 import {Navigation} from "../components/navigation";
 import {PageContext} from "../components/page_context";
 import PropTypes from "prop-types";
+import { Auth } from 'aws-amplify';
 
 export class ContentConnection extends React.Component {
 
@@ -128,15 +129,26 @@ export class ContentConnection extends React.Component {
     componentDidMount() {
         window.scrollTo(0, 0);
 
-        const { user } = this.props;
-        const hasAcceptedConsent = user.attributes['custom:accepted-terms-at'];
+        /* Fetch user async, we don't mind- this runs at the very end.
+         * Not using user from props in order to reset and bypass the
+         * user cache, since we may have accepted the consent within
+         * the same logged in session and we need to re-fetch that user
+         * attribute.
+         */
+        Auth.currentAuthenticatedUser({ bypassCache: true })
+            .then(user => {
+                const hasAcceptedConsent = user.attributes['custom:accepted-terms-at'];
 
-        if (!hasAcceptedConsent) {
-            const page = this.context;
-            page.loadIRBConsentPage();
-        } else {
-            this.connect();
-        }
+                if (!hasAcceptedConsent) {
+                    console.log('Has not accepted consent');
+                    const page = this.context;
+                    page.loadIRBConsentPage();
+                } else {
+                    console.log('Has accepted consent');
+                    this.connect();
+                }
+            });
+        
     }
 }
 
