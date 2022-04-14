@@ -16,19 +16,19 @@
 // ==============================================================================
 /** Main class to use to create app GUI. **/
 
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 
-import {ContentConnection} from "./content_connection";
-import {UTILS} from "../../diplomacy/utils/utils";
-import {Diplog} from "../../diplomacy/utils/diplog";
-import {DipStorage} from "../utils/dipStorage";
-import {PageContext} from "../components/page_context";
-import {ContentGames} from "./content_games";
-import {loadGameFromDisk} from "../utils/load_game_from_disk";
-import {ContentGame} from "./content_game";
+import {ContentConnection} from './content_connection';
+import {UTILS} from '../../diplomacy/utils/utils';
+import {Diplog} from '../../diplomacy/utils/diplog';
+import {DipStorage} from '../utils/dipStorage';
+import {PageContext} from '../components/page_context';
+import {ContentGames} from './content_games';
+import {loadGameFromDisk} from '../utils/load_game_from_disk';
+import {ContentGame} from './content_game';
 import {confirmAlert} from 'react-confirm-alert';
-import { ConsentPage } from "./consent";
+import { ConsentPage } from './consent';
 import { API } from 'aws-amplify';
 
 import 'react-confirm-alert/src/react-confirm-alert.css';
