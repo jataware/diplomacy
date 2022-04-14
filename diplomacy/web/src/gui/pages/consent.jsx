@@ -72,7 +72,7 @@ const articles = [
 
 
 /**
- * TODO Calls auth api 'consent/' endpoint and saves acceptance.
+ * Calls auth api 'consent/' endpoint and saves acceptance.
  **/
 async function userAPIConsent() {
 
@@ -88,13 +88,12 @@ async function userAPIConsent() {
     try {
         return API.post('diplomacyutilapi', '/consent', requestInfo);
     } catch(e) {
-        // TODO dev/debug logging.
         log('Error updating user', e);
     }
 }
 
 /**
- * Applicaiton page that describes IRB-mandated consent terms to the user,
+ * Application page that describes IRB-mandated consent terms to the user,
  * per research data gathered while playing. If user accepts, the acceptance date
  * gets stored on auth user pool. If user declines, they should be logged out.
  **/

@@ -74,7 +74,6 @@ export class Page extends React.Component {
         return games;
     }
 
-    // TODO follow the rabbit hole and ensure this data gets set even if we skip connection form
     static defaultPage(props) {
         const { user } = props;
         return <ContentConnection user={user} />;
@@ -123,8 +122,8 @@ export class Page extends React.Component {
     }
 
     /*
-      We're gathering human behavior on a game for research. Enforce registered users
-      to accept before using our application/game.
+      We're gathering human behavior on a game for research. Redirect registered users
+      to accept once before using our application.
      */
     loadIRBConsentPage() {
         return this.load(
@@ -193,9 +192,9 @@ export class Page extends React.Component {
     }
 
     logout() {
-
-        // TODO alias this var to portray whats going on here (sign out in contrast with logout..)
-        const { signOut } = this.props;
+        // Note: `authSignOut` (from login with password), in contrast with
+        //   disconnecting with the game server (aka channel.logout())
+        const { signOut: authSignOut } = this.props;
 
         // Disconnect channel (logout), sign out from new authentication
         if (this.channel) {
@@ -204,12 +203,11 @@ export class Page extends React.Component {
                     this.__disconnect();
                 })
                 .catch(error => this.error(`Error while disconnecting: ${error.toString()}.`))
-                .finally(signOut);
+                .finally(authSignOut);
         } else {
             this.__disconnect();
-            signOut();
+            authSignOut();
         }
-
     }
 
     //// Methods to be used to set page title and messages.

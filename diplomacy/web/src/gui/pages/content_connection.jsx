@@ -132,7 +132,7 @@ export class ContentConnection extends React.Component {
         /* Fetch user async, we don't mind- this runs at the very end.
          * Not using user from props in order to reset and bypass the
          * user cache, since we may have accepted the consent within
-         * the same logged in session and we need to re-fetch that user
+         * the same logged in session and we need to re-fetch the user
          * attribute.
          */
         Auth.currentAuthenticatedUser({ bypassCache: true })
