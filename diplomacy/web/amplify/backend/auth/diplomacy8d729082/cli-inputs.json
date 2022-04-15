@@ -12,8 +12,8 @@
     "mfaTypes": [
       "SMS Text Message"
     ],
-    "smsAuthenticationMessage": "Your authentication code is {####}",
-    "smsVerificationMessage": "Your verification code is {####}",
+    "smsAuthenticationMessage": "Your Diplomacy authentication code is {####}",
+    "smsVerificationMessage": "Your Diplomacy verification code is {####}",
     "emailVerificationSubject": "Your Diplomacy account verification code",
     "emailVerificationMessage": "Welcome to your Diplomacy game online account. Please enter this verification code when requested by registration process: {####}",
     "defaultPasswordPolicy": false,
@@ -42,29 +42,6 @@
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
-    "useEnabledMfas": true,
-    "authRoleArn": {
-      "Fn::GetAtt": [
-        "AuthRole",
-        "Arn"
-      ]
-    },
-    "unauthRoleArn": {
-      "Fn::GetAtt": [
-        "UnauthRole",
-        "Arn"
-      ]
-    },
-    "breakCircularDependency": true,
-    "dependsOn": [],
-    "userPoolGroups": false,
-    "adminQueries": false,
-    "triggers": {},
-    "hostedUI": false,
-    "authProviders": [],
-    "parentStack": {
-      "Ref": "AWS::StackId"
-    },
-    "permissions": []
+    "useEnabledMfas": true
   }
 }
