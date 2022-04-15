@@ -79,7 +79,8 @@ const success = () => ({
  * @type {import('@types/aws-lambda').APIGatewayProxyHandler}
  */
 exports.handler = async (event, context) => {
-    // console.log(`EVENT: ${JSON.stringify(event)}`);
+
+    console.log(`EVENT: ${JSON.stringify(event)}`);
 
     const { claims } = event.requestContext.authorizer;
 

@@ -37,6 +37,8 @@ const { log } = console;
 
 /**
  * Calls auth api 'consent/' endpoint and saves acceptance.
+ * A cognito user contains the session properties, including the current
+ * jwtToken assigned to it: similar-ish** in use as a cookie would be.
  **/
 function userAPIConsent(authUser) {
     const token = authUser.signInUserSession.idToken.jwtToken;
