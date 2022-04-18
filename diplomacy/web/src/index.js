@@ -23,20 +23,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import { Amplify, Auth } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
-import { uniqueNamesGenerator, adjectives, colors, animals, NumberDictionary } from 'unique-names-generator';
+import { uniqueNamesGenerator, adjectives, animals, names } from 'unique-names-generator';
 import '@aws-amplify/ui-react/styles.css';
 import awsExports from './aws-exports';
 
 Amplify.configure(awsExports);
 
-function generateUsername() {
-    const numberDictionary = NumberDictionary.generate({ min: 0, max: 124 });
-
-    return uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals, numberDictionary],
-        separator: '-'
-    });
-}
+const generateUsername = () => uniqueNamesGenerator({
+    dictionaries: [adjectives, animals, names],
+    separator: ''
+});
 
 const services = {
     async handleSignUp(formData) {
@@ -47,6 +43,9 @@ const services = {
     }
 };
 
+/**
+ * Authenticated Application. Basically wraps the Page root component with AWS Cognito Auth.
+ */
 const App = () => (
     <Authenticator
         variation="modal"
