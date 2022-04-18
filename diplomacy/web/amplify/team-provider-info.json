@@ -23,5 +23,30 @@
         }
       }
     }
+  },
+  "prod": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-shade-prod-131747-authRole",
+      "UnauthRoleArn": "arn:aws:iam::595603857057:role/amplify-shade-prod-131747-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::595603857057:role/amplify-shade-prod-131747-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-shade-prod-131747-deployment",
+      "UnauthRoleName": "amplify-shade-prod-131747-unauthRole",
+      "StackName": "amplify-shade-prod-131747",
+      "StackId": "arn:aws:cloudformation:us-east-1:595603857057:stack/amplify-shade-prod-131747/78429d50-bf3b-11ec-aef7-0e5c1fabe395",
+      "AmplifyAppId": "d2qf2irdtfa7ln",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-shade-prod-131747-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
+    },
+    "categories": {
+      "function": {
+        "shadefn1f4a9": {
+          "deploymentBucketName": "amplify-shade-prod-131747-deployment",
+          "s3Key": "amplify-builds/shadefn1f4a9-315065794e5563704859-build.zip"
+        }
+      },
+      "auth": {
+        "shade58086f6f58086f6f": {}
+      }
+    }
   }
 }

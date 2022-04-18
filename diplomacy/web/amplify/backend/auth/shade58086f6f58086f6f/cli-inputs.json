@@ -33,8 +33,7 @@
     "userpoolClientReadAttributes": [
       "email",
       "preferred_username",
-      "email_verified",
-      "custom:accepted-terms-at"
+      "email_verified"
     ],
     "userpoolClientLambdaRole": "shade558086f6f_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": true,

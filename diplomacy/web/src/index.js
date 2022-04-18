@@ -23,16 +23,21 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import { Amplify, Auth } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
-import { uniqueNamesGenerator, adjectives, animals, names } from 'unique-names-generator';
+import { uniqueNamesGenerator, colors, animals, names, NumberDictionary } from 'unique-names-generator';
 import '@aws-amplify/ui-react/styles.css';
 import awsExports from './aws-exports';
 
 Amplify.configure(awsExports);
 
-const generateUsername = () => uniqueNamesGenerator({
-    dictionaries: [adjectives, animals, names],
-    separator: ''
-});
+const generateUsername = () => {
+    const numberDictionary = NumberDictionary.generate({ min: 0, max: 124 });
+
+    return uniqueNamesGenerator({
+        dictionaries: [colors, animals, names, numberDictionary],
+        style: 'capital',
+        separator: ''
+    });
+};
 
 const services = {
     async handleSignUp(formData) {
