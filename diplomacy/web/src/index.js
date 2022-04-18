@@ -21,13 +21,43 @@ import 'popper.js';
 import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
-import { Amplify } from 'aws-amplify';
-import { withAuthenticator } from '@aws-amplify/ui-react';
+import { Amplify, Auth } from 'aws-amplify';
+import { Authenticator } from '@aws-amplify/ui-react';
+import { uniqueNamesGenerator, adjectives, colors, animals, NumberDictionary } from 'unique-names-generator';
 import '@aws-amplify/ui-react/styles.css';
 import awsExports from './aws-exports';
 
 Amplify.configure(awsExports);
 
-const AuthenticatedApp = withAuthenticator(Page);
+function generateUsername() {
+    const numberDictionary = NumberDictionary.generate({ min: 0, max: 124 });
 
-ReactDOM.render(<AuthenticatedApp />, document.getElementById('root'));
+    return uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals, numberDictionary],
+        separator: '-'
+    });
+}
+
+const services = {
+    async handleSignUp(formData) {
+
+        formData.attributes.preferred_username = generateUsername();
+
+        return Auth.signUp(formData);
+    }
+};
+
+const App = () => (
+    <Authenticator
+        variation="modal"
+        services={services}
+        signUpAttributes={['email']}>
+
+        {({ signOut, user }) => (
+            <Page user={user} signOut={signOut} />
+        )}
+
+    </Authenticator>
+);
+
+ReactDOM.render(<App />, document.getElementById('root'));

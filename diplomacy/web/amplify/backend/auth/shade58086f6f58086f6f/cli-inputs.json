@@ -32,7 +32,9 @@
     ],
     "userpoolClientReadAttributes": [
       "email",
-      "preferred_username"
+      "preferred_username",
+      "email_verified",
+      "custom:accepted-terms-at"
     ],
     "userpoolClientLambdaRole": "shade558086f6f_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": true,
@@ -40,7 +42,6 @@
     "resourceName": "shade58086f6f58086f6f",
     "authSelections": "identityPoolAndUserPool",
     "useDefault": "manual",
-    "thirdPartyAuth": false,
     "usernameAttributes": [
       "email"
     ],
@@ -51,6 +52,26 @@
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
-    "useEnabledMfas": true
+    "useEnabledMfas": true,
+    "authRoleArn": {
+      "Fn::GetAtt": [
+        "AuthRole",
+        "Arn"
+      ]
+    },
+    "unauthRoleArn": {
+      "Fn::GetAtt": [
+        "UnauthRole",
+        "Arn"
+      ]
+    },
+    "breakCircularDependency": true,
+    "dependsOn": [],
+    "authProviders": [],
+    "parentStack": {
+      "Ref": "AWS::StackId"
+    },
+    "permissions": [],
+    "thirdPartyAuth": false
   }
 }
