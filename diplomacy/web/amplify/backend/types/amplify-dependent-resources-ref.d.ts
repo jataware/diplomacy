@@ -1,6 +1,6 @@
 export type AmplifyDependentResourcesAttributes = {
     "auth": {
-        "diplomacy8d729082": {
+        "shade58086f6f58086f6f": {
             "IdentityPoolId": "string",
             "IdentityPoolName": "string",
             "UserPoolId": "string",
@@ -11,7 +11,7 @@ export type AmplifyDependentResourcesAttributes = {
         }
     },
     "function": {
-        "diplomacyauthconsent": {
+        "shadefn1f4a9": {
             "Name": "string",
             "Arn": "string",
             "Region": "string",
@@ -19,7 +19,7 @@ export type AmplifyDependentResourcesAttributes = {
         }
     },
     "api": {
-        "diplomacyutilapi": {
+        "shadeapi1f4a9": {
             "RootUrl": "string",
             "ApiName": "string",
             "ApiId": "string"

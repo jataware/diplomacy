@@ -49,7 +49,7 @@ function userAPIConsent(authUser) {
         }
     };
 
-    return API.post('diplomacyutilapi', '/consent', requestInfo);
+    return API.post('shadeapi1f4a9', '/consent', requestInfo);
 }
 
 export class Page extends React.Component {

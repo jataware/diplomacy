@@ -1,10 +1,10 @@
 {
   "version": "1",
   "cognitoConfig": {
-    "identityPoolName": "diplomacy8d729082_identitypool_8d729082",
+    "identityPoolName": "shade58086f6f_identitypool_58086f6f",
     "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "diplom8d729082",
-    "userPoolName": "diplomacy8d729082_userpool_8d729082",
+    "resourceNameTruncated": "shade58086f6f",
+    "userPoolName": "shade58086f6f_userpool_58086f6f",
     "autoVerifiedAttributes": [
       "email"
     ],
@@ -12,33 +12,42 @@
     "mfaTypes": [
       "SMS Text Message"
     ],
-    "smsAuthenticationMessage": "Your Diplomacy authentication code is {####}",
-    "smsVerificationMessage": "Your Diplomacy verification code is {####}",
+    "smsAuthenticationMessage": "Your authentication code is {####}",
+    "smsVerificationMessage": "Your verification code is {####}",
     "emailVerificationSubject": "Your Diplomacy account verification code",
     "emailVerificationMessage": "Welcome to your Diplomacy game online account. Please enter this verification code when requested by registration process: {####}",
     "defaultPasswordPolicy": false,
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [],
     "requiredAttributes": [
-      "email"
+      "email",
+      "preferred_username"
     ],
     "aliasAttributes": [],
     "userpoolClientGenerateSecret": false,
     "userpoolClientRefreshTokenValidity": 30,
     "userpoolClientWriteAttributes": [
-      "preferred_username",
-      "email"
+      "email",
+      "preferred_username"
     ],
     "userpoolClientReadAttributes": [
       "email",
       "preferred_username"
     ],
-    "userpoolClientLambdaRole": "diplom8d729082_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "shade558086f6f_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": true,
-    "sharedId": "8d729082",
-    "resourceName": "diplomacy8d729082",
-    "authSelections": "userPoolOnly",
+    "sharedId": "58086f6f",
+    "resourceName": "shade58086f6f58086f6f",
+    "authSelections": "identityPoolAndUserPool",
     "useDefault": "manual",
+    "thirdPartyAuth": false,
+    "usernameAttributes": [
+      "email"
+    ],
+    "userPoolGroups": false,
+    "adminQueries": false,
+    "triggers": {},
+    "hostedUI": false,
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,

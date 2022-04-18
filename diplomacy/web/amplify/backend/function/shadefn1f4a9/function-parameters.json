@@ -1,7 +1,8 @@
 {
   "permissions": {
     "auth": {
-      "diplomacy8d729082": [
+      "shade58086f6f58086f6f": [
+        "create",
         "update"
       ]
     }

@@ -133,7 +133,7 @@ export class ContentConnection extends React.Component {
          */
         const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
 
-        this.serverData.username = user.username;
+        this.serverData.username = user.attributes.preferred_username;
         this.serverData.password = user.attributes.sub;
 
         const hasAcceptedConsent = user.attributes['custom:accepted-terms-at'];

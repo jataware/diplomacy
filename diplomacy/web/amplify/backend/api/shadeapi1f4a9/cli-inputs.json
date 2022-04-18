@@ -3,10 +3,12 @@
   "paths": {
     "/consent": {
       "name": "/consent",
-      "lambdaFunction": "diplomacyauthconsent",
+      "lambdaFunction": "shadefn1f4a9",
       "permissions": {
         "setting": "private",
         "auth": [
+          "create",
+          "read",
           "update"
         ]
       }

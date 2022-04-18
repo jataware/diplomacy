@@ -1,15 +1,18 @@
 {
   "auth": {
-    "diplomacy8d729082": {
+    "shade58086f6f58086f6f": {
       "service": "Cognito",
       "providerPlugin": "awscloudformation",
       "dependsOn": [],
       "customAuth": false,
       "frontendAuthConfig": {
         "socialProviders": [],
-        "usernameAttributes": [],
-        "signupAttributes": [
+        "usernameAttributes": [
           "EMAIL"
+        ],
+        "signupAttributes": [
+          "EMAIL",
+          "PREFERRED_USERNAME"
         ],
         "passwordProtectionSettings": {
           "passwordPolicyMinLength": 8,
@@ -26,14 +29,14 @@
     }
   },
   "function": {
-    "diplomacyauthconsent": {
+    "shadefn1f4a9": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",
       "dependsOn": [
         {
           "category": "auth",
-          "resourceName": "diplomacy8d729082",
+          "resourceName": "shade58086f6f58086f6f",
           "attributes": [
             "UserPoolId"
           ]
@@ -42,13 +45,13 @@
     }
   },
   "api": {
-    "diplomacyutilapi": {
+    "shadeapi1f4a9": {
       "service": "API Gateway",
       "providerPlugin": "awscloudformation",
       "dependsOn": [
         {
           "category": "function",
-          "resourceName": "diplomacyauthconsent",
+          "resourceName": "shadefn1f4a9",
           "attributes": [
             "Name",
             "Arn"

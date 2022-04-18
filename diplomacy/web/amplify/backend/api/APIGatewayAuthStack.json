@@ -11,7 +11,7 @@
     "env": {
       "Type": "String"
     },
-    "diplomacyutilapi": {
+    "shadeapi1f4a9": {
       "Type": "String"
     }
   },
@@ -52,7 +52,127 @@
                       },
                       ":",
                       {
-                        "Ref": "diplomacyutilapi"
+                        "Ref": "shadeapi1f4a9"
+                      },
+                      "/",
+                      {
+                        "Fn::If": [
+                          "ShouldNotCreateEnvResources",
+                          "Prod",
+                          {
+                            "Ref": "env"
+                          }
+                        ]
+                      },
+                      "/POST/consent/*"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "shadeapi1f4a9"
+                      },
+                      "/",
+                      {
+                        "Fn::If": [
+                          "ShouldNotCreateEnvResources",
+                          "Prod",
+                          {
+                            "Ref": "env"
+                          }
+                        ]
+                      },
+                      "/POST/consent"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "shadeapi1f4a9"
+                      },
+                      "/",
+                      {
+                        "Fn::If": [
+                          "ShouldNotCreateEnvResources",
+                          "Prod",
+                          {
+                            "Ref": "env"
+                          }
+                        ]
+                      },
+                      "/GET/consent/*"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "shadeapi1f4a9"
+                      },
+                      "/",
+                      {
+                        "Fn::If": [
+                          "ShouldNotCreateEnvResources",
+                          "Prod",
+                          {
+                            "Ref": "env"
+                          }
+                        ]
+                      },
+                      "/GET/consent"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "shadeapi1f4a9"
                       },
                       "/",
                       {
@@ -82,7 +202,7 @@
                       },
                       ":",
                       {
-                        "Ref": "diplomacyutilapi"
+                        "Ref": "shadeapi1f4a9"
                       },
                       "/",
                       {
@@ -112,7 +232,7 @@
                       },
                       ":",
                       {
-                        "Ref": "diplomacyutilapi"
+                        "Ref": "shadeapi1f4a9"
                       },
                       "/",
                       {
@@ -142,7 +262,7 @@
                       },
                       ":",
                       {
-                        "Ref": "diplomacyutilapi"
+                        "Ref": "shadeapi1f4a9"
                       },
                       "/",
                       {
