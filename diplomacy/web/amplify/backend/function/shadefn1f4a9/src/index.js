@@ -50,6 +50,7 @@ function consentAcceptTerms(username, poolId) {
                     Value: datetimeFormatted
                 }
             ],
+            // OR process.env.AUTH_SHADE58086F6F58086F6F_USERPOOLID
             UserPoolId: poolId,
             Username: username
         }
@@ -78,10 +79,12 @@ const success = () => ({
 /**
  * @type {import('@types/aws-lambda').APIGatewayProxyHandler}
  */
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
 
     console.log(`EVENT: ${JSON.stringify(event)}`);
     console.log(`ENV: ${JSON.stringify(process.env)}`);
+
+    console.log('dev|Prod:', process.env.ENV);
 
 
     if (get(event, 'requestContext.authorizer.claims')) {
