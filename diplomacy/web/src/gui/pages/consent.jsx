@@ -101,6 +101,12 @@ export const ConsentPage = ({onAccept, onDecline}) => {
                     </article>
                 ))}
 
+                <div>
+                    By clicking "Accept", I agree that I am digitally signing this consent form.
+                </div>
+
+                <br />
+
                 <Box sx={{textAlign: 'center'}}>
                     <button
                         className="btn btn-success"
