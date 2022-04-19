@@ -81,10 +81,12 @@ const success = () => ({
 exports.handler = async (event, context) => {
 
     console.log(`EVENT: ${JSON.stringify(event)}`);
-    console.log(`ENV: ${process.env}`);
+    console.log(`ENV: ${JSON.stringify(process.env)}`);
 
 
     if (get(event, 'requestContext.authorizer.claims')) {
+
+        console.log('Contains claims, continuing');
 
         const { claims } = event.requestContext.authorizer;
 

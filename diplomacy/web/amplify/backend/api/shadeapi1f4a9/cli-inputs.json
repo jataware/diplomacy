@@ -5,12 +5,7 @@
       "name": "/consent",
       "lambdaFunction": "shadefn1f4a9",
       "permissions": {
-        "setting": "private",
-        "auth": [
-          "create",
-          "read",
-          "update"
-        ]
+        "setting": "open"
       }
     }
   }
