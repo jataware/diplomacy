@@ -11,6 +11,8 @@ Amplify Params - DO NOT EDIT */
  */
 
 const AWS = require('aws-sdk');
+const get = require('lodash/get');
+
 AWS.config.update({region: 'us-east-1'});
 const { log } = console;
 
@@ -38,7 +40,7 @@ function consentAcceptTerms(username, poolId) {
     const now = new Date();
     const datetimeFormatted = JSON.parse(JSON.stringify(now));
 
-    log('Adding this acceptance date to user:', datetimeFormatted);
+    log('Adding this acceptance date to user:', datetimeFormatted, username, poolId);
 
     return cisProvider.adminUpdateUserAttributes(
         {
@@ -60,10 +62,10 @@ const HEADERS = {
     "Access-Control-Allow-Headers": "*"
 };
 
-const fail = () => ({
+const fail = (msg='Bad Request.') => ({
     statusCode: 400,
     headers: HEADERS,
-    body: JSON.stringify('Bad Request.'),
+    body: JSON.stringify(msg),
 });
 
 const success = () => ({
@@ -79,10 +81,13 @@ const success = () => ({
 exports.handler = async (event, context) => {
 
     console.log(`EVENT: ${JSON.stringify(event)}`);
+    console.log(`ENV: ${process.env}`);
 
-    const { claims } = event.requestContext.authorizer;
 
-    if (claims) {
+    if (get(event, 'requestContext.authorizer.claims')) {
+
+        const { claims } = event.requestContext.authorizer;
+
         try {
             // TODO verify if preferred username is still named cognito:username
             const username = claims['cognito:username'];
@@ -95,9 +100,9 @@ exports.handler = async (event, context) => {
 
         } catch(err) {
             log('User accepted terms failure, error:', err);
-            return fail();
+            return fail(err.message);
         }
     }
 
-    return fail();
+    return fail('No claims associated, no authenticated used.');
 };

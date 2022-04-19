@@ -41,7 +41,7 @@
       "function": {
         "shadefn1f4a9": {
           "deploymentBucketName": "amplify-shade-prod-131747-deployment",
-          "s3Key": "amplify-builds/shadefn1f4a9-315065794e5563704859-build.zip"
+          "s3Key": "amplify-builds/shadefn1f4a9-3135702b714a32716847-build.zip"
         }
       },
       "auth": {
