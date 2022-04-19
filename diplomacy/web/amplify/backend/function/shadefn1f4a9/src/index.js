@@ -20,19 +20,6 @@ const cisProvider = new AWS.CognitoIdentityServiceProvider({
     apiVersion: '2016-04-18'
 });
 
-/*
-  Given a full Cognito userpool url, like:
-  'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_SwQyPAMV5'
-
-  returns the userPoolId.
- */
-const getUserPoolId = cognitoUrl => {
-    let result = cognitoUrl.split("/");
-    result = result[result.length - 1];
-
-    return result;
-};
-
 /**
  * Calls cognito userpool admin api to update the user's accepted-terms with current datetime.
  **/
@@ -50,7 +37,6 @@ function consentAcceptTerms(username, poolId) {
                     Value: datetimeFormatted
                 }
             ],
-            // OR process.env.AUTH_SHADE58086F6F58086F6F_USERPOOLID
             UserPoolId: poolId,
             Username: username
         }
@@ -58,12 +44,14 @@ function consentAcceptTerms(username, poolId) {
 }
 
 const HEADERS = {
-    // TODO Add an origin list of localhost, dev, prod
-    "Access-Control-Allow-Origin": "*",
+    const isProd = process.env.ENV === 'prod';
+    const allowedOrigin = isProd ? "https://diplomacy.jata.lol" : "http://localhost:3000";
+
+    "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Headers": "*"
 };
 
-const fail = (msg='Bad Request.') => ({
+const fail = (msg = 'Bad Request.') => ({
     statusCode: 400,
     headers: HEADERS,
     body: JSON.stringify(msg),
@@ -82,23 +70,18 @@ const success = () => ({
 exports.handler = async (event) => {
 
     console.log(`EVENT: ${JSON.stringify(event)}`);
-    console.log(`ENV: ${JSON.stringify(process.env)}`);
+    // console.log(`ENV: ${JSON.stringify(process.env)}`);
 
-    console.log('dev|Prod:', process.env.ENV);
-
+    console.log('dev|prod:', process.env.ENV);
 
     if (get(event, 'requestContext.authorizer.claims')) {
-
-        console.log('Contains claims, continuing');
 
         const { claims } = event.requestContext.authorizer;
 
         try {
-            // TODO verify if preferred username is still named cognito:username
             const username = claims['cognito:username'];
-            const poolId = getUserPoolId(claims.iss);
+            const result = await consentAcceptTerms(username, process.env.AUTH_SHADE58086F6F58086F6F_USERPOOLID);
 
-            const result = await consentAcceptTerms(username, poolId);
             log('Successfully updated user consent/terms acceptance date:', result);
 
             return success();
@@ -109,5 +92,5 @@ exports.handler = async (event) => {
         }
     }
 
-    return fail('No claims associated, no authenticated used.');
+    return fail('Not a valid authenticated user.');
 };
