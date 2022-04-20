@@ -21,8 +21,47 @@ import 'popper.js';
 import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
+import { Amplify, Auth } from 'aws-amplify';
+import { Authenticator } from '@aws-amplify/ui-react';
+import { uniqueNamesGenerator, colors, animals, names, NumberDictionary } from 'unique-names-generator';
+import '@aws-amplify/ui-react/styles.css';
+import awsExports from './aws-exports';
 
+Amplify.configure(awsExports);
 
-// ========================================
+const generateUsername = () => {
+    const numberDictionary = NumberDictionary.generate({ min: 0, max: 124 });
 
-ReactDOM.render(<Page/>, document.getElementById('root'));
+    return uniqueNamesGenerator({
+        dictionaries: [colors, animals, names, numberDictionary],
+        style: 'capital',
+        separator: ''
+    });
+};
+
+const services = {
+    async handleSignUp(formData) {
+
+        formData.attributes.preferred_username = generateUsername();
+
+        return Auth.signUp(formData);
+    }
+};
+
+/**
+ * Authenticated Application. Basically wraps the Page root component with AWS Cognito Auth.
+ */
+const App = () => (
+    <Authenticator
+        variation="modal"
+        services={services}
+        signUpAttributes={['email']}>
+
+        {({ signOut, user }) => (
+            <Page user={user} signOut={signOut} />
+        )}
+
+    </Authenticator>
+);
+
+ReactDOM.render(<App />, document.getElementById('root'));

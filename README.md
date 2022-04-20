@@ -12,6 +12,9 @@ The complete documentation is available at [diplomacy.readthedocs.io](https://di
 
 ## Getting Started
 
+### Authentication
+Authentication was added to the frontend WEB UI of the project. In order to run and sign-up/log-in successfully, follow the steps under `diplomacy/web/dev/README.md`, which contains the necessary files for the front-end to point to the correct authentication endpoints.
+
 ### Running with Docker (Jataware)
 
 When you have cloned the repo, run 
