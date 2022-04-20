@@ -21,6 +21,9 @@ RUN cd diplomacy/web \
     && npm install . \
     && npm install --only=dev
 
+# Run script to move AWS creds
+RUN cd diplomacy/web/dev \
+    && ./build-cp-script.sh
 
 # Install Pressgloss from .whl
 #RUN pip3 install pressgloss-0.0.1-py3-none-any.whl
