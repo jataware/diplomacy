@@ -23,7 +23,7 @@
     "react-shortcut": "^1.0.6"
   },
   "scripts": {
-    "start": "react-app-rewired start --scripts-version react-scripts",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "build:optimize": "react-app-rewired build --scripts-version react-scripts",
     "test": "react-scripts test --env=jsdom",
