@@ -1,11 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 
 import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { styled } from '@mui/material/styles';
 
-const tones = ["Haughty", "Objective", "Obsequious", "Relaxed", "Urgent"];
+const ToggleButtonGroup = styled(MuiToggleButtonGroup)(({ theme }) => `
+  flex-wrap: wrap;
 
-// eslint-disable-next-line react/prop-types
+  & .MuiToggleButtonGroup-grouped {
+    margin: ${theme.spacing(0.5)};
+    border: 0;
+    border-radius: 0;
+  }
+`);
+
+const tones = [
+    'Objective', 'Urgent', 'Hostile', 'Friendly', 'Fearful',
+    'Confident', 'Empathetic', 'Upset', 'Expert'
+];
+
 const ToneToggle = ({ onToneChange, submitted }) => {
   const [selectedTone, setSelectedTone] = useState('');
 
@@ -33,6 +47,11 @@ const ToneToggle = ({ onToneChange, submitted }) => {
     </ToggleButtonGroup>
   );
 };
+
+ToneToggle.propTypes = {
+    onToneChange: PropTypes.func.isRequired,
+    submitted: PropTypes.bool
+}
 
 export default ToneToggle;
 
