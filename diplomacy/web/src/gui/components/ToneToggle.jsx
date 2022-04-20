@@ -15,17 +15,19 @@ const ToggleButtonGroup = styled(MuiToggleButtonGroup)(({ theme }) => `
   }
 `);
 
+const defaultToneObjective = 'Objective';
+
 const tones = [
-    'Objective', 'Urgent', 'Hostile', 'Friendly', 'Fearful',
-    'Confident', 'Empathetic', 'Upset', 'Expert'
+    defaultToneObjective, 'Hostile', 'Friendly', 'Fearful',
+    'Confident', 'Empathetic', 'Upset'
 ];
 
 const ToneToggle = ({ onToneChange, submitted }) => {
   const [selectedTone, setSelectedTone] = useState('');
 
   useEffect(() => {
-    // every time the submitted flag changes in any way, reset the tone
-    setSelectedTone('');
+    // Set tone on load, reset on submit flag change
+    setSelectedTone(defaultToneObjective);
   }, [submitted]);
 
   const handleToneChange = (event, newTone) => {
@@ -51,7 +53,7 @@ const ToneToggle = ({ onToneChange, submitted }) => {
 ToneToggle.propTypes = {
     onToneChange: PropTypes.func.isRequired,
     submitted: PropTypes.bool
-}
+};
 
 export default ToneToggle;
 
