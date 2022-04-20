@@ -3,11 +3,16 @@
   "version": "0.1.0",
   "homepage": ".",
   "private": true,
+  "engines": {
+    "node": ">=12.22.12"
+  },
   "dependencies": {
+    "@aws-amplify/ui-react": "2.15.2",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@mui/material": "^5.5.0",
     "@primer/octicons-react": "^9.1.1",
+    "aws-amplify": "4.3.19",
     "bootstrap": "^4.3.1",
     "jquery": "^3.4.1",
     "lodash.clonedeep": "^4.5.0",
@@ -20,7 +25,8 @@
     "react-helmet": "^5.2.1",
     "react-scripts": "5.0.0",
     "react-scrollchor": "^6.0.0",
-    "react-shortcut": "^1.0.6"
+    "react-shortcut": "^1.0.6",
+    "unique-names-generator": "4.7.1"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -15,37 +15,70 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Connection} from "../../diplomacy/client/connection";
-import {ConnectionForm} from "../forms/connection_form";
-import {DipStorage} from "../utils/dipStorage";
-import {Helmet} from "react-helmet";
-import {Navigation} from "../components/navigation";
-import {PageContext} from "../components/page_context";
+import {Connection} from '../../diplomacy/client/connection';
+import {DipStorage} from '../utils/dipStorage';
+import {Helmet} from 'react-helmet';
+import {Navigation} from '../components/navigation';
+import {PageContext} from '../components/page_context';
+import { Auth } from 'aws-amplify';
 
 export class ContentConnection extends React.Component {
+
     constructor(props) {
         super(props);
         this.connection = null;
-        this.onSubmit = this.onSubmit.bind(this);
+        this.connect = this.connect.bind(this);
+
+        // Load fields values from local storage.
+        const initialState = this.initState();
+
+        const savedState = DipStorage.getConnectionForm();
+
+        if (savedState) {
+            if (savedState.hostname)
+                initialState.hostname = savedState.hostname;
+            if (savedState.port)
+                initialState.port = savedState.port;
+            if (savedState.username)
+                initialState.username = savedState.username;
+            if (savedState.showServerFields)
+                initialState.showServerFields = savedState.showServerFields;
+        }
+        this.serverData = initialState;
     }
 
-    onSubmit(data) {
+    initState() {
+        return {
+            hostname: window.location.hostname,
+            port: 8432,
+            username: null,
+            password: null,
+            showServerFields: false
+        };
+    }
+
+    connect() {
+
+        const data = this.serverData;
         const page = this.context;
-        for (let fieldName of ['hostname', 'port', 'username', 'password', 'showServerFields'])
-            if (!data.hasOwnProperty(fieldName))
-                return page.error(`Missing ${fieldName}, got ${JSON.stringify(data)}`);
+
         page.info('Connecting ...');
+
         if (this.connection) {
             this.connection.currentConnectionProcessing.stop();
         }
+
         this.connection = new Connection(data.hostname, data.port, window.location.protocol.toLowerCase() === 'https:');
         this.connection.onReconnectionError = page.onReconnectionError;
+
         // Page is passed as logger object (with methods info(), error(), success()) when connecting.
         this.connection.connect(page)
             .then(() => {
                 page.connection = this.connection;
                 this.connection = null;
+
                 page.success(`Successfully connected to server ${data.username}:${data.port}`);
+
                 page.connection.authenticate(data.username, data.password)
                     .then((channel) => {
                         page.channel = channel;
@@ -79,20 +112,43 @@ export class ContentConnection extends React.Component {
     }
 
     render() {
-        const title = 'Connection';
+        const title = 'Connecting...';
         return (
             <main>
                 <Helmet>
                     <title>{title} | Diplomacy</title>
                 </Helmet>
                 <Navigation title={title}/>
-                <ConnectionForm onSubmit={this.onSubmit}/>
             </main>
         );
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         window.scrollTo(0, 0);
+
+        /* Fetch user async, we don't mind- this runs at the very end of mount.
+         * We bypass the user token cache, since we may have accepted the consent within
+         * the same logged in session and we need to re-fetch the user
+         * attributes.
+         */
+        const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
+
+        this.serverData.username = user.attributes.preferred_username;
+        this.serverData.password = user.attributes.sub;
+
+        const hasAcceptedConsent = user.attributes['custom:accepted-terms-at'];
+
+        if (!hasAcceptedConsent) {
+            console.log('Has not accepted consent');
+
+            const page = this.context;
+
+            page.loadIRBConsentPage();
+        } else {
+            console.log('Has accepted consent');
+            this.connect();
+        }
+        
     }
 }
 

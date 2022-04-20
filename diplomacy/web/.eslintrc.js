@@ -1,4 +1,4 @@
-{
+module.exports = {
     "plugins": [
         "react"
     ],
@@ -23,5 +23,6 @@
         "semi": [2, "always", { "omitLastInOneLineBlock": true}],
         "no-prototype-builtins": "off",
         "no-loss-of-precision": "off",
+        // "no-unused-vars": ["warn", { "ignoreRestSiblings": true }]
     }
-}
+};

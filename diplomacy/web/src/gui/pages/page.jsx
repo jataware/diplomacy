@@ -16,17 +16,41 @@
 // ==============================================================================
 /** Main class to use to create app GUI. **/
 
-import React from "react";
-import {ContentConnection} from "./content_connection";
-import {UTILS} from "../../diplomacy/utils/utils";
-import {Diplog} from "../../diplomacy/utils/diplog";
-import {DipStorage} from "../utils/dipStorage";
-import {PageContext} from "../components/page_context";
-import {ContentGames} from "./content_games";
-import {loadGameFromDisk} from "../utils/load_game_from_disk";
-import {ContentGame} from "./content_game";
+import React from 'react';
+import PropTypes from 'prop-types';
+
+import {ContentConnection} from './content_connection';
+import {UTILS} from '../../diplomacy/utils/utils';
+import {Diplog} from '../../diplomacy/utils/diplog';
+import {DipStorage} from '../utils/dipStorage';
+import {PageContext} from '../components/page_context';
+import {ContentGames} from './content_games';
+import {loadGameFromDisk} from '../utils/load_game_from_disk';
+import {ContentGame} from './content_game';
 import {confirmAlert} from 'react-confirm-alert';
+import { ConsentPage } from './consent';
+import { API } from 'aws-amplify';
+
 import 'react-confirm-alert/src/react-confirm-alert.css';
+
+const { log } = console;
+
+/**
+ * Calls auth api 'consent/' endpoint and saves acceptance.
+ * A cognito user contains the session properties, including the current
+ * jwtToken assigned to it: similar-ish** in use as a cookie would be.
+ **/
+function userAPIConsent(authUser) {
+    const token = authUser.signInUserSession.idToken.jwtToken;
+
+    const requestInfo = {
+        headers: {
+            Authorization: token
+        }
+    };
+
+    return API.post('shadeapi1f4a9', '/consent', requestInfo);
+}
 
 export class Page extends React.Component {
 
@@ -57,6 +81,7 @@ export class Page extends React.Component {
         this._remove_from_my_games = this._remove_from_my_games.bind(this);
         this._remove_from_games = this._remove_from_games.bind(this);
         this.onReconnectionError = this.onReconnectionError.bind(this);
+        this.loadConnectionPage = this.loadConnectionPage.bind(this);
     }
 
     static wrapMessage(message) {
@@ -70,7 +95,7 @@ export class Page extends React.Component {
     }
 
     static defaultPage() {
-        return <ContentConnection/>;
+        return <ContentConnection />;
     }
 
     setState(state) {
@@ -109,8 +134,46 @@ export class Page extends React.Component {
         }
         Diplog.printMessages(newState);
         newState.name = name;
+
         newState.body = body;
+
         return this.setState(newState);
+    }
+
+    /**
+     * We're gathering human behavior on a game for research. Redirect first-time
+     * registered users to accept before using our application.
+     **/
+    loadIRBConsentPage() {
+
+        const { user } = this.props;
+        const { loadConnectionPage } = this;
+
+        async function accept() {
+            try {
+                await userAPIConsent(user);
+                loadConnectionPage();
+            } catch(e) {
+                // Unable to accept consent. What shall we do here.
+                log('Error updating user consent information:', e);
+            }
+        }
+
+        return this.load(
+            'consent',
+            <ConsentPage
+              onAccept={accept}
+              onDecline={this.logout} 
+            />,
+            null
+        );
+    }
+
+    /**
+     * Resets back to the default connecting page
+     */
+    loadConnectionPage() {
+        this.setState({body: null});
     }
 
     loadGames(messages) {
@@ -138,8 +201,8 @@ export class Page extends React.Component {
     //// Methods to sign out channel and go back to connection page.
 
     __disconnect(error) {
-// WARNING: this may break stuff, but it keeps users logged in when code changes
-// refresh the page to log out
+        // WARNING: this may break stuff, but it keeps users logged in when code changes
+        // refresh the page to log out
         // skip all of the below if we're in development
         if (process.env.NODE_ENV === 'development') return;
 
@@ -165,16 +228,22 @@ export class Page extends React.Component {
     }
 
     logout() {
-        // Disconnect channel and go back to connection page.
+        // Note: `authSignOut` (from login with password), in contrast with
+        //   disconnecting with the game server (aka channel.logout())
+        const { signOut: authSignOut } = this.props;
+
+        // Disconnect channel (logout), sign out from new authentication
         if (this.channel) {
             return this.channel.logout()
-                .then(() => this.__disconnect())
-                .catch(error => this.error(`Error while disconnecting: ${error.toString()}.`));
+                .then(() => {
+                    this.__disconnect();
+                })
+                .catch(error => this.error(`Error while disconnecting: ${error.toString()}.`))
+                .finally(authSignOut);
         } else {
-            return this.__disconnect();
+            this.__disconnect();
+            authSignOut();
         }
-
-
     }
 
     //// Methods to be used to set page title and messages.
@@ -379,3 +448,8 @@ export class Page extends React.Component {
         );
     }
 }
+
+Page.propTypes = {
+    user: PropTypes.object.isRequired,
+    signOut: PropTypes.func.isRequired
+};

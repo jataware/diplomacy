@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "auth": {
+      "shade58086f6f58086f6f": [
+        "create",
+        "update"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}
