@@ -23,6 +23,7 @@ RUN cd diplomacy/web \
 
 # Run script to move AWS creds
 RUN cd diplomacy/web/dev \
+    && chmod +x build-cp-script.sh \
     && ./build-cp-script.sh
 
 # Install Pressgloss from .whl
