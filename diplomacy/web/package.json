@@ -25,6 +25,7 @@
   "scripts": {
     "start": "react-app-rewired start --scripts-version react-scripts",
     "build": "react-scripts build",
+    "build:optimize": "react-app-rewired build --scripts-version react-scripts",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
