@@ -15,7 +15,11 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-/** **/
+/**
+ * Presentational page that display's and capture's a player's IRB-consent
+ * acceptance, or declines to play and gets logged out. Receives accept/decline
+ * function handler props.
+ **/
 
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
@@ -104,10 +108,7 @@ export const ConsentPage = ({onAccept, onDecline}) => {
     const handleOfAgeChange = createToggle(setOfAge, ofAge);
     const handleHasReadChange = createToggle(setHasRead, hasRead);
 
-    // const matches = useMediaQuery('(min-width:600px)');
-
     return (
-
         <Container maxWidth="md">
             <section style={{margin: "1rem 0 2rem 0"}}>
                 <br />
