@@ -15,13 +15,20 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 
-/** **/
+/**
+ * Presentational page that displays and captures a player's IRB-consent
+ * acceptance, or declines to play and gets logged out. Receives accept/decline
+ * function handler props.
+ **/
 
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Container from '@mui/material/Container';
 import Text from '@mui/material/Typography';
-import Box from '@mui/material/Box';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import { styled } from '@mui/material/styles';
 
 const articles = [
     {
@@ -67,7 +74,25 @@ const articles = [
 ];
 
 
+const SubmitContainer = styled('div')(({ theme }) => `
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 
+  button {
+    width: 48%;
+    margin-bottom: 0.5rem;
+
+    @media (max-width: ${theme.breakpoints.values.sm}px) {
+      width: 100%;
+    }
+  }
+
+`);
+
+// Creates a callback fn that toggles a boolean value
+const createToggle = (setterFn, val) => () => setterFn(!val);
 
 /**
  * Application page that describes IRB-mandated consent terms to the user,
@@ -76,8 +101,14 @@ const articles = [
  **/
 export const ConsentPage = ({onAccept, onDecline}) => {
 
-    return (
+    // Only allow submit when both checkboxes are accepted
+    const [ofAge, setOfAge] = useState(false);
+    const [hasRead, setHasRead] = useState(false);
 
+    const handleOfAgeChange = createToggle(setOfAge, ofAge);
+    const handleHasReadChange = createToggle(setHasRead, hasRead);
+
+    return (
         <Container maxWidth="md">
             <section style={{margin: "1rem 0 2rem 0"}}>
                 <br />
@@ -101,27 +132,39 @@ export const ConsentPage = ({onAccept, onDecline}) => {
                     </article>
                 ))}
 
-                <div>
-                    By clicking "Accept", I agree that I am digitally signing this consent form.
-                </div>
+                <FormGroup>
+                    <FormControlLabel
+                        control={<Checkbox
+                                     color="success"
+                                     onChange={handleOfAgeChange}
+                                     disableRipple />}
+                        label="I affirm that I am 18 years of age or older;" />
+                    <FormControlLabel
+                        control={<Checkbox
+                                     color="success"
+                                     onChange={handleHasReadChange}
+                                     disableRipple />}
+                        label="I affirm that I have read this document and understand the conditions and outcomes of participation in this research study." />
+                </FormGroup>
 
-                <br />
+                <p>
+                    To electronically sign and submit this document, click here:
+                </p>
 
-                <Box sx={{textAlign: 'center'}}>
+                <SubmitContainer>
                     <button
                         className="btn btn-success"
+                        disabled={!ofAge || !hasRead}
                         onClick={onAccept}>
-                        Accept
+                        I agree to participate
                     </button>
-
-                    &nbsp;
 
                     <button
                         className="btn btn-secondary"
                         onClick={onDecline}>
-                        Decline
+                        I decline to participate
                     </button>
-                </Box>
+                </SubmitContainer>
 
             </section>
         </Container>
