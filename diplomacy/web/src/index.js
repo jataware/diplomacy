@@ -16,15 +16,18 @@
 // ==============================================================================
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Page} from "./gui/pages/page";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import 'popper.js';
-import 'bootstrap/dist/js/bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './index.css';
 import { Amplify, Auth } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
 import { uniqueNamesGenerator, colors, animals, names, NumberDictionary } from 'unique-names-generator';
+
+import 'bootstrap/dist/js/bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
 import '@aws-amplify/ui-react/styles.css';
+
+import { Page } from "./gui/pages/page";
 import awsExports from './aws-exports';
 
 Amplify.configure(awsExports);
@@ -41,12 +44,13 @@ const generateUsername = () => {
 
 const services = {
     async handleSignUp(formData) {
-
         formData.attributes.preferred_username = generateUsername();
-
         return Auth.signUp(formData);
     }
 };
+
+const theme = createTheme({
+});
 
 /**
  * Authenticated Application. Basically wraps the Page root component with AWS Cognito Auth.
@@ -58,7 +62,9 @@ const App = () => (
         signUpAttributes={['email']}>
 
         {({ signOut, user }) => (
-            <Page user={user} signOut={signOut} />
+            <ThemeProvider theme={theme}>
+                <Page user={user} signOut={signOut} />
+            </ThemeProvider>
         )}
 
     </Authenticator>
