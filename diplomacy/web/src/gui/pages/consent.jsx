@@ -16,7 +16,7 @@
 // ==============================================================================
 
 /**
- * Presentational page that display's and capture's a player's IRB-consent
+ * Presentational page that displays and captures a player's IRB-consent
  * acceptance, or declines to play and gets logged out. Receives accept/decline
  * function handler props.
  **/
