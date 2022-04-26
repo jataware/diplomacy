@@ -66,7 +66,6 @@ export class PanelChoosePlayers extends React.Component {
 }
 
 PanelChoosePlayers.propTypes = {
-    backward: PropTypes.func.isRequired,
     forward: PropTypes.func.isRequired,
     cancel: PropTypes.func.isRequired,
     onUpdateParams: PropTypes.func.isRequired,
