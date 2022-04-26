@@ -31,6 +31,7 @@ import Select from '@mui/material/Select';
 import Typography from '@mui/material/Typography';
 
 import isEqual from 'lodash.isequal';
+import get from 'lodash.get';
 import cloneDeep from 'lodash.clonedeep';
 
 
@@ -127,7 +128,7 @@ static countries = [
         const id = event.target.id;
         const value = event.target.value;
         let locationReturn = {};
-        locationReturn[id] = value; 
+        locationReturn[id] = value;
         setTimeout( () => this.setState( locationReturn ));
     }
 
@@ -296,9 +297,14 @@ static countries = [
 
     renderEndLocation(){
         let renderedEndLocs = [];
-        if(this.state.startLocation !== "") {
+
+        if (this.state.startLocation !== "") {
+
+            const { engine } = this.props;
+            const possibleOrders = get(engine, `possibleOrders[${this.state.startLocation}]`, []);
+
             return (
-                this.props.engine.possibleOrders[this.state.startLocation].map(order => {
+                possibleOrders.map(order => {
                     let possibleSplit = order.split(' ');
                     let lastElement = possibleSplit[possibleSplit.length - 1];
                     if ( lastElement !== "H" && renderedEndLocs.includes(lastElement) === false) {
@@ -320,14 +326,23 @@ static countries = [
     }
 
     generateSupportMoves(){
+
+        const { startLocation } = this.state;
+        const { engine } = this.props;
+
+        const possibleOrdersForGivenStart = get(engine, `possibleOrders[${startLocation}]`, []);
+
         let supportMoves = {};
-        if(this.state.startLocation !== ""){
-            this.props.engine.possibleOrders[this.state.startLocation].map(order => {
+
+        if (startLocation !== "") {
+            possibleOrdersForGivenStart.map(order => {
                 if(order.includes(' S ')){
                     let possibleSplit = order.split(' ');
                     let locKey = possibleSplit[1] + " " + possibleSplit[4] + " " + possibleSplit[6];
+
                     console.log(possibleSplit);
-                    for (let i =0; i < possibleSplit.length; i++){
+
+                    for (let i =0; i < possibleSplit.length; i++) {
                         if(possibleSplit[i] === 'A'){
                             possibleSplit[i] = "Army in";
                         }
@@ -341,17 +356,19 @@ static countries = [
                             possibleSplit[i] = "moving to";
                         }
                     }
+
                     let supportString = "";
                     possibleSplit.forEach(element => {
                         supportString += element + " ";
                     });
-                    if (supportString !== ""){
+
+                    if (supportString) {
                         supportMoves[locKey] = supportString.trim();
                     }
                 }
             });
             return (Object.entries(supportMoves).map(([key, value]) => {
-                    return(
+                    return (
                         <option key={`${key}-key`} value={key}>{value}</option>
                     );
                 }));
@@ -398,6 +415,12 @@ static countries = [
     }
 
     displayFormContents() {
+
+        const { selectedOrder } = this.state;
+
+        const senderMoves = this.props.senderMoves || {};
+        const senderMoveSelectedOrder = get(senderMoves, `[${selectedOrder}]`, []);
+
         switch (this.state.selectedAction) {
             case "propose_order": case "oppose_order": case "notify_order":
                 return (
@@ -409,8 +432,8 @@ static countries = [
                             {this.state.orderTarget === "player" && (
                                 <div>
                                     <h6>Order</h6>
-                                    <select id="selectedOrder" value={this.state.selectedOrder} onChange={this.onSelectChange}>
-                                        {Object.keys(this.props.senderMoves).map((orderType) => {
+                                    <select id="selectedOrder" value={selectedOrder} onChange={this.onSelectChange}>
+                                        {Object.keys(senderMoves).map((orderType) => {
                                             return(
                                                 <option key={`${orderType}-key`} value={orderType}>{ORDER_BUILDER[orderType].name}</option>
                                             );
@@ -420,13 +443,13 @@ static countries = [
                                         <h6>Start Location</h6>
                                         <select id="startLocation" value={this.state.startLocation} onChange={this.onSelectChange}>
                                             <option value="">-</option>
-                                            {this.props.senderMoves[this.state.selectedOrder].map((location) => {
+                                            {senderMoveSelectedOrder.map((location) => {
                                                 return(
                                                     <option key={`${location}-key`} value={location}>{location}</option>
                                                 );
                                             })}
                                         </select>
-                                        {this.state.selectedOrder !== "H" && this.state.selectedOrder !== "S" && this.state.selectedOrder != "C" && (
+                                        {selectedOrder !== "H" && selectedOrder !== "S" && selectedOrder != "C" && (
                                             <div>
                                                 <h6>End Location</h6>
                                                 <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
@@ -436,7 +459,7 @@ static countries = [
                                             </div>
                                         )}
                                     </div>
-                                    {this.state.selectedOrder === "S" && (
+                                    {selectedOrder === "S" && (
                                         <div>
                                             <select id="supportSelector" onChange={this.onSupportChange}>
                                                 <option value="">-</option>
@@ -444,7 +467,7 @@ static countries = [
                                             </select>
                                         </div>
                                     )}
-                                    {this.state.selectedOrder === "C" && (
+                                    {selectedOrder === "C" && (
                                         <div>
                                             <select id="convoySelector" onChange={this.onSupportChange}>
                                                 <option value="">-</option>
@@ -473,7 +496,7 @@ static countries = [
                                             );
                                         })}
                                     </select>
-                                    {this.state.selectedOrder !== "H" && this.state.selectedOrder !== "S" && this.state.selectedOrder != "C" && (
+                                    {selectedOrder !== "H" && selectedOrder !== "S" && selectedOrder != "C" && (
                                         <div>
                                             <h6>End Location</h6>
                                             <select id="endLocation" value={this.state.endLocation} onChange={this.onSelectChange}>
@@ -482,7 +505,7 @@ static countries = [
                                             </select>
                                         </div>
                                     )}
-                                    {this.state.selectedOrder === "S" && (
+                                    {selectedOrder === "S" && (
                                         <div>
                                             <select id="supportSelector" onChange={this.onSupportChange}>
                                                 <option value="">-</option>
@@ -490,7 +513,7 @@ static countries = [
                                             </select>
                                         </div>
                                     )}
-                                    {this.state.selectedOrder === "C" && (
+                                    {selectedOrder === "C" && (
                                         <div>
                                             <select id="convoySelector" onChange={this.onSupportChange}>
                                                 <option value="">-</option>
