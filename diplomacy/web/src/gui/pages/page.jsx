@@ -31,6 +31,8 @@ import {confirmAlert} from 'react-confirm-alert';
 import { ConsentPage } from './consent';
 import { API } from 'aws-amplify';
 
+import { CatchAllErrors } from '../utils/react_helpers';
+
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const { log } = console;
@@ -163,7 +165,7 @@ export class Page extends React.Component {
             'consent',
             <ConsentPage
               onAccept={accept}
-              onDecline={this.logout} 
+              onDecline={this.logout}
             />,
             null
         );
@@ -442,7 +444,11 @@ export class Page extends React.Component {
                             {errorMessage}
                         </div>
                     </div>
-                    {this.state.body || Page.defaultPage()}
+
+                    <CatchAllErrors>
+                        {this.state.body || Page.defaultPage()}
+                    </CatchAllErrors>
+
                 </div>
             </PageContext.Provider>
         );
