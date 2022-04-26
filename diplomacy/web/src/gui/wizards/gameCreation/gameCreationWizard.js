@@ -29,7 +29,7 @@ export class GameCreationWizard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            panel: Panels.CHOOSE_MAP,
+            panel: Panels.CHOOSE_PLAYERS,
             game_id: UTILS.createGameID(this.props.username),
             power_name: null,
             n_controls: -1,
@@ -88,8 +88,7 @@ export class GameCreationWizard extends React.Component {
                                        onUpdateParams={this.updateParams}
                                        cancel={this.props.onCancel}/>;
             case Panels.CHOOSE_PLAYERS:
-                return <PanelChoosePlayers backward={this.backward}
-                                           forward={this.forward}
+                return <PanelChoosePlayers forward={this.forward}
                                            onUpdateParams={this.updateParams}
                                            nbPowers={this.props.availableMaps[this.state.map.name].powers.length}
                                            cancel={this.props.onCancel}/>;
