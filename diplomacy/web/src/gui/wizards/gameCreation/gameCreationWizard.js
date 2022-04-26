@@ -58,6 +58,8 @@ export class GameCreationWizard extends React.Component {
             if (!this.state.deadline) {
                 rules.push('NO_DEADLINE');
                 rules.push('REAL_TIME');
+            } else {
+                rules.push('CIVIL_DISORDER');
             }
             this.props.onSubmit({
                 game_id: this.state.game_id,
