@@ -17,7 +17,6 @@
 import React from "react";
 import {FancyBox} from "../../components/fancyBox";
 import PropTypes from "prop-types";
-import Octicon, {ArrowLeft} from "@primer/octicons-react";
 
 export class PanelChoosePlayers extends React.Component {
     render() {
@@ -61,21 +60,12 @@ export class PanelChoosePlayers extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col">
-                        <button type="button" className="btn btn-secondary btn-sm px-3"
-                                onClick={() => this.props.backward()}>
-                            <Octicon icon={ArrowLeft}/>
-                        </button>
-                    </div>
-                </div>
             </FancyBox>
         );
     }
 }
 
 PanelChoosePlayers.propTypes = {
-    backward: PropTypes.func.isRequired,
     forward: PropTypes.func.isRequired,
     cancel: PropTypes.func.isRequired,
     onUpdateParams: PropTypes.func.isRequired,
