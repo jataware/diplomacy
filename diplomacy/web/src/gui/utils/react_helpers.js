@@ -5,9 +5,9 @@ import PropTypes from "prop-types";
 function ErrorFallback({error}) {
     return (
         <div>
-            Error...
+            The application has encountered a severe error. Please reload  and rejoin your game.
             <p>
-                {error}
+                Details: {error}
             </p>
         </div>
     );
