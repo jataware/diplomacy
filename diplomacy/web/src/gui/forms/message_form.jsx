@@ -96,6 +96,7 @@ static countries = [
             startLocation: '',
             midLocation: '',
             endLocation: '',
+            dmzLocation: 'ADR',
             selectedCountries: {},
             targets: {},
             actors: {},
@@ -176,7 +177,9 @@ static countries = [
             }
         }
         let targetHolder = [];
-        if(this.state.selectedAction === "propose_alliance"){
+        if(this.state.selectedAction === "propose_alliance" 
+            || this.state.selectedAction === "oppose_alliance"
+            || this.state.selectedAction === "notify_alliance"){
             for (let country in this.state.targets){
                 if (!(country === "updatedTarget")){
                     if(this.state.targets[country]){
@@ -201,6 +204,7 @@ static countries = [
             startLocation: this.state.startLocation,
             midLocation: this.state.midLocation,
             endLocation: this.state.endLocation,
+            dmzLocation: this.state.dmzLocation,
             actors: actorHolder,
             targets: targetHolder,
             tones: toneHolder,
@@ -231,7 +235,9 @@ static countries = [
             }
         }
         let targetHolder = [];
-        if(this.state.selectedAction === "propose_alliance"){
+        if(this.state.selectedAction === "propose_alliance" 
+        || this.state.selectedAction === "oppose_alliance"
+        || this.state.selectedAction === "notify_alliance"){
             for (let country in this.state.targets){
                 if (!(country === "updatedTarget")){
                     if(this.state.targets[country]){
@@ -255,6 +261,7 @@ static countries = [
             startLocation: this.state.startLocation,
             midLocation: this.state.midLocation,
             endLocation: this.state.endLocation,
+            dmzLocation: this.state.dmzLocation,
             actors: actorHolder,
             targets: targetHolder,
             tones: toneHolder,
