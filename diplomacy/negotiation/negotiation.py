@@ -36,13 +36,12 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
         targets = empires_to_tokens(negotiation['targets'])
         daide = daide + f"(PRP (ALY ({actors}) VSS ({targets})))"
 
-    elif 'demilitarized' in action:
+    elif 'dmz' in action:
         # Level 20 DMZ
-
-        # TODO: Need list of provinces passed.
-        provinces = ""
-        #daide = daide + f'(PRP (DMZ ({actors}) ({provinces})))'
-        pass
+        actors = empires_to_tokens([sender,recipient])
+        provinces = negotiation['dmzLocation']\
+            .replace('ENG','ECH') #fix for ENG to English Channel
+        daide = daide + f'(PRP (DMZ ({actors}) ({provinces})))'
 
     elif 'draw' in action:
         # Level 10 DRW
@@ -186,7 +185,7 @@ def build_daide(daide, negotiation, message_history, messages, sender, recipient
     # Handle action modifiers.
     if 'notify' in action:
         # Add FCT to arrangement.
-        daide = f"{daide.replace('PRP', 'PRP (FCT')})"
+        daide = f"{daide.replace('PRP', 'FCT')}"
 
     if 'oppose' in action:
         # Add NOT to arrangement.
