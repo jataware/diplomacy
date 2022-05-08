@@ -138,13 +138,21 @@ def on_create_game(server, request, connection_handler):
         game_id = server.create_game_id()
     elif server.has_game_id(game_id):
         raise exceptions.GameIdException('Game ID already used (%s).' % game_id)
+    
+    # If a registration password was provided for the game, hash it
+    if request.registration_password:
+        reg_pwd = hash_password(request.registration_password)
+    # otherwise, leave the password for the game as None
+    else:
+        reg_pwd = request.registration_password
+        
     server_game = ServerGame(map_name=request.map_name,
                              rules=request.rules or SERVER_GAME_RULES,
                              game_id=game_id,
                              initial_state=state,
                              n_controls=request.n_controls,
                              deadline=request.deadline,
-                             registration_password=request.registration_password,
+                             registration_password=reg_pwd,
                              server=server)
 
     # Make sure game creator will be a game master (set him as moderator if he's not an admin).
