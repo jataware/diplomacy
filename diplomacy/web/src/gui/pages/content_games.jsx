@@ -135,6 +135,11 @@ export class ContentGames extends React.Component {
                 </Helmet>
                 <Navigation title={title} afterTitle={this.gameCreationButton()}
                             username={page.channel.username} navigation={navigation}/>
+                <h2>
+                    <a href="https://docs.google.com/document/d/14UGd52w2MAaPR_dXEGvm5oh9Xwdz9nnLvPUAQgKXvcU/edit?usp=sharing" target="_blank" rel="noreferrer noopener">
+                        Instructions
+                    </a>
+                </h2>
                 <Tabs menu={['find', 'my-games']} titles={['Find', 'My Games']}
                       onChange={this.changeTab} active={tab}>
                     {tab === 'find' ? (
