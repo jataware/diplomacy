@@ -1,6 +1,6 @@
 
 
-VERSION := 1.2.5
+VERSION := 1.2.6
 
 DEV ?= $(strip $(if $(findstring y,$(prod)),,dev))
 
