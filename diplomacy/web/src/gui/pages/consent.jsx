@@ -53,7 +53,7 @@ const articles = [
     },
     {
         heading: 'Compensation for participation',
-        text: 'Students who participate in this study and are enrolled in IMS443 (Games Research) will receive in-class credit, per the syllabus (Spring 2022).  Students not enrolled in that course may receive monetary compensation of $15.'
+        text: 'Students who participate in this study and are enrolled in IMS443 (Games Research) will receive in-class credit, per the syllabus (Spring 2022).  Students not enrolled in that course may receive monetary compensation of $100.'
     },
     {
         heading: 'Privacy/Confidentiality/Data Security',
